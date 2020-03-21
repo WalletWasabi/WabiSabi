@@ -1,5 +1,7 @@
 # Collaborative Transactions
 
+Generalization of Chaumian CoinJoins. Allows sending arbitrary amounts in CoinJoins and avoids creating unmixed change.
+
 ## 1. Input Registration
 
 Peer registers an input along with blinded blinded random certificates and ask the coordinator to sign the blind certificates.  
