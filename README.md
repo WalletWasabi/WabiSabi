@@ -30,4 +30,4 @@ Transaction goes out for signing. The input that does not sign the transaction w
 
 ## Randomization
 
-Randomization (along desired distributions) key for number of inputs registered, certificate size requests and payment intent registrations are important in order to make sure heuristics cannot be applied to them.
+Randomization (along desired distributions) is crucial for number of inputs registered, certificate size requests and payment intent registrations in order to avoid patterns from emerging and as a consequence heuristics to be applied.
