@@ -4,11 +4,11 @@ Generalization of Chaumian CoinJoins. Allows sending arbitrary amounts in CoinJo
 
 ## 1. Input Registration
 
-Peer registers an input along with blinded blinded random certificates and ask the coordinator to sign the blind certificates.  
+Peer registers an input along with blinded blinded random certificates and ask the coordinator to sign the blind certificates. The certificates must follow 1-2-5 series. 
 
 ### Examples
 
-The certificates must follow 1-2-5 series. For example if peer registers 1BTC, then he can ask for a signature for a 1BTC certificate or can also ask for 5 signatures for 0.1BTC certificates and 1 signature for a 0.5BTC certificate.  
+For example if peer registers 1BTC, then he can ask for a signature for a 1BTC certificate or can also ask for 5 signatures for 0.1BTC certificates and 1 signature for a 0.5BTC certificate.  
 
 ### Notes
 
