@@ -12,7 +12,7 @@ For example if peer registers 1BTC, then he can ask for a signature for a 1BTC c
 
 ### Notes
 
-Since the coordinator must communicate numerous public keys to peers, the communication overhead is large. To solve this key generators has to be utilized.
+Since the coordinator must communicate numerous public keys to peers, the communication overhead is large. To solve this key generators have to be utilized.
 
 Peers can register any number of inputs, but through new anonymity network identities to avoid input linkages by the coordinator.
 
