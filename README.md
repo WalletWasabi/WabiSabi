@@ -22,7 +22,7 @@ Peer registers arbitrary payment intents with his certificates.
 
 ### Examples
 
-Peer got a 1BTC certificate and would like to send 0.1234 BTC to an address, then his payment intend would be 0.1234BTC - address and 0.8766BTC - address2.  
+Peer got a 1BTC certificate and would like to send 0.1234 BTC to an address, then his payment intent would be 0.1234BTC - address and 0.8766BTC - address2.  
 
 ### 3. Signing + Blame
 
