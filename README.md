@@ -1,6 +1,18 @@
-# Collaborative Transactions
+# Collaborative Transactions Protocol
 
-Generalization of Chaumian CoinJoins. Allows sending arbitrary amounts in CoinJoins and avoids creating unmixed change.
+Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/).
+
+## Overview
+
+The protocol consists of epochs, rounds and phases.
+
+![](https://i.imgur.com/d5mOgVG.png)
+
+**Input Registration Phase**, **Output Registration Phase** and **Signing Phase** follow each other and together they are called the **Main Round**.
+
+**Input Registration Phase** cannot fail, because inputs can be refused or kicked out of the round without penalty before moving on to **Output Registration Phase**. Regardless if **Output Registration Phase** succeeds or fails, the round must progress to **Signing Phase**, because penalties can only be imposed on malicious inputs and not on malicious outputs. If **Signing Phase** fails, the protocol progresses to **Blame Round**, which repeats the **Main Round** without the malicious inputs.
+
+The **Main Round** and the potential **Blame Rounds** are called an **Epoch**.
 
 ## 1. Input Registration
 
