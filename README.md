@@ -6,11 +6,11 @@ Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/).
 
 The protocol consists of epochs, rounds and phases.
 
-![](https://i.imgur.com/d5mOgVG.png)
+![](https://i.imgur.com/ElMcN27.png)
 
-**Input Registration Phase**, **Output Registration Phase** and **Signing Phase** follow each other and together they are called the **Main Round**.
+**Input Registration Phase**, **Payment Registration Phase** and **Signing Phase** follow each other and together they are called the **Main Round**.
 
-**Input Registration Phase** cannot fail, because inputs can be refused or kicked out of the round without penalty before moving on to **Output Registration Phase**. Regardless if **Output Registration Phase** succeeds or fails, the round must progress to **Signing Phase**, because penalties can only be imposed on malicious inputs and not on malicious outputs. If **Signing Phase** fails, the protocol progresses to **Blame Round**, which repeats the **Main Round** without the malicious inputs.
+**Input Registration Phase** cannot fail, because inputs can be refused or kicked out of the round without penalty before moving on to **Payment Registration Phase**. Regardless if **Payment Registration Phase** succeeds or fails, the round must progress to **Signing Phase**, because penalties can only be imposed on malicious inputs and not on malicious outputs. If **Signing Phase** fails, the protocol progresses to **Blame Round**, which repeats the **Main Round** without the malicious inputs.
 
 The **Main Round** and the potential **Blame Rounds** are called an **Epoch**.
 
@@ -27,21 +27,24 @@ The peer provides a set of inputs along with corresponding proof of ownerships a
 
 The coordinator blindly signs the tokens and responds with the signatures.
 
-#### Phase 2: Payment Intent Registration
+#### Phase 2: Payment Registration
 
-Peer registers arbitrary payment intents with his certificates.
+Every payment registration request must happen through different anonymity network identities.
 
-### Examples
+Peers are allowed to utilize their signed tokens in any way they would like to. A peer can decide to take 3 1BTC token and create a 0.5BTC and 2.5BTC outputs. Thus arbitrary payments are possible.
 
-Peer got a 1BTC certificate and would like to send 0.1234 BTC to an address, then his payment intent would be 0.1234BTC - address and 0.8766BTC - address2.  
+However to enhanche privacy peers are recommended to register payments of 1, 10, 100, etc... satoshi payments as follows:
 
-#### Phase 3: Signing + Blame
+- If peer has 9 1BTC tokens, then register them separately for 1BTC outputs.
+- If peer has 10 1BTC tokens, then register them together for a 10BTC output.
+- If peer has 11 1BTC tokens, then register 10 of them together for a 10BTC output and separately the remaining one for a 1BTC output.
+- If peer has 11 10BTC tokens and 2 1BTC tokens then register 10 10BTC token together for a 100BTC output, and separately 1 10BTC token for a 10BTC output and the remaining 2 1BTC tokens each separately for 1BTC outptus.
 
-Transaction goes out for signing. The input that does not sign the transaction will be prohibited from further participation.
+#### Phase 3: Signing
 
-## Randomization
+The final transaction is given out to the peers for signing.  
 
-Randomization (along desired distributions) is crucial for number of inputs registered, certificate size requests and payment intent registrations in order to avoid patterns from emerging and as a consequence heuristics to be applied.
+If an input from an input group did not sign the transaction, then the coordinator prohibits these inputs from participating in followup epochs and the current epoch progresses to a **Blame Round** where only the current epoch's honest peers are allowed to participate.
 
 ## Research Questions
 
@@ -60,3 +63,7 @@ Randomization (along desired distributions) is crucial for number of inputs regi
 - Allowing unconfirmed inputs to be registered.
 - Network fees.
 - Coordinator fees.
+- Randomization to increase ureliability of heuristics.
+- Privacy guarantees.
+- UX.
+- Small vs fast rounds.
