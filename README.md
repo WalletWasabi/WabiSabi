@@ -66,4 +66,4 @@ If an input from an input group did not sign the transaction, then the coordinat
 - Randomization to increase ureliability of heuristics.
 - Privacy guarantees.
 - UX.
-- Small vs fast rounds.
+- Small and fast vs big and slow rounds.
