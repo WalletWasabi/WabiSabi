@@ -1,4 +1,4 @@
-# Collaborative Transactions Protocol
+# Yohohoho
 
 Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/).
 
@@ -6,7 +6,7 @@ Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/).
 
 The protocol consists of epochs, rounds and phases.
 
-![](https://i.imgur.com/ElMcN27.png)
+![](https://i.imgur.com/dAr56jm.png)
 
 **Input Registration Phase**, **Payment Registration Phase** and **Signing Phase** follow each other and together they are called the **Main Round**.
 
@@ -14,37 +14,37 @@ The protocol consists of epochs, rounds and phases.
 
 The **Main Round** and the potential **Blame Rounds** are called an **Epoch**.
 
+### Main Round
+
 #### Phase 1: Input Registration
 
 Peers register their inputs to the coordinator. Inputs must be registered separately through different anonymtiy network identities, unless an input's amount does not reach the minimum required amount, in which case the input can be registered together with other inputs.
 
-The peer provides a set of inputs along with corresponding proof of ownerships and blinded tokens. These inputs must be unspent, confirmed and mature. The blinded tokens are blinded random data. These tokens must be created as follows:
+A peer provides a set of inputs along with corresponding proof of ownerships and blind commitments and range proofs. These inputs must be unspent, confirmed and mature. The blinded tokens are blinded random data.
 
-- If the input sum is 10BTC, then the peer creates 10 tokens and blinds all of them for 1BTC.
-- If the input sum is 100BTC, then the peer creates 10 tokens and blinds all of them for 10BTC.
-- If the input sum is 90BTC, then the peer creates 90 tokens and blinds all of them for 1BTC.
-- If the input sum is 990BTC, then the peer creates 180 tokens and blinds 90 of them for 10BTC and 90 of them for 1BTC.
+The blind commitments can be created in a flexible way, but standard amounts are recommended. These standard amounts are 1, 10, 100, ... satoshis. Examples:
 
-The coordinator blindly signs the tokens and responds with the signatures.
+- If peer's input is 10BTC, then he may choose to register 1 10BTC blind commitment or 10 1BTC blind commitments, or even 9 1BTC blind commitments and 10 0.1BTC blind commitments.
+- If peer's input is 1.023, then the peer may choose to register 1 1BTC blind commitment, 2 0.01BTC blind commitments and 3 0.001BTC blind commitments.
+- If peer's input is 1BTC and the peer would like to send someone else 0.9BTC, then he may register a 0.9BTC and a 0.1BTC blind commitments, or 10 0.1BTC blind commitments.
+
+Furthermore the number of blind commitments a peer sends should be constant, where some of the commitments should be zero commitments as fillers.
+
+Blind commitments are cryptographic commitments those can be signed by the coordinator and later the signature can be unblinded in a way such it is valid for the original amount. Such cryptographic construct should be possible, but further investigation is needed. A concrete example would be using Pedersen commitments to prove the sum of the commitments equal to the input's amount and Bulletproofs to prove they're positive and doesn't create integer overlow. Furthermore these Pedersen commitments shall be constructed in a way that the user can extract a valid unblinded signature to the underlying number of the commitment. More: [Blind Signatures from Knowledge Assumptions](http://www.cs.pwr.edu.pl/hanzlik/preludium/wyniki/paper2.pdf)
 
 #### Phase 2: Payment Registration
 
 Every payment registration request must happen through different anonymity network identities.
 
-Peers are allowed to utilize their signed tokens in any way they would like to. A peer can decide to take 3 1BTC token and create a 0.5BTC and 2.5BTC outputs. Thus arbitrary payments are possible.
-
-However to enhanche privacy peers are recommended to register payments of 1, 10, 100, etc... satoshi payments as follows:
-
-- If peer has 9 1BTC tokens, then register them separately for 1BTC outputs.
-- If peer has 10 1BTC tokens, then register them together for a 10BTC output.
-- If peer has 11 1BTC tokens, then register 10 of them together for a 10BTC output and separately the remaining one for a 1BTC output.
-- If peer has 11 10BTC tokens and 2 1BTC tokens then register 10 10BTC token together for a 100BTC output, and separately 1 10BTC token for a 10BTC output and the remaining 2 1BTC tokens each separately for 1BTC outptus.
+Peers register their amounts along with valid signatures and a script. One payment request can contain multiple amounts and signatures, but only one script. This enables merging UTXOs together.
 
 #### Phase 3: Signing
 
 The final transaction is given out to the peers for signing.  
 
-If an input from an input group did not sign the transaction, then the coordinator prohibits these inputs from participating in followup epochs and the current epoch progresses to a **Blame Round** where only the current epoch's honest peers are allowed to participate.
+### Blame Round
+
+If an input from an input group did not sign the transaction, then the coordinator prohibits these inputs from participating in followup epochs and the current epoch progresses to a **Blame Round** where only the current epoch's honest peers are permitted to participate.
 
 ## Research Questions
 
@@ -67,3 +67,4 @@ If an input from an input group did not sign the transaction, then the coordinat
 - Privacy guarantees.
 - UX.
 - Small and fast vs big and slow rounds.
+- blind commitment schemes and rangeproofs
