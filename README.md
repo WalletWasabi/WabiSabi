@@ -1,6 +1,8 @@
+**Authors.** Isvan Seres Andras, nothingmuch, nopara73
+
 # Yohohoho
 
-Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/).
+Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/). Our work enables the construction of trustless coinjoins with arbitrary output amounts using the novel combination of three cryptographic primitives: a blind signature scheme based on Pedersen Commitments and Bulletproofs.
 
 ## Overview
 
