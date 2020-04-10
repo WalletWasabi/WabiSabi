@@ -1,4 +1,4 @@
-**Authors.** Isvan Seres Andras, nothingmuch, nopara73
+**Authors.** Isvan Seres Andras, nopara73, nothingmuch
 
 # Yohohoho
 
