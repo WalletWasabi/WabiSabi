@@ -2,7 +2,7 @@
 
 # Yohohoho
 
-Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/). Enabling the construction of trustless coinjoins with arbitrary output amounts using a novel combination of three cryptographic primitives: a homomorphic commitment scheme, range proofs and a blind signature scheme based on the chosen homomorphic commitment scheme.
+Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/). Enabling the construction of trustless coinjoins with arbitrary output amounts using a novel combination of three cryptographic primitives: a homomorphic cryptographic commitment scheme, range proofs and a blind signature scheme that is based on the chosen commitment scheme.
 
 ## Overview
 
