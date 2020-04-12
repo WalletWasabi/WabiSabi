@@ -4,6 +4,11 @@
 
 Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/). Enabling the construction of trustless coinjoins with arbitrary output amounts using a novel combination of three cryptographic primitives: a homomorphic cryptographic commitment scheme, range proofs and a blind signature scheme that is based on the chosen commitment scheme.
 
+## Background
+
+In order for a set of peers to create a collaborative transaction without the risk of losing money CoinJoins have been proposed. In this scheme peers register their inputs to a collaborative transaction, then their outputs, and they all sign the final transaction. If a peer does not see its desired outputs in the transaction, it refuses to sign, thus security of funds is inherently guaranteed.  
+An issue with such scheme is anonymity. To ensure anonymity two solutions have been proposed: mixing and leveraging an existing anonymity network to do the mixing. Chaumian CoinJoins do the latter, thus the scheme described in this document, too: peers register every one of their inputs and outputs through different anonymity network identity, thus unlinkability is ensured this way. However such system is prone to denial of service attacks, eg. a peer refuses to sign. The rest of this document is about solving this problem.
+
 ## Overview
 
 The protocol consists of epochs, rounds and phases.
