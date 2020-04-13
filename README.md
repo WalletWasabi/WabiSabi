@@ -10,7 +10,7 @@ A Bitcoin transaction consists of inputs and outputs. [CoinJoins](https://bitcoi
 
 However it does not inherently guarantee unlinkability. To make the sub-transactions of CoinJoins unlinkable during the transaction's construction some approaches have been proposed:
 
- [**SharedCoin**](https://en.bitcoin.it/wiki/Shared_coin) was Blockchain.info's CoinJoin implementation, where the participants of the CoinJoins did not learn the sub-transactions, but Blockchain.info, the leader of the CoinJoin did.
+[**SharedCoin**](https://en.bitcoin.it/wiki/Shared_coin) was Blockchain.info's CoinJoin implementation, where the participants of the CoinJoins did not learn the sub-transactions, but Blockchain.info, the leader of the CoinJoin did.
 
 [**JoinMarket**](https://github.com/JoinMarket-Org/joinmarket) is a concept and implementation where the participants of the CoinJoin is divided to two distinct groups: a taker and one or more makers. In this scheme the makers do not, but the taker do learn the sub-transactions. Unlike SharedCoin, the taker, the leader of the CoinJoin is not constant, so there is no single entity that knows all sub-transactions of all JoinMarket style CoinJoins. Furtheremore the taker is also incentivized to not reveal the mappings.[REFERENCE]
 
@@ -22,7 +22,7 @@ While only Chaumian CoinJoin requires leveraging an anonymity network, the rest 
 
 Furthermore notice that both JoinMarket and SharedCoin could use the constructions of Chaumian CoinJoin or CoinShuffle to facilitate unlinkability. However in case of SharedCoin, if it would use any of these constructions, then it would be equivalent to these constructions, while in case of JoinMarket, since the linkability is mitigated in other means, the complexity may not be justified.
 
-In this paper we build upon Chaumian CoinJoins. While Chaumian CoinJoins guarantee unlinkability through changing anonymity network identities, it also utilizes a blind signature scheme to prevent denial of service attacks. However in its current form it only works, because the blind signatures provided by the coordinator also correspond with pre-defined denominations. This works for self mixing, because anonymity is provided by making outputs equal, however it prohibits creating arbitrary output amounts, which is essential for making payments in coinjoins. In such cases anonymity can be achieved in different ways, like making the inputs equal, mixing on the change output or through utilizing [Knapsack Mixing](https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf). Furthermore such scheme would also enable unlinkability on all inputs of a participant and gain computational privacy against [subset sum attacks](https://en.wikipedia.org/wiki/Subset_sum_problem) by the coordinator. Another issue that comes up with Chaumian CoinJoins is the consolidations of many UTXOs it creates. Solving the provlem also enables consolidating them in a private way, at least on the transaction construction level.
+In this paper we build upon Chaumian CoinJoins. While Chaumian CoinJoins guarantee unlinkability through changing anonymity network identities, it also utilizes a blind signature scheme to prevent denial of service attacks. However in its current form it only works, because the blind signatures provided by the coordinator also correspond with pre-defined denominations. This works for self mixing, because anonymity is provided by making outputs equal, however it prohibits creating arbitrary output amounts, which is essential for making payments in coinjoins. In such cases anonymity can be achieved in different ways, like making the inputs equal, mixing on the change output or through utilizing [Knapsack Mixing](https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf). Furthermore such scheme would also enable unlinkability on all inputs of a participant and gain computational privacy against [subset sum attacks](https://en.wikipedia.org/wiki/Subset_sum_problem) by the coordinator. Another issue that comes up with Chaumian CoinJoins is the consolidations of many UTXOs it creates. Solving the problem also enables consolidating them in a private way, at least on the transaction construction level.
 
 **Thus the question is: how to construct CoinJoins where participants can can create arbitrary outputs without anyone learning the neither complete nor partial mapping of the sub-transactions?**
 
@@ -48,9 +48,9 @@ A peer provides a set of inputs along with corresponding proof of ownerships and
 
 The blind commitments can be created in a flexible way, but standard amounts are recommended. These standard amounts are 1, 10, 100, ... satoshis. Examples:
 
-- If peer's input is 10BTC, then he may choose to register 1 10BTC blind commitment or 10 1BTC blind commitments, or even 9 1BTC blind commitments and 10 0.1BTC blind commitments.
-- If peer's input is 1.023, then the peer may choose to register 1 1BTC blind commitment, 2 0.01BTC blind commitments and 3 0.001BTC blind commitments.
-- If peer's input is 1BTC and the peer would like to send someone else 0.9BTC, then he may register a 0.9BTC and a 0.1BTC blind commitments, or 10 0.1BTC blind commitments.
+- If peer's input is 10BTC, then he may choose to register one 10BTC blind commitment or ten 1BTC blind commitments, or even nine 1BTC blind commitments and ten 0.1BTC blind commitments.
+- If peer's input is 1.023, then the peer may choose to register one 1BTC blind commitment, two 0.01BTC blind commitments and three 0.001BTC blind commitments.
+- If peer's input is 1BTC and the peer would like to send someone else 0.9BTC, then he may register one 0.9BTC and one 0.1BTC blind commitments, or ten 0.1BTC blind commitments.
 
 Furthermore the number of blind commitments a peer sends should be constant, where some of the commitments should be zero commitments as fillers.
 
