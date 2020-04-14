@@ -12,6 +12,8 @@ A Bitcoin transaction consists of inputs and outputs. [CoinJoins](https://bitcoi
 
 **CoinJoins are inherently secure**, because if a participant does not see its desired outputs in the resulting CoinJoin transaction, it refuses to sign. A CoinJoin round consists of an **Input Registration**, an **Output Registration** and a **Transaction Signing** phases.
 
+![](https://i.imgur.com/T0FwiZh.png)
+
 **To guarantee network level unlinkability** in regards to input-input, output-output and input-output relations participants must use different anonymity network identities to register each and every inputs and outputs of theirs to a trustless coordinator. This technique leverages an already existing anonymity network infrastructure. Another approach could be what [CoinShuffle](https://petsymposium.org/2014/papers/Ruffing.pdf), [CoinShuffle++](https://www.ndss-symposium.org/wp-content/uploads/2017/09/ndss201701-4RuffingPaper.pdf) and [ValueShuffle](https://www.ndss-symposium.org/wp-content/uploads/2017/09/NDSS-2017_Paper_Ruffing.pdf) took, where a custom anonymity network is created to facilitate the mixing. The anonymity set of this anonymity network is ideally the number of participatns in a round. However in order to avoid cross-mixing round correlation, the use of an existing anonymity network infrastructure is still desirable.
 
 Our proposed scheme generalizes trustless construction of arbitrary CoinJoins. This enables numerous things those were not possible before.
