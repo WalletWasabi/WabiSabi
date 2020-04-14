@@ -1,4 +1,6 @@
 **Authors.** István András Seres, nopara73, nothingmuch
+**Acknowledgement.** We thank the numerous contributors to this scheme. We will update the full list of contributors after the paper passes the work in progress status.
+**Status.** Work in progress.
 
 # Yohohoho
 
