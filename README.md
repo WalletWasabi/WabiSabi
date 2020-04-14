@@ -45,33 +45,19 @@ The **Main Round** and the potential **Blame Rounds** are called an **Epoch**.
 
 #### Phase 1: Input Registration
 
-Peers register their inputs to the coordinator. Inputs must be registered separately through different anonymtiy network identities, unless an input's amount does not reach the minimum required amount, in which case the input can be registered together with other inputs.
+An input can be registered if it is confirmed, mature and unspent. An input must be registered along with a proof of ownership, a set of homorphic cryptographic commitments and rangeproofs.
 
-A peer provides a set of inputs along with corresponding proof of ownerships and blind commitments and range proofs. These inputs must be unspent, confirmed and mature. The blinded tokens are blinded random data.
+The coordinator replies with a signature to every commitment.
 
-The blind commitments can be created in a flexible way, but standard amounts are recommended. These standard amounts are 1, 10, 100, ... satoshis. Examples:
+#### Phase 2: Output Registration
 
-- If peer's input is 10BTC, then he may choose to register one 10BTC blind commitment or ten 1BTC blind commitments, or even nine 1BTC blind commitments and ten 0.1BTC blind commitments.
-- If peer's input is 1.023, then the peer may choose to register one 1BTC blind commitment, two 0.01BTC blind commitments and three 0.001BTC blind commitments.
-- If peer's input is 1BTC and the peer would like to send someone else 0.9BTC, then he may register one 0.9BTC and one 0.1BTC blind commitments, or ten 0.1BTC blind commitments.
+The participant unblinds the signatures on the commitments and these signatures must be valid for the underlying values. Thus a participant could register every output separately with different anonymity network identities. The participant must provide a script, a value and the unblinded signature that is valid for the value.
 
-Furthermore the number of blind commitments a peer sends should be constant, where some of the commitments should be zero commitments as fillers.
+The participant can also combine its signatures in a way that the new signature will be valid for the sum of individual value components.
 
-Blind commitments are cryptographic commitments those can be signed by the coordinator and later the signature can be unblinded in a way such it is valid for the original amount. Such cryptographic construct should be possible, but further investigation is needed. A concrete example would be using Pedersen commitments to prove the sum of the commitments equal to the input's amount and Bulletproofs to prove they're positive and doesn't create integer overlow. Furthermore these Pedersen commitments shall be constructed in a way that the user can extract a valid unblinded signature to the underlying number of the commitment. More: [Blind Signatures from Knowledge Assumptions](http://www.cs.pwr.edu.pl/hanzlik/preludium/wyniki/paper2.pdf)
+#### Phase 3: Transaction Signing
 
-#### Phase 2: Payment Registration
-
-Every payment registration request must happen through different anonymity network identities.
-
-Peers register their amounts along with valid signatures and a script. One payment request can contain multiple amounts and signatures, but only one script. This enables merging UTXOs together.
-
-#### Phase 3: Signing
-
-The final transaction is given out to the peers for signing.  
-
-### Blame Round
-
-If an input from an input group did not sign the transaction, then the coordinator prohibits these inputs from participating in followup epochs and the current epoch progresses to a **Blame Round** where only the current epoch's honest peers are permitted to participate.
+Participants sign the final transaction.
 
 ## Research Questions
 
