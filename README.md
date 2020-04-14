@@ -2,9 +2,9 @@
 **Acknowledgement.** We thank the numerous contributors to this scheme. We will update the full list of contributors after the paper passes the work in progress status.
 **Status.** Work in progress.
 
-# Yohohoho: Trustless and Arbitrary CoinJoins
+# WabiSabi: Trustless and Arbitrary CoinJoins
 
-**Abstract.** Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/). Yohohoho enables the construction of trustless coinjoins with arbitrary input and output values.
+**Abstract.** Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/). WabiSabi enables the construction of trustless coinjoins with arbitrary input and output values.
 
 ## Introduction
 
@@ -22,12 +22,12 @@ Our proposed scheme generalizes trustless construction of arbitrary CoinJoins. T
 - It enables for the first time a novel mixing construct, called [Knapsack mixing ](https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf).
 - It improves upon [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/) for the first time in numerous ways, most notably it enables the sending of exact amounts and enabling unlinkable consolidation of multiple UTXOs.
 - It enables the creation of [CashFusion](https://github.com/cashshuffle/spec/blob/master/CASHFUSION.md) style transactions with orders of magnitude reduction of complexity.
-- It can directly improve upon [JoinMarket](https://github.com/JoinMarket-Org/joinmarket-clientserver) by the taker being also the Yohohoho coordinator, so it does not need to learn the mapping of the whole transaction anymore. However this could also be achieved by traditional Chaumian CoinJoins.
-- Ideas in this paper can be used to enable construction of CoinJoins with [Confidential Transactions](https://people.xiph.org/~greg/confidential_values.txt). However, unlike Yohohoho, [ValueShuffle](https://www.ndss-symposium.org/wp-content/uploads/2017/09/NDSS-2017_Paper_Ruffing.pdf) is directly built for this purpose.
+- It can directly improve upon [JoinMarket](https://github.com/JoinMarket-Org/joinmarket-clientserver) by the taker being also the WabiSabi coordinator, so it does not need to learn the mapping of the whole transaction anymore. However this could also be achieved by traditional Chaumian CoinJoins.
+- Ideas in this paper can be used to enable construction of CoinJoins with [Confidential Transactions](https://people.xiph.org/~greg/confidential_values.txt). However, unlike WabiSabi, [ValueShuffle](https://www.ndss-symposium.org/wp-content/uploads/2017/09/NDSS-2017_Paper_Ruffing.pdf) is directly built for this purpose.
 
 While network level unlinkability guarantee is easy to achieve, it is difficult to achieve it in a way that also protects against Denial of Service (DoS) attacks. For this reason Chaumian CoinJoins were proposed. However they only work, because the blind signatures provided by the coordinator also correspond with pre-defined denominations. This greatly limits numerous aspects of how a resulting CoinJoin transaction can look like, which has consequences on user experience and on privacy guarantees.
 
-**Yohohoho provides a general and straight forward solution for the problem of trustlessly constructing and coordinating CoinJoins with arbitrary inputs and arbitrary outputs.**
+**WabiSabi provides a general and straight forward solution for the problem of trustlessly constructing and coordinating CoinJoins with arbitrary inputs and arbitrary outputs.**
 
 ## Overview
 
