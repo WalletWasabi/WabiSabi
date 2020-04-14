@@ -33,11 +33,11 @@ While network level unlinkability guarantee is easy to achieve, it is difficult 
 
 The protocol consists of epochs, rounds and phases.
 
-![](https://i.imgur.com/dAr56jm.png)
+![](https://i.imgur.com/X60DVSl.png)
 
-**Input Registration Phase**, **Payment Registration Phase** and **Signing Phase** follow each other and together they are called the **Main Round**.
+**Input Registration Phase**, **Output Registration Phase** and **Transaction Signing Phase** follow each other and together they are called the **Main Round**.
 
-**Input Registration Phase** cannot fail, because inputs can be refused or kicked out of the round without penalty before moving on to **Payment Registration Phase**. Regardless if **Payment Registration Phase** succeeds or fails, the round must progress to **Signing Phase**, because penalties can only be imposed on malicious inputs and not on malicious outputs. If **Signing Phase** fails, the protocol progresses to **Blame Round**, which repeats the **Main Round** without the malicious inputs.
+**Input Registration** cannot fail, because inputs can be refused or kicked out of the round without penalty before moving on to **Output Registration**. Regardless if **Output Registration** succeeds or fails, the round must progress to **Transaction Signing**, because penalties can only be imposed on malicious inputs and not on malicious outputs. If **Transaction Signing** fails, the protocol progresses to **Blame Round**, which repeats the **Main Round** without the malicious inputs.
 
 The **Main Round** and the potential **Blame Rounds** are called an **Epoch**.
 
