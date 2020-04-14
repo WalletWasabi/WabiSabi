@@ -33,7 +33,7 @@ While network level unlinkability guarantee is easy to achieve, it is difficult 
 
 The protocol consists of epochs, rounds and phases.
 
-![](https://i.imgur.com/X60DVSl.png)
+![](https://i.imgur.com/LctiWLS.png)
 
 **Input Registration Phase**, **Output Registration Phase** and **Transaction Signing Phase** follow each other and together they are called the **Main Round**.
 
