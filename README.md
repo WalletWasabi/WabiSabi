@@ -59,6 +59,8 @@ The participant can also combine its signatures in a way that the new signature 
 
 Participants sign the final transaction.
 
+## [Cryptographic Primitives](https://github.com/zkSNACKs/WabiSabi/issues/5)
+
 ## Research Questions
 
 - Maximum number of tokens to be signed - computational bottleneck.
