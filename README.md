@@ -45,15 +45,17 @@ The **Main Round** and the potential **Blame Rounds** are called an **Epoch**.
 
 #### Phase 1: Input Registration
 
-An input can be registered if it is confirmed, mature and unspent. An input must be registered along with a proof of ownership, a set of homorphic cryptographic commitments and rangeproofs.
+Every input must be registered independently over a different anonymity network identitiy. An input can be registered if it is confirmed, mature and unspent. An input must be registered along with a proof of ownership.
 
-The coordinator replies with a signature to every commitment.
+(Note: confirmation is not a necessary requirement, but relaxing this requirement would need a specification of long list of sometimes dynamic conditions to be worked out, like if the transaction used RBF, minimum fee rate compared to current network, what is the size and length of the unconfirmed transaction chain it comes from, how this affects the DoS parameters, and such. So for the sake of simplicity, confirmation will be required.)
+
+(ToDo: describe cryptographic operations here.)
 
 #### Phase 2: Output Registration
 
-The participant unblinds the signatures on the commitments and these signatures must be valid for the underlying values. Thus a participant could register every output separately with different anonymity network identities. The participant must provide a script, a value and the unblinded signature that is valid for the value.
+Every desired output must be registered over a different anonymity network identity.
 
-The participant can also combine its signatures in a way that the new signature will be valid for the sum of individual value components.
+(ToDo: describe cryptographic operations here.)
 
 #### Phase 3: Transaction Signing
 
