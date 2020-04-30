@@ -1,0 +1,177 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{WabiSabi}
+\author{Adam Ficsor, Yuval Kogman, István András Seres}
+\date{April 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+% TODO: what's mainly missing from the current description of #17 is context and motivation
+% as such we should probably define the sort of high level idea of collaborative transaction construction, briefly reviewing the coinjoin security model
+
+\section{Motivation}
+
+% brief explanation of why coinjoins are desirable:
+% - privacy
+% - fungibility
+% - theoretically transaction efficiency
+% and overview of where zerolink/wasabi currently falls short (variable but constrained denomination, only send to self, linkage of inputs during registration, 
+
+\section{Abstract Protocol}
+
+% parameters: $k$ (number of presented/requested credentials per request)
+
+% define user, coordinator roles
+% assumptions about network level privacy, round phases
+% citations for CPZ19 and CMZ14 papers
+
+% proofs should defined in terms of their statements, and the different operations are e.g. Issue, Show etc algorithms from paper without going into details of e.g. group operations or proof structure
+
+\subsection{Input Registration}
+
+% user inputs:
+% outpoint + proof of spendability (scriptSig w/ alternate hash algorithm in OP_CHECK{,MULTI}SIG?) + nSequence, represented here as just an integer amount of satoshis
+% individual credential requests: amount commitment, serial number commitment, zk range proof
+% zk sum proof
+% (additional input credentials if we go with OR proof variant)
+
+% coordinator response:
+% mac + proof of knowledge of secret key for every requested credential
+
+% open questions:
+% - single pedersen multicommitment for amount and serial or two separate group attributes?
+% - if separate, extra generator + randomness for unconditional hiding of serial number even after revealing serial?
+
+
+%% TODO rewrite copypaste from #17
+The user submits a request for $N$ credentials, with either 1 or 2 group attributes (not clear which is simpler yet):
+
+\begin{itemize}
+\item Two separate Pedersen commitments, one for the sub-amount and one for the serial number.
+\item A single Pedersen multi commitment for a requested sub-amount and serial number.
+\end{itemize}
+
+Along with a range proof for each amount commitment, and a proof that the sum of all the amount commitments matches the input amount.
+
+The coordinator verifies the proofs, and responds with $N$ MACs on the requested attributes, along with a proof of knowledge of the secret key.
+%% end copypaste
+
+\subsection{Ouptut Registration}
+
+% user inputs:
+% output scriptPubKey and amount, represented here as just integer amount of satoshis
+% zk proof of valid credentials
+% serial number + zk proof of serial number commitment opening to serial number
+% zk sum proof
+% (additional output/change credential requests if we go with OR proof variant)
+
+% coordinator response
+
+
+%% TODO rewrite copypaste from #17
+The user executes the $\mathrm{Show}$ protocol for the combination of credentials they want to use, which produces as output randomized commitments to the attributes and a proof of the MAC verification.
+
+The user also proves that the serial number commitments can be opened to their corresponding serial numbers. These serial numbers are revealed for double spending protection, but the commitment opening should be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in the $\mathrm{Show}$ protocol.
+
+The user also proves that the sum of the amount attributes matches the output amount, analogously to input registration (but there is no need for range proofs at this phase).
+
+The user submits these proofs, the randomized attributes, and the serial numbers.
+
+Note that the serial numbers should not be ``revealed attributes'' as I previously stated, since those would be trivially linkable to input registration.
+
+Note that since all proofs are created with sigma protocol, the $2n+1$ proofs should be composable into a single proof of their conjunction.
+I believe this also holds if using bulletproofs for the range proofs at input registration.
+%% end copypaste
+
+\section{Concrete Protocol}
+
+% here we should give specific formulae in general form (e.g. n elements), including selected bits of the KVAC paper, and bikeshed the particulars of the zk proofs (precise formulae for various commitments and proofs). we don't need this for #17 but we will for the draft
+
+% we should also argue for the security of the construction
+
+% we should probably change the notation of the Pedersen commitment generators to be consistent with the signal paper, e.g. G_h, G_g or something like that
+
+% i think we can also drop the y subscripts, just denote _{y=0} as _v, and _{y=1} as _s
+
+\subsection{Input Registration}
+
+\subsubsection{Sum of Amounts}
+
+Amount commitments:
+
+% hmm, should i be 0 based?
+\[ \forall i \in \{1..k\}: M_{v_i}=h^{v_i}g^{r_{v_i}} \]
+
+Product of commitments:
+
+\[\prod_{i=1}^{k} M_{v_i}
+= G^{\sum_{i=1}^{k} z_i}_{y_{v}}h^{\sum_{i=1}^{k} v_i}g^{\sum_{i=1}^{k} r_{v_i}}
+\]
+
+Proof of sum:
+
+\[ \pi=\sum_{i=1}^{k} r_{v_i} \]
+
+coordinator checks whether 
+
+\[ \prod_{i=1}^{k} M_{y_{v_i}}
+= h^{v_{\mathit{in}}} \cdot g^\pi
+\]
+
+
+\subsubsection{Knowledge of Opening of Serial Number Commitments}
+
+\subsection{Output Registration}
+
+Let $S \subseteq \left\{1..t\right\}$ be the indices of credentials from prior input registrations that a user wants merge in a single output request.
+
+\subsubsection{Sum of Amounts}
+
+Randomized amount commitments:
+
+\[ \forall i \in S: C_{y_{v_i}}=G^{z_i}_{y}M_{v_i}=G^{z_i}_{y_{v}}h^{v_i}g^{r_{v_i}} \]
+
+Product of commitments:
+
+\[\prod_{i \in S} C_{y_{v_i}}
+= \prod_{i \in S} G^{z_i}_{y_v}M_{v_i}
+= G^{\sum_{i \in S} z_i}_{y_{v_i}}h^{\sum_{i \in S} v_i}g^{\sum_{i \in S} r_{v_i}}
+\]
+
+Proof of sum:
+
+\[ \pi=\left(\sum_{i \in S}z_i,\sum_{i \in S}r_{v_i}\right) \]
+
+
+% note: i think this verification eqn from #17 is not quite right, it should be stated in terms of randomized commitments and make use of the sum of the blinding factors, in its current form it's tautological and $h$ cancels out.
+coordinator checks whether % $$h^{\sum_{i \in S}v_i}=h^{v_{\mathit{out}}}$$
+% i think this is the right eqn is:
+%\[ \prod_{i \in S} C_{y_{v_i}}=h^{v_{\mathit{out}}} \cdot G^{\sum_{i \in S} z_i}_{y_{v}}g^{\sum_{i \in S} r_{v_i}} \]
+\[ \prod_{i \in S} C_{y_{v},i}=h^{v_{\mathit{out}}} \cdot G_{y_{v}}^{\mathrm{fst}(\pi)} g^{\mathrm{snd}(\pi)} \]
+
+
+% we should assign variable names to the symbols because sums in the exponents look really ugly now that i generalized from 2
+
+\subsubsection{Revealing of Serial Numbers}
+
+Randomized serial number commitments:
+
+\[ \forall i \in S: C_{y_{s_i}}=G^{z_i}_{y}M_v=G^{z_i}_{y_{v}}h^{v_i}g^{r_{v_i}} \]
+
+Proofs of commitment to serial number:
+
+\[ \forall i \in S: \pi_i=\frac{C_{y_{s_i}}}{h^{s_i}} = G_{y_s}^{z_i} g^{r_{s_i}} \]
+% FIXME: also need to prove knowledge of DLOGs of terms of this product's factors WRT $g$ and $G_{y_s}$
+
+coordinator checks whether \[ \forall i \in S: h^{s_i} \pi_i = C_{y_{s_i}} \]
+
+and that the $s_i$ have not been used before (but allowing for idempotent output registration).
+
+For perfect hiding even after the coordinator learns the committed value $s$, we can define the serial number commitment to be: \[ M_s = h^s g_1^{r_{s1}} g_2^{r_{s2}} \] (additional generator point and randomness)
+
+\end{document}
