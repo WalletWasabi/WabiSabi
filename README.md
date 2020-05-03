@@ -103,8 +103,30 @@ and
 <p align="center"><img src="/tex/75e6b44517d9e1d89f4d1b68e473b305.svg?invert_in_darkmode&sanitize=true" align=middle width=203.7604635pt height=18.401823pt/></p>
 
 To avoid tagging individual users the coordinator must also prove knowledge of the secret key, and that <img src="/tex/2fb34d64b1ed37eb410b3c76810f991a.svg?invert_in_darkmode&sanitize=true" align=middle width=70.5644775pt height=24.65753399999998pt/> is correct relative to <img src="/tex/9d6085c164b4ed27f7c25d2e9caadf05.svg?invert_in_darkmode&sanitize=true" align=middle width=134.2391523pt height=24.65753399999998pt/> with the following proof of knowledge:
-[//]: # ("TODO rephrase this a little so it's not plagiarism" ... Try a citation to not plagairize 😜 -Dan G)
+
+[//]: # (TODO rephrase this a little or cite so it's not plagiarism)
 
 <p align="center"><img src="/tex/da01d591c240fb2232a85969c2f5d752.svg?invert_in_darkmode&sanitize=true" align=middle width=324.36691319999994pt height=120.4487064pt/></p>
 
 ### 2.2 Output Registration
+After the input registration the user may have up to <img src="/tex/4f4f4e395762a3af4575de74c019ebb5.svg?invert_in_darkmode&sanitize=true" align=middle width=5.936097749999991pt height=20.221802699999984pt/> credentials from all of her input registration requests made as one or more Alice identities.
+Let <img src="/tex/81c24e2d90171569caf37138fceb7974.svg?invert_in_darkmode&sanitize=true" align=middle width=63.53865044999999pt height=24.65753399999998pt/> be the indices of credentials that she wants to consolidate into a single output registration.
+
+#### 2.2.1 Credential Validity
+For each credential <img src="/tex/a9632a01526dc9b26bf61b382c164bbf.svg?invert_in_darkmode&sanitize=true" align=middle width=36.781765349999986pt height=22.465723500000017pt/> Bob executes the <img src="/tex/f8336050aaa87118dda2feeca5d8928b.svg?invert_in_darkmode&sanitize=true" align=middle width=36.84942689999999pt height=22.831056599999986pt/> protocol as in [CPZ19]:
+
+1. She chooses <img src="/tex/93d2ca33eacb2c125b743bf05193756a.svg?invert_in_darkmode&sanitize=true" align=middle width=61.389074999999984pt height=22.648391699999998pt/>, and computes <img src="/tex/ba441d6ad552995864e2b9188de063aa.svg?invert_in_darkmode&sanitize=true" align=middle width=133.50283979999998pt height=24.65753399999998pt/> and the randomized commitments:
+    $$
+    \begin{align*}
+    C_{v_i}     &= {G_v}^{z_i} M_{v_i} \\
+    C_{s_i}     &= {G_s}^{z_i} M_{s_i} \\
+    C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
+    C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
+    C_{V_i}     &= {G_V}^{z_i} V \\
+    \end{align*}
+    $$
+
+2. To prove to the coordinator that she is in posession of a valid MAC on her amount and serial number commitments, Bob computes the following proof of knowledge:
+<p align="center"><img src="/tex/9dbc0ebae19759352e793ab973a17c9f.svg?invert_in_darkmode&sanitize=true" align=middle width=288.4765587pt height=72.7423125pt/></p>
+
+[//]: # (if we go with OR proof, then \lor M_{v_i} = {G_g}^{r_{v_i}} {G_h}^0)
