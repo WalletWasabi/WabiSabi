@@ -4,6 +4,7 @@ May 3, 2020
 
 ###### Abstract
 Chaumian CoinJoin [[Miz13]](#references) [[Max13]](#references) is a technique used by WasabiWallet and Samourai Wallet [[FT17]](#references) to facilitate untrusted constructionof collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures [[Cha83]](#references). However this technique requiresstandard denominations, which limits how such transactions can be con-structed.
+
 We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) scheme [[CPZ19]](#references) to enable more flexible transaction styles,like SharedCoin and CashFusion [[FL19]](#references) style transactions and Knap-sack [[MNF17]](#references) mixing.  Our generalization also enables consolidation ofUTXOs,  minimizing unmixed change,  relaxing minimum required de-nominations, payments in CoinJoins, better block space efficiency, andPayJoins in CoinJoins. We call this new protocol: WabiSabi
 
 ## 1 Protocol Overview
@@ -26,7 +27,7 @@ Each role must be used with a unique anonymity network identity,and users with m
 
 **Definition 1.3** ***Credential:*** *An anonyous credential is issued by the coordinator at input registration, and certifies attributes that the coordinator validates before issuing. The user can then prove possession of a valid credential in zero-knowledge in order to register an output without the coordinator being able to link it to the input registration from which it originates, or any other output registrations.*
 
-*We use the key-verifiable anonymous credential scheme from [CPZ19](#references), instantiated with two group attributes (attributes whose value is an element of theunderlying group  <img src="/tex/a158a43ace9779e0a6109b3c9f9df93d.svg?invert_in_darkmode&sanitize=true" align=middle width=12.785434199999989pt height=22.648391699999998pt/>).*
+*We use the key-verifiable anonymous credential scheme from [CPZ19](#references), instantiated with two group attributes (attributes whose value is an element of the underlying group  <img src="/tex/a158a43ace9779e0a6109b3c9f9df93d.svg?invert_in_darkmode&sanitize=true" align=middle width=12.785434199999989pt height=22.648391699999998pt/>).*
 
 **Definition 1.4** ***Attribute:*** *In order to facilitate construction of Bitcoin transactions, a credential represents some amount of Bitcoin. For this we use two attributes: <img src="/tex/01a4b8f4a5200d75237824e7fc62c593.svg?invert_in_darkmode&sanitize=true" align=middle width=22.93577549999999pt height=22.465723500000017pt/> is a commitment to the amount of the registered input in satoshis and <img src="/tex/0d5aa2d1b94d707e4359815ea4ba1366.svg?invert_in_darkmode&sanitize=true" align=middle width=22.151885249999992pt height=22.465723500000017pt/> is a commitment to a serial number used for double spending prevention.*
 
