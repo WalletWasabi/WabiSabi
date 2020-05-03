@@ -189,11 +189,9 @@ Let $S \subseteq \left[1,t\right]$ be the indices of credentials that she wants 
 
 \subsubsection{Credential validity}
 
-For each credential $i \in S$ Bob executes the $\mathsf{Show}$ protocol as in~\cite{chase2019signal}:
+For each credential $i \in S$ Bob executes the $\mathsf{Show}$ protocol as in~\cite{chase2019signal}.
 
-\begin{enumerate}
-
-\item She chooses
+First, she chooses
 $z_i \in_{R} \mathbb{Z}_{q}$,
 and computes 
 $z_{0_i}=-{t_i} {z_i} (\bmod q)$
@@ -207,7 +205,7 @@ C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
 C_{V_i}     &= {G_V}^{z_i} V \\
 \end{align*}
 
-\item To prove to the coordinator that she is in posession of a valid MAC on her amount and serial number commitments, Bob computes the following proof of knowledge:
+To prove to the coordinator that she is in posession of a valid MAC on her amount and serial number commitments, Bob computes the following proof of knowledge:
 \begin{align*}
 \pi_{i}^{\mathit{MAC}}=\operatorname{PK}\{
 & (z_i, z_{0_i},t_i): \\
@@ -215,7 +213,6 @@ C_{V_i}     &= {G_V}^{z_i} V \\
 & C_{x_{1_i}} = {C_{x_{0_i}}}^{t_i} {G_{x_0}}^{z_{0_i}} {G_{x_1}}^{z_i}\}
 \end{align*}
 %% if we go with OR proof, then \lor M_{v_i} = {G_g}^{r_{v_i}} {G_h}^0
-\end{enumerate}
 
 Finally, Bob sends $(C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{v_i} C_{s_i} \pi_i^{\mathit{MAC}})$ to the coordinator, who computes:
 \[
@@ -223,7 +220,8 @@ Z_i=\frac{C_{V_i}}{W {C_{x_{0_i}}}^{x_0} {C_{x_{1_i}}}^{x_{1}}
 {C_{v_i}}^{y_v} {C_{s_i}}^{y_s} %%% FIXME WTF WTF is this even correct?
 }
 \]
-using the secret key $(W, x_{0}, x_{1}, y_v, y_s)$ and verifies $\pi_i^{\mathit{MAC}}$.
+
+\noindent using the secret key $(W, x_{0}, x_{1}, y_v, y_s)$ and verifies $\pi_i^{\mathit{MAC}}$.
 
 % note Z_i is calculated independently by ``Bob'' and the coordinator
 
@@ -260,7 +258,8 @@ Bob proves knowledge of representation of her submitted randomized serial number
 \pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (s_i, z_i, r_{s_i}):C_{s_i} = {G_s}^{z_i}{G_g}^{r_{s_i}}{G_h}^{s_i}
 \}
 \]
-where the serial number $s_i$ is a public input, revealed to prevent double spending. The coordinator checks that the $s_i$ have not been used before (but allowing for idempotent output registration).
+
+\noindent where the serial number $s_i$ is a public input, revealed to prevent double spending. The coordinator checks that the $s_i$ have not been used before (but allowing for idempotent output registration).
 
 Note that after revealing $s_i$, we no longer have perfect hiding in the $M_{s_i}$ commitment, since, because there is exactly one $r_{s_i} \in \mathbb{Z}_q$ such that $M_{s_i} = {G_g}^{r_{s_i}} {G_h}^{s_i}$. To preserve user privacy in case of a crypto break we can add another randomness term with an additional generator to the the serial number commitment.
 
