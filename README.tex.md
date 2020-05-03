@@ -3,8 +3,8 @@ Adam Ficsor, Yuval Kogman, István András Seres
 May 3, 2020
 
 ###### Abstract
-Chaumian CoinJoin [Miz13](#references) [Max13](#references) is a technique used by WasabiWallet and Samourai Wallet [FT17](#references) to facilitate untrusted constructionof collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures [Cha83](#references). However this technique requiresstandard denominations, which limits how such transactions can be con-structed.
-We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) scheme [CPZ19](#references) to enable more flexible transaction styles,like SharedCoin and CashFusion [FL19](#references) style transactions and Knap-sack [MNF17](#references) mixing.  Our generalization also enables consolidation ofUTXOs,  minimizing unmixed change,  relaxing minimum required de-nominations, payments in CoinJoins, better block space efficiency, andPayJoins in CoinJoins. We call this new protocol: WabiSabi
+Chaumian CoinJoin [[Miz13]](#references) [[Max13]](#references) is a technique used by WasabiWallet and Samourai Wallet [[FT17]](#references) to facilitate untrusted constructionof collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures [[Cha83]](#references). However this technique requiresstandard denominations, which limits how such transactions can be con-structed.
+We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) scheme [[CPZ19]](#references) to enable more flexible transaction styles,like SharedCoin and CashFusion [[FL19]](#references) style transactions and Knap-sack [[MNF17]](#references) mixing.  Our generalization also enables consolidation ofUTXOs,  minimizing unmixed change,  relaxing minimum required de-nominations, payments in CoinJoins, better block space efficiency, andPayJoins in CoinJoins. We call this new protocol: WabiSabi
 
 ## 1 Protocol Overview
 *Note that the following is an incomplete overview, in its current form it only attempts to give some intuition for the cryptographic details described below.*
@@ -24,17 +24,15 @@ Each role must be used with a unique anonymity network identity,and users with m
 
 **Definition 1.2** ***Output:*** *A Bitcoin transaction output that the user wishes to create in the CoinJoin without linking to any of their inputs or other outputs. Similarly to inputs, we represent outputs only in terms of their satoshi amount $v_{\mathit{out}}$, ignoring details like the* ***scriptPubKey***
 
-**Definition 1.3** ***Credential:*** *An anonyous credential is issued by the coordinator at input registration, and certifies attributes that the coordinator validates before issuing. The user can then prove possession of a valid credential in zero-knowledge in order to register an output without the coordinator being able to link it to the input registration from which it originates, or any other output registrations.
+**Definition 1.3** ***Credential:*** *An anonyous credential is issued by the coordinator at input registration, and certifies attributes that the coordinator validates before issuing. The user can then prove possession of a valid credential in zero-knowledge in order to register an output without the coordinator being able to link it to the input registration from which it originates, or any other output registrations.*
 
-We use the key-verifiable anonymous credential scheme from [CPZ19](#references), instantiated with two group attributes (attributes whose value is an element of theunderlying group  $\mathbb{G}$).*
+*We use the key-verifiable anonymous credential scheme from [CPZ19](#references), instantiated with two group attributes (attributes whose value is an element of theunderlying group  $\mathbb{G}$).*
 
 **Definition 1.4** ***Attribute:*** *In order to facilitate construction of Bitcoin transactions, a credential represents some amount of Bitcoin. For this we use two attributes: $M_v$ is a commitment to the amount of the registered input in satoshis and $M_s$ is a commitment to a serial number used for double spending prevention.*
 
 *During credential presentation randomized versions of the attributes are presented, which we denote $C_v$ and $C_s$.*
 
-Finally, $k$ is a protocol level constant, denoting the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges<sup>[1]</sup>.
-
-[//]: # (TODO Link to a footnotes section at the bottom for the line above's [1])
+Finally, $k$ is a protocol level constant, denoting the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges<sup>[1](#1)</sup>.
 
 ### 1.3 Input Registration
 The user, acting as Alice, submits her input of value $v_{\mathit{in}}$ along with $k$ pairs of group attributes,
@@ -43,7 +41,7 @@ She proves in zero knowledge that the sum of the requested sub-amounts is equal 
 
 [//]: # (TODO decide if we want additional input credentials if we go with OR proof variant open questions: - pedersen multicommitment for amount and serial or two separate group attributes? - if separate, extra generator + randomness for unconditional hiding of serial number even after revealing serial?)
 
-The coordinator verifies the proofs, and issues $k$ MACs (message authentication codes) on the requested attributes, along with a proof of knowledge of the secret key as described in *Credential Issuance* protocol of [CPZ19](#references).
+The coordinator verifies the proofs, and issues $k$ MACs (message authentication codes) on the requested attributes, along with a proof of knowledge of the secret key as described in *Credential Issuance* protocol of [[CPZ19]](#references).
 
 ### 1.4 Output Registration
 Now acting as Bob, to register her output the user randomizes the attributes and generates a proof of knowledge of a valid credential issued by the coordinator.
@@ -58,7 +56,7 @@ The user submits these proofs, the randomized attributes, and the serial numbers
 The coordinator sends out the final unsigned transaction to the different Alices who will sign if they see their registered output included in the transaction.
 
 ## 2 Cryptographic Details
-Following [CPZ19](#references), the scheme is defined in a group $\mathbb{G}$ of prime order $q$, written in multiplicative notation.
+Following [[CPZ19]](#references), the scheme is defined in a group $\mathbb{G}$ of prime order $q$, written in multiplicative notation.
 We require the following fixed set of group elements:
 $$
 \[
@@ -68,7 +66,7 @@ G_{V}.
 \]
 $$
 
-This notation deviates slightly from [CPZ19](#references), in that we subscript the attribute generators $G_{y_i}$ as $G_v$ and $G_s$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attributes $M_v$ and $M_s$ as Pedersen commitments.
+This notation deviates slightly from [[CPZ19]](#references), in that we subscript the attribute generators $G_{y_i}$ as $G_v$ and $G_s$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attributes $M_v$ and $M_s$ as Pedersen commitments.
 
 We assume that all generator points used throughout the protocol are generated in a way that nobody knows the discrete logarithms between any pair of them.
 
@@ -146,7 +144,7 @@ After the input registration the user may have up to $t$ credentials from all of
 Let $S \subseteq \left[1,t\right]$ be the indices of credentials that she wants to consolidate into a single output registration.
 
 #### 2.2.1 Credential Validity
-For each credential $i \in S$ Bob executes the $\mathsf{Show}$ protocol as in [CPZ19](#references):
+For each credential $i \in S$ Bob executes the $\mathsf{Show}$ protocol as in [[CPZ19]](#references):
 
 1. She chooses $z_i \in_{R} \mathbb{Z}_{q}$, and computes $z_{0_i}=-{t_i} {z_i} (\bmod q)$ and the randomized commitments:
 $$
@@ -231,3 +229,6 @@ Note that after revealing $s_i$, we no longer have perfect hiding in the $M_{s_i
 [Miz13]  Alex Mizrahi. coin mixing using chaum’s blind signatures, 2013.
 
 [MNF17] Felix Konstantin Maurer, Till Neudecker, and Martin Florian. Anony-mous coinjoin transactions with arbitrary values. In2017 IEEE Trust-com/BigDataSE/ICESS, pages 522–529. IEEE, 2017.
+
+###### 1
+$\log_2(2099999997690000) \approx 50.9$
