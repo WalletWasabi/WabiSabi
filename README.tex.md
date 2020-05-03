@@ -149,15 +149,15 @@ Let $S \subseteq \left[1,t\right]$ be the indices of credentials that she wants 
 For each credential $i \in S$ Bob executes the $\mathsf{Show}$ protocol as in [CPZ19]:
 
 1. She chooses $z_i \in_{R} \mathbb{Z}_{q}$, and computes $z_{0_i}=-{t_i} {z_i} (\bmod q)$ and the randomized commitments:
-    $$
-    \begin{align*}
-    C_{v_i}     &= {G_v}^{z_i} M_{v_i} \\
-    C_{s_i}     &= {G_s}^{z_i} M_{s_i} \\
-    C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
-    C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
-    C_{V_i}     &= {G_V}^{z_i} V \\
-    \end{align*}
-    $$
+$$
+\begin{align*}
+C_{v_i}     &= {G_v}^{z_i} M_{v_i} \\
+C_{s_i}     &= {G_s}^{z_i} M_{s_i} \\
+C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
+C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
+C_{V_i}     &= {G_V}^{z_i} V \\
+\end{align*}
+$$
 
 2. To prove to the coordinator that she is in posession of a valid MAC on her amount and serial number commitments, Bob computes the following proof of knowledge:
 $$
@@ -170,3 +170,64 @@ $$
 $$
 
 [//]: # (if we go with OR proof, then \lor M_{v_i} = {G_g}^{r_{v_i}} {G_h}^0)
+
+Finally, Bob sends $(C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{v_i} C_{s_i} \pi_i^{\mathit{MAC}})$ to the coordinator, who computes:
+$$
+Z_i=\frac{C_{V_i}}{W {C_{x_{0_i}}}^{x_0} {C_{x_{1_i}}}^{x_{1}}
+{C_{v_i}}^{y_v} {C_{s_i}}^{y_s} %%% FIXME WTF WTF is this even correct?
+}
+$$
+using the secret key $(W, x_{0}, x_{1}, y_v, y_s)$ and verifies $\pi_i^{\mathit{MAC}}$.
+
+[//]: # (note Z_i is calculated independently by ``Bob'' and the coordinator)
+
+#### 2.2.2 Preventing over-spending by proving sum of amounts
+The product of randomized commitments amounts to:
+
+$$
+\prod_{i \in S} C_{{v_i}}
+= \prod_{i \in S} {G_v}^{z_i}M_{v_i}
+= {G_v}^{\sum_{i \in S} z_i}{G_g}^{\sum_{i \in S} r_{v_i}}{G_h}^{\sum_{i \in S} v_i}
+$$
+
+Therefore we can obtain a witness-indistinguishable proof for the sum of the committed values $v_i$ in the randomized commitments:
+
+$$ \pi^{v_{out}}=\left(\sum_{i \in S}z_i,\sum_{i \in S}r_{v_i}\right) $$
+
+The coordinator checks whether
+$$
+\prod_{i \in S} C_{v_i}
+\stackrel{?}{=}
+{G_v}^{\pi^{v_{out}}[1]} {G_g}^{\pi^{v_{out}}[2]} {G_h}^{v_{\mathit{out}}}
+$$
+
+The coordinator can compute the right hand side of the verification equation, since she obtained the exponents of each of the generator points from the submitted $\pi^{v_{out}}$. Informally soundness of the proof system holds as user does not know the discrete logs between the generator points used in the randomized commitments. While zero-knowledge is ensured since $\sum_{i \in S}z_i$ does not leak anything about individual $z_i$. We can have a similar argument for $\sum_{i \in S}r_{v_i}$ and $r_{v_i}$.
+
+#### 2.2.3 Preventing Double-spending by revealing serial numbers
+Bob randomizes her serial number commitments:
+
+$$ \forall i \in S: C_{{s_i}}={G_s}^{z_i}M_{s_i}={G_s}^{z_i}{G_g}^{r_{s_i}}{G_h}^{s_i} $$
+
+Bob proves knowledge of representation of her submitted randomized serial number commitments, namely:
+$$
+\pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (s_i, z_i, r_{s_i}):C_{s_i} = {G_s}^{z_i}{G_g}^{r_{s_i}}{G_h}^{s_i}
+\}
+$$
+where the serial number $s_i$ is a public input, revealed to prevent double spending. The coordinator checks that the $s_i$ have not been used before (but allowing for idempotent output registration).
+
+Note that after revealing $s_i$, we no longer have perfect hiding in the $M_{s_i}$ commitment, since, because there is exactly one $r_{s_i} \in \mathbb{Z}_q$ such that $M_{s_i} = {G_g}^{r_{s_i}} {G_h}^{s_i}$. To preserve user privacy in case of a crypto break we can add another randomness term with an additional generator to the the serial number commitment.
+
+### References
+[Cha83] David Chaum. Blind signatures for untraceable payments. In *Advances in cryptology*, pages 199–203. Springer, 1983.
+
+[CPZ19] Melissa Chase, Trevor Perrin, and Greg Zaverucha. The signal privategroup system and anonymous credentials supporting efficient verifi-able encryption. Technical report, Cryptology ePrint Archive, Report2019/1416, 2019.
+
+[FL19]  Jonald Fyookball and Mark B. Lundeberg. Cashfusion, 2019
+
+[FT17]  Adam Ficsor and TDevD. Zerolink: The bitcoin fungibility frame-work, 2017.
+
+[Max13] Greg Maxwell. Coinjoin: Bitcoin privacy for the real world, 2013.
+
+[Miz13]  Alex Mizrahi. coin mixing using chaum’s blind signatures, 2013.
+
+[MNF17] Felix Konstantin Maurer, Till Neudecker, and Martin Florian. Anony-mous coinjoin transactions with arbitrary values. In2017 IEEE Trust-com/BigDataSE/ICESS, pages 522–529. IEEE, 2017.
