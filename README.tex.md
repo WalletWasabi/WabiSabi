@@ -18,7 +18,44 @@ In this protocol we define four different roles, three for the user, Alice, Bob,
 
 Each role must be used with a unique anonymity network identity,and users with multiple inputs or outputs must instantiate multiple Alices or Bobs, one for each input or output respectively.
 
-...
+### 1.2 Terminology and Notation
+
+**Definition 1.1** ***Input:*** *An existing Bitcoin transaction output that the user wants to use as an input in the CoinJoin transaction. For this section we represent inputs only in terms of their satoshi amount (integer) $v_{\mathit{in}}$, ignoring details like proving ownership. Details such as confirmation, standardness and other factors are outside the scope of this document.*
+
+**Definition 1.2** ***Output:*** *A Bitcoin transaction output that the user wishes to create in the CoinJoin without linking to any of their inputs or other outputs. Similarly to inputs, we represent outputs only in terms of their satoshi amount $v_{\mathit{out}}$, ignoring details like the* ***scriptPubKey***
+
+**Definition 1.3** ***Credential:*** *An anonyous credential is issued by the coordinator at input registration, and certifies attributes that the coordinator validates before issuing. The user can then prove possession of a valid credential in zero-knowledge in order to register an output without the coordinator being able to link it to the input registration from which it originates, or any other output registrations.
+
+We use the key-verifiable anonymous credential scheme from [CPZ19], instantiated with two group attributes (attributes whose value is an element of theunderlying group  $\mathbb{G}$).*
+
+**Definition 1.4** ***Attribute:*** *In order to facilitate construction of Bitcoin transactions, a credential represents some amount of Bitcoin. For this we use two attributes: $M_v$ is a commitment to the amount of the registered input in satoshis and $M_s$ is a commitment to a serial number used for double spending prevention.
+
+During credential presentation randomized versions of the attributes are presented, which we denote $C_v$ and $C_s$.*
+
+Finally, $k$ is a protocol level constant, denoting the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges<sup>[1]</sup>.
+
+[//]: # (TODO Link to a footnotes section at the bottom for the line above's [1])
+
+### 1.3 Input Registration
+The user, acting as Alice, submits her input of value $v_{\mathit{in}}$ along with $k$ pairs of group attributes,
+$(M_{v_i}, M_{s_i})$.
+She proves in zero knowledge that the sum of the requested sub-amounts is equal to $v_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
+
+[//]: # (TODO decide if we want additional input credentials if we go with OR proof variant open questions: - pedersen multicommitment for amount and serial or two separate group attributes? - if separate, extra generator + randomness for unconditional hiding of serial number even after revealing serial?)
+
+The coordinator verifies the proofs, and issues $k$ MACs (message authentication codes) on the requested attributes, along with a proof of knowledge of the secret key as described in *Credential Issuance* protocol of [CPZ19].
+
+### 1.4 Output Registration
+Now acting as Bob, to register her output the user randomizes the attributes and generates a proof of knowledge of a valid credential issued by the coordinator.
+
+Additionally, she proves knowledge of representation of the serial number commitments. These serial numbers are revealed for double spending protection, but the knowledge of commitment opening should be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in output registration time.
+
+Finally, she proves that the sum of the randomized amount attributes $C_v$ matches the requested output amount $v_{\mathit{out}}$, analogously to input registration. Note that there is no need for range proofs at this phase.
+
+The user submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
+
+### 1.5 Signing Phase
+The coordinator sends out the final unsigned transaction to the different Alices who will sign if they see their registered output included in the transaction.
 
 ## 2 Cryptographic Details
 Following [CPZ19], the scheme is defined in a group $\mathbb{G}$ of prime order $q$, written in multiplicative notation.
@@ -30,3 +67,77 @@ G_{v}, G_{s}, G_g, G_h,
 G_{V}.
 \]
 $$
+
+This notation deviates slightly from [CPZ19], in that we subscript the attribute generators $G_{y_i}$ as $G_v$ and $G_s$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attributes $M_v$ and $M_s$ as Pedersen commitments.
+
+We assume that all generator points used throughout the protocol are generated in a way that nobody knows the discrete logarithms between any pair of them.
+
+As with the generators we denote the secret key
+$ \mathrm{sk} := \left(w, w^{\prime}, x_{0}, x_{1},y_{v}, y_{s}\right) $.
+
+The issuer parameters
+$\mathit{iparams} =  (C_{W}, I)$
+are computed as:
+$$
+C_{W}={G_w}^{w} {G_{w^\prime}}^{w^\prime}
+\quad
+I=\frac{G_{V}}{{G_{x_0}}^{x_0} {G_{x_1}}^{x_1} {G_{y_v}}^{y_v} {G_{y_s}}^{y_s}}
+$$
+
+### 2.1 Input Registration
+
+
+Alice wants to register an input UTXO with value $v_{\mathit{in}}$, broken into sub-amounts $v_i$ where $i \in \left[1,k\right]$.
+She submits amount and serial number commitments:
+$$ \forall i \in \left[1,k\right]: M_{v_i}={G_g}^{r_{v_i}}{G_h}^{v_i} $$
+$$ \forall i \in \left[1,k\right]: M_{s_i}={G_g}^{r_{s_i}}{G_h}^{s_i} $$
+
+For each amount she includes a range proof:
+$$
+\pi^{\mathit{range}}_i := \operatorname{PK}\left\{\left(v_i, r_{v_i} \right) :
+M_{v_i} = {G_g}^{r_{v_i}}{G_h}^{v_i}
+\land
+0 \leq v_i < v_{\mathit{max}} \right\}
+$$
+
+Alice also needs to convince the coordinator that the sent amount commitments add up to the registered input UTXO value, hence she sends the following proof:
+$$ \pi^{\mathit{sum}}=\sum_{i=1}^{k} r_{v_i} $$
+
+The coordinator can then calculate the product of the amount commitments and check:
+
+$$ \prod_{i=1}^{k} M_{v_i}
+\stackrel{?}{=}
+{G_g}^{\pi^{\mathit{sum}}}{G_h}^{v_{\mathit{in}}}
+$$
+
+Note that this equality over the product of commitments implies the sum is correct:
+$$
+\prod_{i=1}^{k} M_{v_i}
+= {G_h}^{\sum_{i=1}^{k} v_i} {G_g}^{\sum_{i=1}^{k} r_{v_i}}
+\iff
+\sum_{i=1}^{k} v_i = v_{\mathit{in}}
+$$
+
+If the coordinator accepts it issues the credentials by responding with a MAC
+$(t_i, U_i, V_i) \in \mathbb{Z}_q \times \mathbb{G} \times \mathbb{G}$ for each credential
+where
+$t_i \in_{R} \mathbb{Z}_{q}, U_i \in_{R} \mathbb{G}$
+and
+$$
+V_i=W {U_i}^{x_{0}+x_{1} t_i}{M_{v_i}}^{y_v} {M_{s_i}}^{y_s}
+$$
+
+To avoid tagging individual users the coordinator must also prove knowledge of the secret key, and that $(t_i, U_i, V_i)$ is correct relative to $\mathit{iparams}=(C_{W}, I)$ with the following proof of knowledge:
+[//]: # ("TODO rephrase this a little so it's not plagiarism" ... Try a citation to not plagairize 😜 -Dan G)
+
+$$
+\begin{align*}
+\pi_{i}^{\mathit{iparams}}=\operatorname{PK}\{ & (w, w^{\prime}, x_{0}, x_{1}, y_v, y_s): \\
+&C_{W}={G_{w}}^{w} {G_{w^{\prime}}}^{w^\prime} \land \\
+&I=\frac{G_{V}}{{G_{x_{0}}}^{x_0} {G_{x_1}}^{x_1} {G_{y_v}}^{y_v} {G_{y_s}}^{y_s}} \land \\
+&V_i={G_w}^{w}{U_i}^{x_{0}+x_{1}t_i} M_{v_i} M_{s_i}
+\}
+\end{align*}
+$$
+
+### 2.2 Output Registration
