@@ -116,17 +116,55 @@ Let <img src="/tex/81c24e2d90171569caf37138fceb7974.svg?invert_in_darkmode&sanit
 For each credential <img src="/tex/a9632a01526dc9b26bf61b382c164bbf.svg?invert_in_darkmode&sanitize=true" align=middle width=36.781765349999986pt height=22.465723500000017pt/> Bob executes the <img src="/tex/f8336050aaa87118dda2feeca5d8928b.svg?invert_in_darkmode&sanitize=true" align=middle width=36.84942689999999pt height=22.831056599999986pt/> protocol as in [CPZ19]:
 
 1. She chooses <img src="/tex/93d2ca33eacb2c125b743bf05193756a.svg?invert_in_darkmode&sanitize=true" align=middle width=61.389074999999984pt height=22.648391699999998pt/>, and computes <img src="/tex/ba441d6ad552995864e2b9188de063aa.svg?invert_in_darkmode&sanitize=true" align=middle width=133.50283979999998pt height=24.65753399999998pt/> and the randomized commitments:
-    $$
-    \begin{align*}
-    C_{v_i}     &= {G_v}^{z_i} M_{v_i} \\
-    C_{s_i}     &= {G_s}^{z_i} M_{s_i} \\
-    C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
-    C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
-    C_{V_i}     &= {G_V}^{z_i} V \\
-    \end{align*}
-    $$
+<p align="center"><img src="/tex/619e26addf9bd88ecaae33f154a909c7.svg?invert_in_darkmode&sanitize=true" align=middle width=119.5400052pt height=120.26603324999998pt/></p>
 
 2. To prove to the coordinator that she is in posession of a valid MAC on her amount and serial number commitments, Bob computes the following proof of knowledge:
 <p align="center"><img src="/tex/9dbc0ebae19759352e793ab973a17c9f.svg?invert_in_darkmode&sanitize=true" align=middle width=288.4765587pt height=72.7423125pt/></p>
 
 [//]: # (if we go with OR proof, then \lor M_{v_i} = {G_g}^{r_{v_i}} {G_h}^0)
+
+Finally, Bob sends <img src="/tex/484c691d6ce71938f048df067f1418dc.svg?invert_in_darkmode&sanitize=true" align=middle width=215.54675009999997pt height=27.53345100000001pt/> to the coordinator, who computes:
+<p align="center"><img src="/tex/1f6700db2775986ae8c98bab56f43c45.svg?invert_in_darkmode&sanitize=true" align=middle width=227.76908714999996pt height=40.385761349999996pt/></p>
+using the secret key <img src="/tex/c32ea36d2ce75556cb23ce67d37c4e11.svg?invert_in_darkmode&sanitize=true" align=middle width=121.5717063pt height=24.65753399999998pt/> and verifies <img src="/tex/09abc9e7ef0473fb358d066523da0cb4.svg?invert_in_darkmode&sanitize=true" align=middle width=42.84862394999999pt height=27.53345100000001pt/>.
+
+[//]: # (note Z_i is calculated independently by ``Bob'' and the coordinator)
+
+#### 2.2.2 Preventing over-spending by proving sum of amounts
+The product of randomized commitments amounts to:
+
+<p align="center"><img src="/tex/9709b926b1417905f5d6699a7c74adf1.svg?invert_in_darkmode&sanitize=true" align=middle width=394.04431769999997pt height=37.775108249999995pt/></p>
+
+Therefore we can obtain a witness-indistinguishable proof for the sum of the committed values <img src="/tex/9f7365802167fff585175c1750674d42.svg?invert_in_darkmode&sanitize=true" align=middle width=12.61896569999999pt height=14.15524440000002pt/> in the randomized commitments:
+
+<p align="center"><img src="/tex/dc144e2fb49bb902dd8ed56a1bc4106b.svg?invert_in_darkmode&sanitize=true" align=middle width=176.90002439999998pt height=49.315569599999996pt/></p>
+
+The coordinator checks whether
+<p align="center"><img src="/tex/60f1b9eea2fccb60812bff41a39a66ef.svg?invert_in_darkmode&sanitize=true" align=middle width=250.45641554999997pt height=37.8240456pt/></p>
+
+The coordinator can compute the right hand side of the verification equation, since she obtained the exponents of each of the generator points from the submitted <img src="/tex/5f26abceba37132fcbda96286df7d518.svg?invert_in_darkmode&sanitize=true" align=middle width=33.89872529999999pt height=21.839370299999988pt/>. Informally soundness of the proof system holds as user does not know the discrete logs between the generator points used in the randomized commitments. While zero-knowledge is ensured since <img src="/tex/abaa001e2638cf195486306683530fff.svg?invert_in_darkmode&sanitize=true" align=middle width=55.41907304999998pt height=24.657735299999988pt/> does not leak anything about individual <img src="/tex/6af8e9329c416994c3690752bde99a7d.svg?invert_in_darkmode&sanitize=true" align=middle width=12.29555249999999pt height=14.15524440000002pt/>. We can have a similar argument for <img src="/tex/aadeb43b5222eb26051a45e8d75e6af4.svg?invert_in_darkmode&sanitize=true" align=middle width=61.500760199999995pt height=24.657735299999988pt/> and <img src="/tex/e426fa6cbb1b435396a6ef5db6705e02.svg?invert_in_darkmode&sanitize=true" align=middle width=18.377239649999993pt height=14.15524440000002pt/>.
+
+#### 2.2.3 Preventing Double-spending by revealing serial numbers
+Bob randomizes her serial number commitments:
+
+<p align="center"><img src="/tex/4f34e626e93764787f1b1d7610b00d8b.svg?invert_in_darkmode&sanitize=true" align=middle width=291.2009991pt height=16.826464050000002pt/></p>
+
+Bob proves knowledge of representation of her submitted randomized serial number commitments, namely:
+<p align="center"><img src="/tex/f51f148ebceb1cc2d507dc760eeb372e.svg?invert_in_darkmode&sanitize=true" align=middle width=344.44499595pt height=19.4813124pt/></p>
+where the serial number <img src="/tex/4fa3ac8fe93c68be3fe7ab53bdeb2efa.svg?invert_in_darkmode&sanitize=true" align=middle width=12.35637809999999pt height=14.15524440000002pt/> is a public input, revealed to prevent double spending. The coordinator checks that the <img src="/tex/4fa3ac8fe93c68be3fe7ab53bdeb2efa.svg?invert_in_darkmode&sanitize=true" align=middle width=12.35637809999999pt height=14.15524440000002pt/> have not been used before (but allowing for idempotent output registration).
+
+Note that after revealing <img src="/tex/4fa3ac8fe93c68be3fe7ab53bdeb2efa.svg?invert_in_darkmode&sanitize=true" align=middle width=12.35637809999999pt height=14.15524440000002pt/>, we no longer have perfect hiding in the <img src="/tex/da6b8a96fc9646c1856fb76cb2456665.svg?invert_in_darkmode&sanitize=true" align=middle width=26.537410349999988pt height=22.465723500000017pt/> commitment, since, because there is exactly one <img src="/tex/6515cffe407d004a59e357f5bb6735d1.svg?invert_in_darkmode&sanitize=true" align=middle width=57.13793909999999pt height=22.648391699999998pt/> such that <img src="/tex/901791ebf84e966872e49c5a410c6483.svg?invert_in_darkmode&sanitize=true" align=middle width=121.16664779999999pt height=24.246581700000014pt/>. To preserve user privacy in case of a crypto break we can add another randomness term with an additional generator to the the serial number commitment.
+
+### References
+[Cha83] David Chaum. Blind signatures for untraceable payments. In *Advances in cryptology*, pages 199–203. Springer, 1983.
+
+[CPZ19] Melissa Chase, Trevor Perrin, and Greg Zaverucha. The signal privategroup system and anonymous credentials supporting efficient verifi-able encryption. Technical report, Cryptology ePrint Archive, Report2019/1416, 2019.
+
+[FL19]  Jonald Fyookball and Mark B. Lundeberg. Cashfusion, 2019
+
+[FT17]  Adam Ficsor and TDevD. Zerolink: The bitcoin fungibility frame-work, 2017.
+
+[Max13] Greg Maxwell. Coinjoin: Bitcoin privacy for the real world, 2013.
+
+[Miz13]  Alex Mizrahi. coin mixing using chaum’s blind signatures, 2013.
+
+[MNF17] Felix Konstantin Maurer, Till Neudecker, and Martin Florian. Anony-mous coinjoin transactions with arbitrary values. In2017 IEEE Trust-com/BigDataSE/ICESS, pages 522–529. IEEE, 2017.
