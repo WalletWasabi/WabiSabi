@@ -128,7 +128,8 @@ V_i=W {U_i}^{x_{0}+x_{1} t_i}{M_{v_i}}^{y_v} {M_{s_i}}^{y_s}
 $$
 
 To avoid tagging individual users the coordinator must also prove knowledge of the secret key, and that $(t_i, U_i, V_i)$ is correct relative to $\mathit{iparams}=(C_{W}, I)$ with the following proof of knowledge:
-[//]: # ("TODO rephrase this a little so it's not plagiarism" ... Try a citation to not plagairize 😜 -Dan G)
+
+[//]: # (TODO rephrase this a little or cite so it's not plagiarism)
 
 $$
 \begin{align*}
@@ -141,3 +142,31 @@ $$
 $$
 
 ### 2.2 Output Registration
+After the input registration the user may have up to $t$ credentials from all of her input registration requests made as one or more Alice identities.
+Let $S \subseteq \left[1,t\right]$ be the indices of credentials that she wants to consolidate into a single output registration.
+
+#### 2.2.1 Credential Validity
+For each credential $i \in S$ Bob executes the $\mathsf{Show}$ protocol as in [CPZ19]:
+
+1. She chooses $z_i \in_{R} \mathbb{Z}_{q}$, and computes $z_{0_i}=-{t_i} {z_i} (\bmod q)$ and the randomized commitments:
+    $$
+    \begin{align*}
+    C_{v_i}     &= {G_v}^{z_i} M_{v_i} \\
+    C_{s_i}     &= {G_s}^{z_i} M_{s_i} \\
+    C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
+    C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
+    C_{V_i}     &= {G_V}^{z_i} V \\
+    \end{align*}
+    $$
+
+2. To prove to the coordinator that she is in posession of a valid MAC on her amount and serial number commitments, Bob computes the following proof of knowledge:
+$$
+\begin{align*}
+\pi_{i}^{\mathit{MAC}}=\operatorname{PK}\{
+& (z_i, z_{0_i},t_i): \\
+& Z_i =I^{z_i} \land \\ %% does this proof need to say anything about C_{m_i} or C_{s_i} or is this statement about Z enough?
+& C_{x_{1_i}} = {C_{x_{0_i}}}^{t_i} {G_{x_0}}^{z_{0_i}} {G_{x_1}}^{z_i}\}
+\end{align*}
+$$
+
+[//]: # (if we go with OR proof, then \lor M_{v_i} = {G_g}^{r_{v_i}} {G_h}^0)
