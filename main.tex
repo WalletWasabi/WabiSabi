@@ -76,6 +76,35 @@ During credential presentation randomized versions of the attributes are present
 
 Finally, $k$ is a protocol level constant, denoting the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges\footnote{$\log_2(2099999997690000) \approx 50.9$}.
 
+\subsection{High-level functionalities}
+Hereby we give an informal and high-level description of applied cryptographic primitives. In the following the security parameter is denotes as $\lambda$. 
+\subsubsection{Commitment schemes}
+A commitment scheme allows a party to commit to a message without enabling them to change their mind about the committed message after publishing the commitment. On the other hand the commitment should not reveal anything about the committed message.
+
+\noindent$\mathsf{Com}(m,r)\xrightarrow{}\mathcal{C}$. The $\mathsf{Com}$ algorithm generates a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
+
+\noindent$\mathsf{OpenCom}(\mathcal{C},m,r)\xrightarrow{}\{\mathit{True},\mathit{False}\}$: one can verify the correctness of the opening of a commitment by checking $\mathcal{C}\stackrel{?}{=}\mathsf{Com}(m,r)$. If equality holds the algorithm outputs $\mathit{True}$, otherwise $\mathit{False}$.
+
+For ease of understanding the reader can assume in the following that the commitment scheme is instantiated as a Pedersen commitment.
+
+\subsubsection{MAC}
+A message authentication code (MAC) ensures the integrity of a message and consists of the following three probabilistic polynomial-time algorithms.
+
+\noindent$\mathsf{GenMACKey}(\lambda)\xrightarrow{}{\mathsf{sk}}$. a party generates a secret key $\mathsf{sk}$ for themselves for later MAC generations.
+
+\noindent$\mathsf{MAC}_{\mathsf{sk}}(m)\xrightarrow{}t$. one can generate a MAC $t$ on a message a $m$ by using their $\mathsf{sk}$.
+
+\noindent$\mathsf{VerifyMAC}_{\mathsf{sk}}(m,t)\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The issuer of the MAC can verify a MAC $t$ given the message $m$ it was issued on.
+
+The reader might intuitively think of a MAC as the symmetric-key counterpart of digital signatures. They both have the same goals and similar security requirements, however a MAC is not publicly verifiable.
+
+\subsubsection{Zero-knowledge proofs of knowledge}
+A very high-level, and hence somewhat imprecise, description of zero-knowledge proofs is provided. This protocol invovles a prover and a verifier. A prover whishes to prove that a relation $\mathcal{R}$ holds with respect to a secret input $w$, called witness, and public input $x$. Specifically, the prover wants to prove that $\mathcal{R}(x,w)=1$ without revealing anything about $w$.
+
+\noindent$\mathsf{Prove}(x,w,\mathcal{R})\xrightarrow{}\pi$. Given $x$ and the private witness $w$ the prover generates a proof $\pi$.
+
+\noindent$\mathsf{Verify}(x,\pi,\mathcal{R})\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The verifier is given the proof $\pi$ and $x$ and decides whether the prover knows a secret $w$ such that $\mathcal{R}(x,w)=1$ holds.
+
 \subsection{Input Registration} 
 
 The user, acting as Alice, submits her input of value $v_{\mathit{in}}$ along with $k$ pairs of group attributes,
