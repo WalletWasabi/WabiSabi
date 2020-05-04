@@ -9,4 +9,9 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@master
         with:
-          root_file: src/main.tex
+          root_file: main.tex
+      - name: LaTeX output artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: LaTeX Output
+          path: main.pdf
