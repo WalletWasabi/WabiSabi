@@ -18,7 +18,7 @@
 
 % TODO citations should not be included in the abstract, the abstract should be cleaned up, and the remaining information and citations split off into an introduction section with citations
 
-Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin} is a technique used by Wasabi Wallet and Samourai Wallet~\cite{zerolink} to facilitate untrusted construction of collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures~\cite{chaum1983blind}. However this technique requires standard equal value denominations, which limits how such transactions can be constructed.
+Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin} is a technique used by Wasabi Wallet and Samourai Wallet~\cite{zerolink} to facilitate untrusted construction of collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures~\cite{chaum1983blind}. However this technique requires equal value denominations, which limits how such transactions can be constructed.
 
 We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal} to enable more flexible transaction styles, like SharedCoin and CashFusion~\cite{cashfusion} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Our generalization also enables consolidation of UTXOs, minimizing unmixed change, relaxing minimum required denominations, payments in CoinJoins, better block space efficiency, and PayJoins in CoinJoins. We call this new protocol: WabiSabi.
 
@@ -131,7 +131,7 @@ The user submits these proofs, the randomized attributes, and the serial numbers
 
 \subsection{Signing phase}
 
-The user fetches the finalized but unsigned transaction as Satoshi, and if she sees her registered inputs and outputs she will sign, submitting the signature as Alice(s).
+The user fetches the finalized but unsigned transaction as Satoshi, and if she sees her registered outputs she will sign, submitting the signature as Alice(s).
 
 \section{Cryptographic Details}
 
