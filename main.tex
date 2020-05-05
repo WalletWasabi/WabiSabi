@@ -18,13 +18,13 @@
 
 % TODO citations should not be included in the abstract, the abstract should be cleaned up, and the remaining information and citations split off into an introduction section with citations
 
-Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin} is a technique used by Wasabi Wallet and Samourai Wallet~\cite{zerolink} to facilitate untrusted construction of collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures~\cite{chaum1983blind}. However this technique requires standard denominations, which limits how such transactions can be constructed.
+Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin} is a technique used by Wasabi Wallet and Samourai Wallet~\cite{zerolink} to facilitate untrusted construction of collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures~\cite{chaum1983blind}. However this technique requires standard equal value denominations, which limits how such transactions can be constructed.
 
 We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal} to enable more flexible transaction styles, like SharedCoin and CashFusion~\cite{cashfusion} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Our generalization also enables consolidation of UTXOs, minimizing unmixed change, relaxing minimum required denominations, payments in CoinJoins, better block space efficiency, and PayJoins in CoinJoins. We call this new protocol: WabiSabi.
 
 \end{abstract}
 
-% Important remainder from removed Motivation: In the current protocol input registration links the user's inputs, as well as their change output.
+% Important remainder from removed Motivation: In the ZeroLink protocol input registration links all of the user's inputs, as well as their change output.
 
 % original motivation section had is several things rolled into one, which should be clarified separately:
 % 1. payments from a coinjoin
@@ -39,7 +39,7 @@ We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) 
 
 \section{Protocol Overview}
 
-\textit{Note that the following is an incomplete overview, in its current form it only attempts to give some intution for the cryptographic details described below.}
+\textit{Note that the following is an incomplete overview, in its current form it only attempts to give some intution for the cryptographic details described below. It is limited in scope to only the coomunication between user and server, and disregards the final CoinJoin transaction structure.}
 
 \subsection{Roles}
 In this protocol we define four different roles, three for the user, Alice, Bob and Satoshi, and the coordinator.
@@ -80,7 +80,7 @@ Finally, $k$ is a protocol level constant, denoting the number of credentials us
 \subsection{High-level functionalities}
 Hereby we give an informal and high-level description of applied cryptographic primitives. In the following the security parameter is denotes as $\lambda$. 
 \subsubsection{Commitment schemes}
-A commitment scheme allows a party to commit to a message without enabling them to change their mind about the committed message after publishing the commitment. On the other hand the commitment should not reveal anything about the committed message.
+A commitment scheme allows a party to commit to a message without enabling them to change the committed message after publishing the commitment. On the other hand the commitment should not reveal anything about the committed message.
 
 \noindent$\mathsf{Commit}(m,r)\xrightarrow{}\mathcal{C}$. The $\mathsf{Com}$ algorithm generates a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
 
@@ -117,13 +117,13 @@ She proves in zero knowledge that the sum of the requested sub-amounts is equal 
 % - single pedersen multicommitment for amount and serial or two separate group attributes?
 % - if separate, extra generator + randomness for unconditional hiding of serial number even after revealing serial?
 
-The coordinator verifies the proofs, and issues $k$ MACs (message authentication codes) on the requested attributes, along with a proof of knowledge of the secret key as described in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
+The coordinator verifies the proofs, and issues $k$ MACs on the requested attributes, along with a proof of knowledge of the secret key as described in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
 
 \subsection{Output Registration}
 
 Now acting as Bob, to register her output the user randomizes the attributes and generates a proof of knowledge of a valid credential issued by the coordinator.
 
-Additionally, she proves knowledge of representation of the serial number commitments. These serial numbers are revealed for double spending protection, but the knowledge of commitment opening should be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in output registration time.
+Additionally, she proves knowledge of representation of the serial number commitments. These serial numbers are revealed for double spending protection, but the knowledge of commitment opening must be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in output registration time.
 
 Finally, she proves that the sum of the randomized amount attributes $C_v$ matches the requested output amount $v_{\mathit{out}}$, analogously to input registration. Note that there is no need for range proofs at this phase.
 
@@ -131,7 +131,7 @@ The user submits these proofs, the randomized attributes, and the serial numbers
 
 \subsection{Signing phase}
 
-The user fetches the finalized but unsigned transaction as Satoshi, and if she sees her registered outputs she will sign, submitting the signature as Alice(s).
+The user fetches the finalized but unsigned transaction as Satoshi, and if she sees her registered inputs and outputs she will sign, submitting the signature as Alice(s).
 
 \section{Cryptographic Details}
 
