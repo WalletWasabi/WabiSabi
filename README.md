@@ -4,64 +4,36 @@
 
 # WabiSabi: Trustless and Arbitrary CoinJoins
 
-**Abstract.** Generalization of [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/). WabiSabi enables the construction of trustless coinjoins with arbitrary input and output values.
+## Abstract
+[Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/) is a technique used by Wasabi Wallet and Samourai Wallet to facilitate untrusted construction of collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures. However this technique because it reveals to the coordinator input-input and input-output linkage of the user. Furter it requires standard denominations, which limits how such transactions can be constructed.
 
-## Introduction
+We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) scheme to enable more flexible transaction styles, like SharedCoin and CashFusion style transactions and Knapsack mixing. Our generalization also enables consolidation of UTXOs, minimizing unmixed change, relaxing minimum required denominations, payments in CoinJoins, better block space efficiency, and PayJoins in CoinJoins. We call this new protocol: WabiSabi.
 
-A Bitcoin transaction consists of inputs and outputs. [CoinJoins](https://bitcointalk.org/index.php?topic=279249.msg2983902#msg2983902) are Bitcoin transactions of multiple collaborating participants.
+## Motivation
 
-**CoinJoins are inherently secure**, because if a participant does not see its desired outputs in the resulting CoinJoin transaction, it refuses to sign. A CoinJoin round consists of an **Input Registration**, an **Output Registration** and a **Transaction Signing** phases.
+WabiSabi should improve upon current CoinJoin techniques in the following ways:
+- Enable unlinkable consolidation of multiple inputs by one user.
+- Enable unlinkable merging of any number of inputs into any number of outputs.
+- Enable the creation of arbitrary values outputs.
 
-![](https://i.imgur.com/T0FwiZh.png)
+WabiSabi will enable novel use cases like:
+- CoinJoin to the same user
+-- Private and efficient consolidation of multiple small value coins.
+-- Moving coins between wallets, for example from hot wallet to hardware wallet.
+- Payment transactions in the same CoinJoin
+-- Private and efficient transaction batching.
+-- The sender does not gain knowledge of the input of the receiver.
+ 
+WabiSabi is good for Bitcoin because:
+- Improves the privacy of every day users.
+- Rewards blockspace efficient transactions [like transaction batching and coin consolidation] with extra privacy.
+- Can be combined with other privacy solutions.
 
-**To guarantee network level unlinkability** in regards to input-input, output-output and input-output relations participants must use different anonymity network identities to register each and every inputs and outputs of theirs to a trustless coordinator. This technique leverages an already existing anonymity network infrastructure. Another approach could be what [CoinShuffle](https://petsymposium.org/2014/papers/Ruffing.pdf), [CoinShuffle++](https://www.ndss-symposium.org/wp-content/uploads/2017/09/ndss201701-4RuffingPaper.pdf) and [ValueShuffle](https://www.ndss-symposium.org/wp-content/uploads/2017/09/NDSS-2017_Paper_Ruffing.pdf) took, where a custom anonymity network is created to facilitate the mixing. The anonymity set of this anonymity network is ideally the number of participatns in a round. However in order to avoid cross-mixing round correlation, the use of an existing anonymity network infrastructure is still desirable.
+## Work in Progress
 
-Our proposed scheme generalizes trustless construction of arbitrary CoinJoins. This enables numerous things those were not possible before.
-
-- It enables for the first time trustless construction of [SharedCoin](https://en.bitcoin.it/wiki/Shared_coin) style transactions.
-- It enables for the first time a novel mixing construct, called [Knapsack mixing ](https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf).
-- It improves upon [Chaumian CoinJoins](https://github.com/nopara73/ZeroLink/) for the first time in numerous ways, most notably it enables the sending of exact amounts and enabling unlinkable consolidation of multiple UTXOs.
-- It enables the creation of [CashFusion](https://github.com/cashshuffle/spec/blob/master/CASHFUSION.md) style transactions with orders of magnitude reduction of complexity.
-- It can directly improve upon [JoinMarket](https://github.com/JoinMarket-Org/joinmarket-clientserver) by the taker being also the WabiSabi coordinator, so it does not need to learn the mapping of the whole transaction anymore. However this could also be achieved by traditional Chaumian CoinJoins.
-- Ideas in this paper can be used to enable construction of CoinJoins with [Confidential Transactions](https://people.xiph.org/~greg/confidential_values.txt). However, unlike WabiSabi, [ValueShuffle](https://www.ndss-symposium.org/wp-content/uploads/2017/09/NDSS-2017_Paper_Ruffing.pdf) is directly built for this purpose.
-
-While network level unlinkability guarantee is easy to achieve, it is difficult to achieve it in a way that also protects against Denial of Service (DoS) attacks. For this reason Chaumian CoinJoins were proposed. However they only work, because the blind signatures provided by the coordinator also correspond with pre-defined denominations. This greatly limits numerous aspects of how a resulting CoinJoin transaction can look like, which has consequences on user experience and on privacy guarantees.
-
-**WabiSabi provides a general and straight forward solution for the problem of trustlessly constructing and coordinating CoinJoins with arbitrary inputs and arbitrary outputs.**
-
-## Overview
-
-The protocol consists of epochs, rounds and phases.
-
-![](https://i.imgur.com/LctiWLS.png)
-
-**Input Registration Phase**, **Output Registration Phase** and **Transaction Signing Phase** follow each other and together they are called the **Main Round**.
-
-**Input Registration** cannot fail, because inputs can be refused or kicked out of the round without penalty before moving on to **Output Registration**. Regardless if **Output Registration** succeeds or fails, the round must progress to **Transaction Signing**, because penalties can only be imposed on malicious inputs and not on malicious outputs. If **Transaction Signing** fails, the protocol progresses to **Blame Round**, which repeats the **Main Round** without the malicious inputs.
-
-The **Main Round** and the potential **Blame Rounds** are called an **Epoch**.
-
-### Main Round
-
-#### Phase 1: Input Registration
-
-Every input must be registered independently over a different anonymity network identitiy. An input can be registered if it is confirmed, mature and unspent. An input must be registered along with a proof of ownership.
-
-(Note: confirmation is not a necessary requirement, but relaxing this requirement would need a specification of long list of sometimes dynamic conditions to be worked out, like if the transaction used RBF, minimum fee rate compared to current network, what is the size and length of the unconfirmed transaction chain it comes from, how this affects the DoS parameters, and such. So for the sake of simplicity, confirmation will be required.)
-
-(ToDo: describe cryptographic operations here.)
-
-#### Phase 2: Output Registration
-
-Every desired output must be registered over a different anonymity network identity.
-
-(ToDo: describe cryptographic operations here.)
-
-#### Phase 3: Transaction Signing
-
-Participants sign the final transaction.
-
-## [Cryptographic Primitives](https://github.com/zkSNACKs/WabiSabi/issues/5)
+The current focus of the research are the cryptographic primitives of the communication protocol of user and server.
+The detailed explanation can be found in the [source code](main.tex) and [latest release](https://github.com/zkSNACKs/WabiSabi/releases), as well in a [proof of concept implementation](https://github.com/lontivero/WabiSabi).
+Nuances of the transaction construction to ensure privacy on the blockchain level is out of scope as of now.
 
 ## Research Questions
 
