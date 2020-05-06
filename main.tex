@@ -18,7 +18,7 @@
 
 % TODO citations should not be included in the abstract, the abstract should be cleaned up, and the remaining information and citations split off into an introduction section with citations
 
-Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin} is a technique used by Wasabi Wallet and Samourai Wallet~\cite{zerolink} to facilitate untrusted construction of collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures~\cite{chaum1983blind}. However this technique requires standard denominations, which limits how such transactions can be constructed.
+Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin} is a technique to facilitate untrusted construction of collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures~\cite{chaum1983blind}. However this technique requires standard denominations, which limits how such transactions can be constructed.
 
 We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal} to enable more flexible transaction styles, like SharedCoin and CashFusion~\cite{cashfusion} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Our generalization also enables consolidation of UTXOs, minimizing unmixed change, relaxing minimum required denominations, payments in CoinJoins, better block space efficiency, and PayJoins in CoinJoins. We call this new protocol: WabiSabi.
 
@@ -39,29 +39,13 @@ We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) 
 
 \section{Protocol Overview}
 
-\textit{Note that the following is an incomplete overview, in its current form it only attempts to give some intution for the cryptographic details described below.}
+A CoinJoin is when multiple participants provide inputs and outputs to a transaction. If a participant does not see its desired outputs in the final transaction than she/he does not sign it, thus the security of this protocol is inherently guaranteed by the Bitcoin network.
 
-\subsection{Roles}
-In this protocol we define four different roles, three for the user, Alice, Bob and Satoshi, and the coordinator.
+In Chaumian CoinJoin participants utilize different anonymity network identities for input and output registration to ensure anonymity. However this brings up this can be attacked by anonymous actors providing more outputs than what they should. This is resolved by utilizing a blind signature scheme to make sure malicious users cannot provide outputs without an unblinded signature.
 
-\begin{itemize}
-    \item Alice is the role used for registering an input.
-    \item Bob is the role used for registering an output.
-    \item Satoshi is the role used for querying auxiliary data, such as the unsigned transaction.
-    \item The coordinator facilitates the protocol. The protocol's main goal is to maintain privacy against the coordinator.
-\end{itemize}
-
-Each user role needs to be used with a different anonymity network identity, and users with multiple inputs or outputs must instantiate multiple Alices or Bobs, one for each input or output respectively.
+Common blind signature schemes can only handle standard denominations, which is a huge limitation on transaction styles. WabiSabi relaxes this limitation by ensuring a more relaxed requirement: a participant must not provide outputs those sum of values are larger than the participant's inputs' sum of values. It does this in a way where no one learns relationships between inputs - inputs, outputs - outputs and inputs - outputs.
 
 \subsection{Terminology and notation}
-
-\begin{definition} \textbf{Input}:
-An existing Bitcoin transaction output that the user wants to use as an input in the CoinJoin transaction. For this section we represent inputs only in terms of their satoshi amount (integer) $v_{\mathit{in}}$, ignoring details like proving ownership. Details such as confirmation, standardness and other factors are outside the scope of this document.
-\end{definition}
-
-\begin{definition} \textbf{Output}:
-A Bitcoin transaction output that the user wishes to create in the CoinJoin without linking to any of their inputs or other outputs. Similarly to inputs, we represent outputs only in terms of their satoshi amount $v_{\mathit{out}}$, ignoring details like the \texttt{scriptPubKey}.
-\end{definition}
 
 \begin{definition} \textbf{Credential}:
 An anonyous credential is issued by the coordinator at input registration, and certifies attributes that the coordinator validates before issuing. The user can then prove possession of a valid credential in zero-knowledge in order to register an output without the coordinator being able to link it to the input registration from which it originates, or any other output registrations.
