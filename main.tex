@@ -39,11 +39,11 @@ We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) 
 
 \section{Protocol Overview}
 
-A CoinJoin is when multiple participants provide inputs and outputs to a transaction. If a participant does not see its desired outputs in the final transaction than she/he does not sign it, thus the security of this protocol is inherently guaranteed by the Bitcoin network.
+A CoinJoin is when multiple participants provide inputs and outputs to a common transaction. If a participant does not see her/his desired outputs in the final transaction then she/he does not sign it, thus the security of this protocol is inherently guaranteed by the Bitcoin network.
 
-In Chaumian CoinJoin participants utilize different anonymity network identities for input and output registration to ensure anonymity. However this brings up this can be attacked by anonymous actors providing more outputs than what they should. This is resolved by utilizing a blind signature scheme to make sure malicious users cannot provide outputs without an unblinded signature.
+In Chaumian CoinJoin participants utilize different anonymity network identities when providing inputs and outputs to a CoinJoin transaction. This ensures anonymity. However this can be attacked anonymously, since anyone could be able to provide more outputs than what they should. This is resolved by utilizing a blind signature scheme to make sure malicious users cannot provide outputs without an unblinded signature.
 
-Common blind signature schemes can only handle standard denominations, which is a huge limitation on transaction styles. WabiSabi relaxes this limitation by ensuring a more relaxed requirement: a participant must not provide outputs those sum of values are larger than the participant's inputs' sum of values. It does this in a way where no one learns relationships between inputs - inputs, outputs - outputs and inputs - outputs.
+With common blind signature schemes it is only possible to create transactions those rely on standard denominations, which is a significant limitation on transactions styles. WabiSabi relaxes this limitation by ensuring a more specific requirement: a participant must not provide outputs those sum of values are larger than her/his inputs' sum of values. WabiSabi does this in a way where no one learns relationships between inputs - inputs, outputs - outputs and inputs - outputs.
 
 \subsection{Terminology and notation}
 
