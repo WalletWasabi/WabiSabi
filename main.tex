@@ -2,9 +2,11 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{mdframed}
-\usepackage{hyperref}
 \usepackage{polyglossia}
 \setdefaultlanguage{english}
+\usepackage[style=alphabetic,minalphanames=3,maxbibnames=99]{biblatex}
+\usepackage{hyperref}
+\addbibresource{references.bib}
 
 \newtheorem{definition}{Definition}[section]
 
@@ -335,7 +337,6 @@ To unconditionally preserve user privacy in the event that the hardness assumpti
 
 % TODO are the value commitments also an issue? what about for initial credentials where $M_{v_i} = G_g^{r_{v_i}}$? do we gain anything from having a single multi-commitment attribute?
 
-\bibliography{references}
-\bibliographystyle{alpha}
+\printbibliography
 
 \end{document}
