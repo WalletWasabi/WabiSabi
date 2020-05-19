@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{mdframed}
+\usepackage{hyperref}
 \usepackage{polyglossia}
 \setdefaultlanguage{english}
 
@@ -35,7 +37,7 @@ We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) 
 % - privacy
 % - fungibility
 % - theoretically transaction efficiency
-% and overview of where zerolink/wasabi currently falls short (variable but constrained denomination, only send to self, linkage of inputs during registration, 
+% and overview of where zerolink/wasabi currently falls short (variable but constrained denomination, only send to self, linkage of inputs during registration,
 
 \section{Protocol Overview}
 
@@ -50,32 +52,33 @@ With common blind signature schemes it is only possible to create transactions t
 \begin{definition} \textbf{Credential}:
 An anonyous credential is issued by the coordinator at input registration, and certifies attributes that the coordinator validates before issuing. The user can then prove possession of a valid credential in zero-knowledge in order to register an output without the coordinator being able to link it to the input registration from which it originates, or any other output registrations.
 
-We use the key-verifiable anonymous credential scheme from~\cite{chase2019signal}, instantiated with two group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$).
+We use keyed-verification anonymous credentials (introduced in~\cite{chase2014algebraic}), in particular the scheme from~\cite{chase2019signal} which supports group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$). We instantiate this scheme with two group attributes.
 \end{definition}
 
 \begin{definition}\textbf{Attribute}:
-In order to facilitate construction of Bitcoin transactions, a credential represents some amount of Bitcoin. For this we use two attributes: $M_v$ is a commitment to the amount of the registered input in satoshis and $M_s$ is a commitment to a serial number used for double spending prevention.
+In order to facilitate construction of Bitcoin transactions, our credentials represent confidential Bitcoin amounts. For this we use two attributes: $M_v$ is a commitment to the amount of the registered input in satoshis and $M_s$ is a commitment to a serial number used for double spending prevention.
 
 During credential presentation randomized versions of the attributes are presented, which we denote $C_v$ and $C_s$.
 \end{definition}
 
-Finally, $k$ is a protocol level constant, denoting the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges\footnote{$\log_2(2099999997690000) \approx 50.9$}.
+Finally, $k$ is a protocol level constant, denoting the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges.\footnote{$\log_2(2099999997690000) \approx 50.9$}
 
-\subsection{High-level functionalities}
-Hereby we give an informal and high-level description of applied cryptographic primitives. In the following the security parameter is denotes as $\lambda$. 
+\subsection{High-level Algorithms}
+Hereby we give an informal and high-level description of applied cryptographic primitives. In the following the security parameter is denoted as $\lambda$.
+
 \subsubsection{Commitment schemes}
 A commitment scheme allows a party to commit to a message without enabling them to change their mind about the committed message after publishing the commitment. On the other hand the commitment should not reveal anything about the committed message.
 
-\noindent$\mathsf{Commit}(m,r)\xrightarrow{}\mathcal{C}$. The $\mathsf{Com}$ algorithm generates a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
+\noindent$\mathsf{Commit}(m,r)\xrightarrow{}\mathcal{C}$. The $\mathsf{Commit}$ algorithm generates a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
 
-\noindent$\mathsf{OpenCom}(\mathcal{C},m,r)\xrightarrow{}\{\mathit{True},\mathit{False}\}$: one can verify the correctness of the opening of a commitment by checking $\mathcal{C}\stackrel{?}{=}\mathsf{Com}(m,r)$. If equality holds the algorithm outputs $\mathit{True}$, otherwise $\mathit{False}$.
+\noindent$\mathsf{OpenCom}(\mathcal{C},m,r)\xrightarrow{}\{\mathit{True},\mathit{False}\}$: one can verify the correctness of the opening of a commitment by checking $\mathcal{C}\stackrel{?}{=}\mathsf{Commit}(m,r)$. If equality holds the algorithm outputs $\mathit{True}$, otherwise $\mathit{False}$.
 
 For ease of understanding the reader can assume in the following that the commitment scheme is instantiated as a Pedersen commitment.
 
 \subsubsection{MAC}
 A message authentication code (MAC) ensures the integrity of a message and consists of the following three probabilistic polynomial-time algorithms.
 
-\noindent$\mathsf{GenMACKey}(\lambda)\xrightarrow{}{\mathsf{sk}}$. a party generates a secret key $\mathsf{sk}$ for themselves for later MAC generations.
+\noindent$\mathsf{GenMACKey}(\lambda)\xrightarrow{}{\mathsf{sk}}$. a party generates a secret key $\mathsf{sk}$ for MAC generation and verification.
 
 \noindent$\mathsf{MAC}_{\mathsf{sk}}(m)\xrightarrow{}t$. one can generate a MAC $t$ on a message a $m$ by using their $\mathsf{sk}$.
 
@@ -84,42 +87,99 @@ A message authentication code (MAC) ensures the integrity of a message and consi
 The reader might intuitively think of a MAC as the symmetric-key counterpart of digital signatures. They both have the same goals and similar security requirements, however a MAC is not publicly verifiable.
 
 \subsubsection{Zero-knowledge proofs of knowledge}
-A very high-level, and hence somewhat imprecise, description of zero-knowledge proofs is provided. This protocol invovles a prover and a verifier. A prover whishes to prove that a relation $\mathcal{R}$ holds with respect to a secret input $w$, called witness, and public input $x$. Specifically, the prover wants to prove that $\mathcal{R}(x,w)=1$ without revealing anything about $w$.
+A very high-level, and hence somewhat imprecise, description of zero-knowledge proofs is provided. This protocol involves a prover and a verifier. A prover wishes to prove that a relation $\mathcal{R}$ holds with respect to a secret input $w$, called witness, and public input $x$. Specifically, the prover wants to prove that $(x, w) \in \mathcal{R}$ without revealing anything about $w$.
 
 \noindent$\mathsf{Prove}(x,w,\mathcal{R})\xrightarrow{}\pi$. Given $x$ and the private witness $w$ the prover generates a proof $\pi$.
 
 \noindent$\mathsf{Verify}(x,\pi,\mathcal{R})\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The verifier is given the proof $\pi$ and $x$ and decides whether the prover knows a secret $w$ such that $\mathcal{R}(x,w)=1$ holds.
 
-\subsection{Input Registration} 
+\subsection{Registration}
+
+For intuition we first we describe a pair of naive protocols for input and output registration, followed by a generalization into a unified protocol described in detail in \S\ref{details}.
+
+\subsubsection{Input Registration}
 
 The user, acting as Alice, submits an input of value $v_{\mathit{in}}$ along with $k$ pairs of group attributes,
 $(M_{v_i}, M_{s_i})$.
 She proves in zero knowledge that the sum of the requested sub-amounts is equal to $v_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
 
-% TODO decide if we want additional input credentials if we go with OR proof variant
-% open questions:
-% - single pedersen multicommitment for amount and serial or two separate group attributes?
-% - if separate, extra generator + randomness for unconditional hiding of serial number even after revealing serial?
+The coordinator verifies the proofs, and issues $k$ MACs on the requested attributes, along with a proof of knowledge of the secret key as described in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
 
-The coordinator verifies the proofs, and issues $k$ MACs (message authentication codes) on the requested attributes, along with a proof of knowledge of the secret key as described in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
+\begin{figure}
+    \begin{mdframed}
+    \begin{enumerate}
+        \item Alice sends $k$ credential requests with accompanying range and sum proofs to the coordinator:  $((M_{v_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1},\pi^{sum},v_{\textit{in}})$.
+        \item The coordinator verifies the received proofs. If they are not verified, coordinator aborts the protocol, otherwise issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{v_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
+    \end{enumerate}
 
-\subsection{Output Registration}
+\end{mdframed}
+    \caption{Input Registration protocol}
+    \label{fig:inputreg}
+\end{figure}
 
-Now acting as Bob, to register her output the user randomizes the attributes and generates a proof of knowledge of a valid credential issued by the coordinator.
+\subsubsection{Output Registration}
+
+Now acting as Bob, to register her output the user randomizes the attributes and generates a proof of knowledge of $k$ valid credentials issued by the coordinator.
 
 Additionally, she proves knowledge of representation of the serial number commitments. These serial numbers are revealed for double spending protection, but the knowledge of commitment opening should be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in output registration time.
 
-Finally, she proves that the sum of the randomized amount attributes $C_v$ matches the requested output amount $v_{\mathit{out}}$, analogously to input registration. Note that there is no need for range proofs at this phase.
+Finally, Bob proves that the sum of her randomized amount attributes $C_v$ matches the requested output amount $v_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated}
 
-The user submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
+She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
+
+\begin{figure}[h]
+    \begin{mdframed}
+    \begin{enumerate}
+        \item Bob sends $k$ randomized commitments, a proof of a valid MAC for the corresponding non-randomized commitments, the underlying serial numbers with a proof of the representation of their commitments, and finally a proof of the sum of the amounts:   $((C_{v_i},C_{s_i},\pi_{i}^{\textit{MAC}},s_i, \pi_i^{\textit{serial}})^{k}_{i=1}, \pi^{\textit{sum}}, v_{\textit{out}})$.
+        \item The coordinator verifies proofs and registers requested output iff. all proofs are valid and the serial numbers have not been used before.
+    \end{enumerate}
+\end{mdframed}
+    \caption{Output Registration protocol}
+    \label{fig:outputreg}
+\end{figure}
+
+\subsubsection{Unified Registration}
+
+For more flexibility in a dynamic setting, where a user may not yet know her desired output allocation during input registration, and to allow for small\footnote{Specifically, $2 \le k \le 7 \approx \log_2\left(\frac{1}{4} \cdot \frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT}}{838~\mathrm{WU}}\right)$, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting.} values of $k$, we can generalize input and output registration into a single unified protocol, which also supports reissuance.
+
+In this case Alice or Bob (depending on the registration phase) submits $k$ valid credentials and $k$ credential requests, where the sums of the underlying amount commitments must be balanced.
+
+To prevent the coordinator from being able to distinguish between initial vs. subsequent input registration requests (which may merge amounts) registration operations credential presentation should be mandatory. Initial credentials can be obtained with an auxiliary bootstrapping operation.
+
+\begin{figure}[h]
+  \begin{mdframed}
+    \begin{enumerate}
+    \item During input registration phase Alice submits $k$ credential requests:  $(M_{v_i},M_{s_i},\pi^{\mathit{null}}_{i})^{k}_{i=1}$
+    \item The coordinator verifies the received proofs. If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{v_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
+    \end{enumerate}
+  \end{mdframed}
+  \caption{Credential bootstrapping protocol}
+  \label{fig:bootstrap}
+
+    \begin{mdframed}
+    \begin{enumerate}
+        \item During input (output) registration phase, Alice (Bob, resp.) submits:
+        \begin{itemize}
+            \item $k$ credential requests with accompanying range and sum proofs to the coordinator:  $(M_{v_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1}$
+            \item $k$ randomized commitments, a proof of a valid credential for the corresponding non-randomized commitments, the underlying serial numbers and a proof of the representation of their commitments: $(C_{v_i},C_{s_i},\pi_{i}^{\mathit{MAC}},s_i,\pi_i^{\textit{serial}})^{k}_{i=1}$
+            \item A balance proof: $(\pi^{\textit{sum}}, \Delta_{v})$
+            \item If $\Delta_{v} \ne 0$, an input or output with value $|\Delta_{v}|$.
+        \end{itemize}
+        \item The coordinator verifies the received proofs, and that the serial numbers have not been used before, and depending on the current phase, $\Delta_{v} \geq 0$ (input) or $\Delta_{v} \leq 0$ (output). If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{v_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$, and if $\Delta_{v} \ne 0$, registers the input or output with value $|\Delta_{v}|$.
+    \end{enumerate}
+    \end{mdframed}
+    \caption{Unified Registration protocol}
+    \label{fig:reissue}
+\end{figure}
+
 
 \subsection{Signing phase}
 
 The user fetches the finalized but unsigned transaction as Satoshi, and if she sees her registered outputs she will sign, submitting the signature as Alice(s).
 
-\section{Cryptographic Details}
+\section{Cryptographic Details}\label{details}
 
-Following \cite{chase2019signal}, the scheme is defined in a group \(\mathbb{G}\) of prime order \(q,\) written in multiplicative notation. 
+Following \cite{chase2019signal}, the scheme is defined in a group \(\mathbb{G}\) of prime order \(q,\) written in multiplicative notation.
 $\mathsf{HashTo\mathbb{G}} : {0,1}^* \mapsto \mathbb{G}$ is a function from strings to group elements, based on a cryptographic hash function.
 
 We require the following fixed set of group elements for use as generators with different purposes:
@@ -135,7 +195,7 @@ chosen so that nobody knows the discrete logarithms between any pair of them, e.
 This notation deviates slightly from \cite{chase2019signal}, in that we subscript the attribute generators $G_{y_i}$ as $G_v$ and $G_s$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attributes $M_v$ and $M_s$ as Pedersen commitments.
 
 As with the generator names, we modify the names of the attribute related components of the secret key
-$\mathrm{sk} := (w, w^{\prime}, x_{0}, x_{1}, y_{v}, y_{s}) \in_R {\mathbb{Z}_q}^6$
+$\mathrm{sk} = (w, w^{\prime}, x_{0}, x_{1}, y_{v}, y_{s}) \in_R {\mathbb{Z}_q}^6$
 according to our fixed set of group attributes.
 
 The coordinator parameters
@@ -148,37 +208,107 @@ I=\frac{G_{V}}{{G_{x_0}}^{x_0} {G_{x_1}}^{x_1} {G_{y_v}}^{y_v} {G_{y_s}}^{y_s}}
 \]
 These are used by the coordinator to prove correctness of issued MACs, and by the users to prove knowledge of a valid MAC.
 
-\subsection{Input Registration}
+\subsection{Credential Requests}
 
-Acting as Alice, the user wants to register an input with value $v_{\mathit{in}}$, arbitrarily dividing it into amounts $v_i$ where $i \in \left[1,k\right]$. For each $i \in [1, k]$ she chooses a serial number and randomness $s_i \in_R \mathbb{Z}_q$ and commits to these with randomness $r_{v_i}, r_{s_i} \in_R \mathbb{Z}_q$:
+For each $i \in [1, k]$ the user chooses an amount $0 \leq v_i < v_{\mathit{max}}$ subject to the constraints of the balance proof (\S\ref{balance}) and a serial number $s_i \in_R \mathbb{Z}_q$.
+
+She commits to these with randomness $r_{v_i}, r_{s_i} \in_R \mathbb{Z}_q$, and these commitments are the attributes of the requested credentials.:
 \[ M_{v_i}={G_g}^{r_{v_i}}{G_h}^{v_i} \qquad M_{s_i}={G_g}^{r_{s_i}}{G_h}^{s_i} \]
 
-These commitments will be used as attributes in the credential request. For each amounts she also computes a range proof which ensures there are no negative values:
+For each amount $v_i$ she also computes a range proof which ensures there are no negative values:
 \[
-\pi^{\mathit{range}}_i := \operatorname{PK}\left\{\left(v_i, r_{v_i} \right) :
+\pi^{\mathit{range}}_i = \operatorname{PK}\left\{\left(v_i, r_{v_i} \right) :
 M_{v_i} = {G_g}^{r_{v_i}}{G_h}^{v_i}
 \land
 0 \leq v_i < v_{\mathit{max}} \right\}
 \]
 
-Alice also needs to convince the coordinator that the amounts add up to $v_{\mathit{in}}$, which she can prove by including the following witness-hiding proof:
-\[ \pi^{\mathit{sum}}=\sum_{i=1}^{k} r_{v_i} \]
+We note that if Bulletproofs~\cite{bunz2018bulletproofs} are utilized for the range proofs $\pi^{\textit{range}}_i$ a single combined proof will significantly decrease the communication overhead.
 
-Finally, to request the credentials she submits the input, the $k$ pairs of attributes, and the proofs. The coordinator calculates the product of the amount commitments and checks:
-
-\[ \prod_{i=1}^{k} M_{v_i}
-\stackrel{?}{=}
-{G_g}^{\pi^{\mathit{sum}}}{G_h}^{v_{\mathit{in}}}
+For initial credential requests the range proofs can be replaced with simpler proofs of $v_i = 0$:
+\[
+  \pi^{\mathit{null}}_i = \operatorname{PK}\left\{ \left( r_{v_i}\right) :
+    M_{v_i} = {G_{g}}^{r_{v_i}}
+  \right\}
 \]
 
-Note that this equality over the product of the commitments implies the following  equality of the sum of the amounts is correct:
-\[\prod_{i=1}^{k} M_{v_i}
-= {G_g}^{\sum_{i=1}^{k} r_{v_i}} {G_h}^{\sum_{i=1}^{k} v_i} 
+\subsection{Credential Presentation}
+
+The user is in possession of $k$ credentials with a valid MAC obtained from prior registration requests.
+
+For each credential $i \in [1, k]$ she executes a modified version of the $\mathsf{Show}$ protocol described in~\cite{chase2019signal}:
+
+\begin{enumerate}
+
+\item She chooses
+$z_i \in_{R} \mathbb{Z}_{q}$, and computes
+$z_{0_i}=-{t_i} {z_i} (\bmod q)$
+and the randomized commitments:
+\begin{align*}
+C_{v_i}     &= {G_v}^{z_i} M_{v_i} \\
+C_{s_i}     &= {G_s}^{z_i} M_{s_i} \\
+C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
+C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
+C_{V_i}     &= {G_V}^{z_i} V_i
+\end{align*}
+
+\item To prove to the coordinator that a credential is valid she computes a proof:
+\begin{align*}
+\pi_{i}^{\mathit{MAC}}=\operatorname{PK}\{
+& (z_i, z_{0_i},t_i): \\
+& Z_i =I^{z_i} \land \\
+& C_{x_{1_i}} = {C_{x_{0_i}}}^{t_i} {G_{x_0}}^{z_{0_i}} {G_{x_1}}^{z_i} \}
+\end{align*}
+which implies the following without allowing the coordinator to link $\pi_{i}^\mathit{MAC}$ to the underlying attributes $(M_{v_i}, M_{s_i})$:
+\[
+\mathsf{Verify}((C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{v_i}, C_{s_i}, Z_i), \pi_i^{\mathit{MAC}})
 \iff
-\sum_{i=1}^{k} v_i = v_{\mathit{in}}
+\mathsf{VerifyMAC}_{\mathsf{sk}}(M_{v_i}, M_{s_i})
 \]
 
-If the coordinator accepts then for each $i \in [1,k]$ it issues a credential by responding with
+\item She sends $(C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{v_i}, C_{s_i}, \pi_i^{\mathit{MAC}})$ and the coordinator computes:
+\[
+Z_i=\frac{C_{V_i}}{{G_w}^w {C_{x_{0_i}}}^{x_0} {C_{x_{1_i}}}^{x_{1}}
+{C_{v_i}}^{y_v} {C_{s_i}}^{y_s}
+}
+\]
+using its secret key (independently of the user's derivation), and verifies $\pi_i^{\mathit{MAC}}$.
+
+\end{enumerate}
+
+\subsection{Over-spending prevention by balance proof}\label{balance}
+
+The user needs to convince the coordinator that the amounts redeemed and the amounts requested differ by $\Delta_{v}$, which she can prove by including the following witness-hiding proof:
+\[ \pi^{\mathit{sum}}=\left( \sum_{i=1}^{k} r_{v_i}, \sum_{i=1}^k z_i\right) \]
+
+During the input registration phase $\Delta_{v}$ may be positive, in which case an input of amount $v_{\mathit{in}} = \Delta_{v}$ must be registered with proof of ownership. During the output registration phase $\Delta_{v}$ may be negative, in which case an output of amount $v_{\mathit{out}} = -\Delta_{v}$ is registered. If $\Delta_{v} = 0$ credentials are simply reissued, with no input or output registration occurring.
+
+\[ \prod_{i=1}^{k} \frac{M_{v_i}}{C_{v_i}}
+\stackrel{?}{=}
+\frac{ {G_g}^{\pi^{\mathit{sum}}[1]}{G_h}^{\Delta_{v}} }{ {G_v}^{\pi^{\mathit{sum}}[2]} }
+\]
+
+% remove? rewrite?
+%Note that this equality over the product of the commitments implies the following  equality of the sum of the amounts is correct:
+%\[\prod_{i=1}^{k} M_{v_i}
+%= {G_g}^{\sum_{i=1}^{k} r_{v_i}} {G_h}^{\sum_{i=1}^{k} v_i}
+%\iff
+%\sum_{i=1}^{k} v_i = v_{\mathit{in}}
+%\]
+
+Informally soundness of the proof system holds as user does not know the discrete logs between the generator points used in the randomized commitments. Zero knowledge with respect to the witnesses is ensured since $\sum_{i=1}^{k}z_i$ does not leak anything about individual $z_i$. We can have a similar argument for $\sum_{i=1}^{k}r_{v_i}$ and $r_{v_i}$.
+
+\subsection{Double-spending prevention using serial numbers}
+
+The user proves knowledge of representation of her submitted randomized serial number commitments, namely:
+\[ \pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (z_i, r_{s_i}): C_{s_i} = {G_s}^{z_i}{G_g}^{r_{s_i}}{G_h}^{s_i} \} \]
+where the serial number $s_i$ is a public input, revealed to prevent double spending.
+
+The coordinator verifies the $\pi_{i}^{\mathit{serial}}$ and checks that the $s_i$ have not been used before (allowing for idempotent registration).
+
+\subsection{Credential Issuance}
+
+If the coordinator accepts all of the above, it registers the input or output if one is provided, and for each $i \in [1,k]$ it issues a credential by responding with
 $(t_i, U_i, V_i) \in \mathbb{Z}_q \times \mathbb{G} \times \mathbb{G}$,
 which is the output of
 $\mathsf{MAC}_{\mathsf{sk}}(M_{v_i}, M_{s_i})$,
@@ -186,10 +316,10 @@ where:
 \[
 t_i \in_{R} \mathbb{Z}_{q}, U_i \in_{R} \mathbb{G}
 \qquad
-V_i=W {U_i}^{x_{0}+x_{1} t_i}{M_{v_i}}^{y_v} {M_{s_i}}^{y_s}
+V_i={G_w}^{w} {U_i}^{x_{0}+x_{1} t_i}{M_{v_i}}^{y_v} {M_{s_i}}^{y_s}
 \]
 
-To rule out tagging individual users the coordinator must prove knowledge of the secret key, and that $(t_i, U_i, V_i)$ is correct relative to $\mathit{iparams}=(C_{W}, I)$:
+To rule out tagging of individual users the coordinator must prove knowledge of the secret key, and that $(t_i, U_i, V_i)$ is correct relative to $\mathit{iparams}=(C_{W}, I)$:
 
 \begin{align*}
 \pi_{i}^{\mathit{iparams}}=\operatorname{PK}\{ & (w, w^{\prime}, x_{0}, x_{1}, y_v, y_s): \\
@@ -199,88 +329,13 @@ To rule out tagging individual users the coordinator must prove knowledge of the
 \}
 \end{align*}
 
+\subsection{Perfect Hiding}
 
-\subsection{Output Registration}
+Note that after revealing $s_i$ we no longer have perfect hiding in the $M_{s_i}$ commitment, because there is exactly one $r_{s_i} \in \mathbb{Z}_q$ such that $M_{s_i} = {G_g}^{r_{s_i}} {G_h}^{s_i}$. Similarly, randomization by $z_i$ only protects unlinkability of issuance and presentation against a computationally bounded adversary.
 
-After the input registration the user may have up to $n$ credentials from all of her input registration requests made as one or more Alice identities.
-Let $S \subseteq \left[1,n\right]$ be the indices of credentials that she wants to consolidate into a single output registration.
+To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_{s_i}^{\prime}$ used with an additional generator $G_g^{\prime}$ to the serial number commitments $M_{s_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_v^{\prime}, G_s^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack network level privacy and the proofs of knowledge are unconditionally hiding.}
 
-\subsubsection{Credential validity}
-
-For each credential $i \in S$, now acting as Bob, the user executes the $\mathsf{Show}$ protocol as described in~\cite{chase2019signal}.
-
-\begin{enumerate}
-
-\item She chooses
-$z_i \in_{R} \mathbb{Z}_{q}$,
-and computes 
-$z_{0_i}=-{t_i} {z_i} (\bmod q)$
-and the randomized commitments:
-
-\begin{align*}
-C_{v_i}     &= {G_v}^{z_i} M_{v_i} \\
-C_{s_i}     &= {G_s}^{z_i} M_{s_i} \\
-C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
-C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
-C_{V_i}     &= {G_V}^{z_i} V_i
-\end{align*}
-
-\item To prove to the coordinator that she is in possession of a valid credential, Bob computes a proof of knowledge of the MAC on her attributes:
-\begin{align*}
-\pi_{i}^{\mathsf{MAC}}=\operatorname{PK}\{
-& (z_i, z_{0_i},t_i): \\
-& Z_i =I^{z_i} \land \\ %% does this proof need to say anything about C_{m_i} or C_{s_i} or is this statement about Z enough?
-& C_{x_{1_i}} = {C_{x_{0_i}}}^{t_i} {G_{x_0}}^{z_{0_i}} {G_{x_1}}^{z_i}\}
-\end{align*}
-%% if we go with OR proof, then \lor M_{v_i} = {G_g}^{r_{v_i}} {G_h}^0
-which implies the following without allowing the verifier to link $\pi_{i}^\mathit{MAC}$ to the underlying attributes $(M_{v_i}, M_{s_i})$:
-\[
-\mathsf{Verify}((C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{v_i}, C_{s_i}, Z_i), \pi_i^{\mathit{MAC}}) \iff \mathsf{VerifyMAC}_{\mathsf{sk}}(M_{v_i}, M_{s_i})
-\]
-
-
-\item Bob submits $(C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{v_i}, C_{s_i}, \pi_i^{\mathit{MAC}})$ and the coordinator computes:
-\[
-Z_i=\frac{C_{V_i}}{{G_w}^w {C_{x_{0_i}}}^{x_0} {C_{x_{1_i}}}^{x_{1}}
-{C_{v_i}}^{y_v} {C_{s_i}}^{y_s}
-}
-\]
-independently of Bob's derivation by using the secret key , and verifies $\pi_i^{\mathit{MAC}}$.
-
-\end{enumerate}
-
-\subsubsection{Over-spending prevention by proving sum of amounts}
-
-The product of the randomized amount commitments is:
-
-\[\prod_{i \in S} C_{{v_i}}
-= \prod_{i \in S} {G_v}^{z_i}M_{v_i}
-= {G_v}^{\sum_{i \in S} z_i}{G_g}^{\sum_{i \in S} r_{v_i}}{G_h}^{\sum_{i \in S} v_i}
-\]
-
-Therefore we can obtain a witness-hiding proof for the sum of the committed values $v_i$ in the randomized commitments:
-
-\[ \pi^{v_{out}}=\left(\sum_{i \in S}z_i,\sum_{i \in S}r_{v_i}\right) \]
-
-The coordinator checks whether
-\[
-\prod_{i \in S} C_{v_i}
-\stackrel{?}{=}
-{G_v}^{\pi^{v_{out}}[1]} {G_g}^{\pi^{v_{out}}[2]} {G_h}^{v_{\mathit{out}}}
-\]
-
-The coordinator can compute the right hand side of the verification equation, since she obtained the exponents of each of the generator points from the submitted $\pi^{v_{out}}$. Informally soundness of the proof system holds as user does not know the discrete logs between the generator points used in the randomized commitments. While zero-knowledge is ensured since $\sum_{i \in S}z_i$ does not leak anything about individual $z_i$. We can have a similar argument for $\sum_{i \in S}r_{v_i}$ and $r_{v_i}$.
-
-\subsubsection{Double-spending prevention by revealing serial numbers}
-
-Bob proves knowledge of representation of her submitted randomized serial number commitments, namely:
-\[
-\pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (s_i, z_i, r_{s_i}):C_{s_i} = {G_s}^{z_i}{G_g}^{r_{s_i}}{G_h}^{s_i}
-\}
-\]
-where the serial number $s_i$ is a public input, revealed to prevent double spending. The coordinator checks that the $s_i$ have not been used before (but allowing for idempotent output registration).
-
-Note that after revealing $s_i$, we no longer have perfect hiding in the $M_{s_i}$ commitment, since, because there is exactly one $r_{s_i} \in \mathbb{Z}_q$ such that $M_{s_i} = {G_g}^{r_{s_i}} {G_h}^{s_i}$. To preserve user privacy in case of a crypto break we can add another randomness term with an additional generator to the the serial number commitment.
+% TODO are the value commitments also an issue? what about for initial credentials where $M_{v_i} = G_g^{r_{v_i}}$? do we gain anything from having a single multi-commitment attribute?
 
 \bibliography{references}
 \bibliographystyle{alpha}
