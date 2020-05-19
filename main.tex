@@ -142,7 +142,7 @@ She submits these proofs, the randomized attributes, and the serial numbers. The
 
 \subsubsection{Unified Registration}
 
-For more flexibility in a dynamic setting, where a user may not yet know her desired output allocation during input registration, and to allow for small\footnote{Specifically, $2 \le k \le 7 \approx \log_2\left(\frac{1}{4} \cdot \frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT}}{838~\mathrm{WU}}\right)$, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting.} values of $k$, we can generalize input and output registration into a single unified protocol, which also supports reissuance.
+For more flexibility in a dynamic setting, where a user may not yet know her desired output allocation during input registration, and to allow for small\footnote{Specifically, $2 \le k \le 10 \approx \log_2\left(\frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT} - 58}{274 + 124}\right)$, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting.} values of $k$, we can generalize input and output registration into a single unified protocol, which also supports reissuance.
 
 In this case Alice or Bob (depending on the registration phase) submits $k$ valid credentials and $k$ credential requests, where the sums of the underlying amount commitments must be balanced.
 
