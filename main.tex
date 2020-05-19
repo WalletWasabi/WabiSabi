@@ -2,9 +2,11 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{mdframed}
-\usepackage{hyperref}
 \usepackage{polyglossia}
 \setdefaultlanguage{english}
+\usepackage[style=alphabetic,minalphanames=3,maxbibnames=99]{biblatex}
+\usepackage{hyperref}
+\addbibresource{references.bib}
 
 \newtheorem{definition}{Definition}[section]
 
@@ -17,35 +19,33 @@
 \maketitle
 
 \begin{abstract}
+  Bitcoin's model for value transfer is a publicly verifiable ledger of transactions, with ownership of coins defined in terms of public keys. Although this design lacks strong guarantees for privacy, it does not rule it out.
+  Despite the potential for private use, research has shown that users' activity can often be traced in practice.
+  This lack of inherent privacy has given rise to business models built on dragnet surveillance of Bitcoin users which is problematic for Bitcoin's fungibility.
 
-% TODO citations should not be included in the abstract, the abstract should be cleaned up, and the remaining information and citations split off into an introduction section with citations
+  A number of methods have been proposed to mitigate these issues. Among these, CoinJoin is an approach to structuring transactions which adds ambiguity and breaks common assumptions that underlie heuristics used for surveillance.
+  Current implementations of CoinJoin transactions present a number of limitations which may partly explain their lack of widespread adoption.
 
-Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin} is a technique to facilitate untrusted construction of collaborative Bitcoin transactions, also known as CoinJoins, by utilizing Chaumian blind signatures~\cite{chaum1983blind}. However this technique requires standard denominations, which limits how such transactions can be constructed.
-
-We propose to switch to a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal} to enable more flexible transaction styles, like SharedCoin and CashFusion~\cite{cashfusion} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Our generalization also enables consolidation of UTXOs, minimizing unmixed change, relaxing minimum required denominations, payments in CoinJoins, better block space efficiency, and PayJoins in CoinJoins. We call this new protocol: WabiSabi.
-
+  This work introduces a new protocol for centrally coordinated CoinJoin implementations utilizing keyed verification anonymous credentials and homomorphic value commitments. This is an improvement on the state of the art in both privacy and flexibility, enabling additional use cases and reduced overheads.
 \end{abstract}
 
-% Important remainder from removed Motivation: In the current protocol input registration links the user's inputs, as well as their change output.
+\section{Introduction}
 
-% original motivation section had is several things rolled into one, which should be clarified separately:
-% 1. payments from a coinjoin
-% 2. payments in a coinjoin, where the amount does not appear on the blockchain
-% 3. toxic change
+Bitcoin transactions redistribute funds by consuming as inputs the outputs of previous transactions, and creating new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the monetary supply and that output are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to defining such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges for transacting with privacy\footnote{In this work we restrict the discussion of Bitcoin privacy to that of transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{ron2013quantitative,meiklejohn2013fistful,moser2013anonymity}.
 
-% brief explanation of why coinjoins are desirable:
-% - privacy
-% - fungibility
-% - theoretically transaction efficiency
-% and overview of where zerolink/wasabi currently falls short (variable but constrained denomination, only send to self, linkage of inputs during registration,
+The conditions for spending an output are specified in its \texttt{scriptPubKey}, typically requiring that the spending transaction be signed by a specific public key. The signatures authorizing a transaction usually commit to the transaction in its entirety, which makes it possible for mutually distrusting parties to jointly create transactions without risking misallocation of funds: participants will only sign a proposed transaction after confirming that their desired outputs are included.
 
-\section{Protocol Overview}
+Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin}\cite{zerolink} is a privacy enhancing technique that uses this atomicity property and Chaumian blind signatures~\cite{chaum1983blind} to construct collaborative Bitcoin transactions, also known as CoinJoins. Participants connect to a server, known as the coordinator, and submit their inputs and outputs using different anonymity network identities. This ensures anonymity, but on its own would allow users to disrupt the protocol by claiming a greater output amount than they registered as inputs. To mitigate this the coordinator provides blind signatures representing standard denominations in response to inputs, and output registration is allowed by presenting a valid signature without the coordinator being able to link the signature to a specific input.
 
-A CoinJoin is when multiple participants provide inputs and outputs to a common transaction. If a participant does not see her/his desired outputs in the final transaction then she/he does not sign it, thus the security of this protocol is inherently guaranteed by the Bitcoin network.
+The use of standard denominations in the resulting CoinJoin transaction obscures the relationship between individual inputs and outputs, making the origins of each output ambiguous. Unfortunately standard denominations also present limitations, such as requiring change outputs from these CoinJoin transactions, and limiting the usefulness of the privacy enhanced outputs for payments of arbitrary amounts.
 
-In Chaumian CoinJoin participants utilize different anonymity network identities when providing inputs and outputs to a CoinJoin transaction. This ensures anonymity. However this can be attacked anonymously, since anyone could be able to provide more outputs than what they should. This is resolved by utilizing a blind signature scheme to make sure malicious users cannot provide outputs without an unblinded signature.
+\section{Our Contribution}
 
-With common blind signature schemes it is only possible to create transactions those rely on standard denominations, which is a significant limitation on transactions styles. WabiSabi relaxes this limitation by ensuring a more specific requirement: a participant must not provide outputs those sum of values are larger than her/his inputs' sum of values. WabiSabi does this in a way where no one learns relationships between inputs - inputs, outputs - outputs and inputs - outputs.
+We introduce WabiSabi, a generalization of Chaumian CoinJoin based on a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal}. The use of KVACs replaces blind signatures' standard denominations with homomorphic amount commitments, similar to Confidential Transactions~\cite{maxwell2016confidential}, but retains the invariant that the sum of any one participant's outputs does not exceed that of their inputs without the coordinator learning the underlying values. In addition to being more flexible this improves privacy compared to standard denominations, since smaller inputs can be combined and change outputs created with the same unlinkability guarantees as the privacy enhanced outputs\footnote{Note that the cleartext amounts appearing in the final transaction might still link individual inputs and outputs.}.
+
+WabiSabi can be instantiated to construct a variety of CoinJoin transaction structures that depart from the standard output denomination convention, such as SharedCoin and CashFusion~\cite{cashfusion} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Additionally it makes possible arbitrary consolidation of outputs, minimizing unmixed change, relaxing minimum required denominations, improved block space efficiency, making payments from CoinJoins, as well as payments within CoinJoins, also known as PayJoins~\cite{payjoin}.
+
+\section{Preliminaries}
 
 \subsection{Terminology and notation}
 
@@ -337,7 +337,6 @@ To unconditionally preserve user privacy in the event that the hardness assumpti
 
 % TODO are the value commitments also an issue? what about for initial credentials where $M_{v_i} = G_g^{r_{v_i}}$? do we gain anything from having a single multi-commitment attribute?
 
-\bibliography{references}
-\bibliographystyle{alpha}
+\printbibliography
 
 \end{document}
