@@ -10,8 +10,8 @@
 
 \newtheorem{definition}{Definition}[section]
 
-\title{WabiSabi - draft v0.3}
-\author{Ádám Ficsór, Yuval Kogman, István András Seres}
+\title{WabiSabi - Draft v0.3}
+\author{Adam Ficsór, Yuval Kogman, István András Seres}
 \date{\today}
 
 \begin{document}
@@ -31,7 +31,7 @@
 
 \section{Introduction}
 
-Bitcoin transactions redistribute funds by consuming as inputs the outputs of previous transactions, and creating new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the monetary supply and that output are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to defining such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges for transacting with privacy\footnote{In this work we restrict the discussion of Bitcoin privacy to that of transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{ron2013quantitative,meiklejohn2013fistful,moser2013anonymity}.
+Bitcoin transactions redistribute funds by consuming as inputs the outputs of previous transactions, and creating new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the monetary supply and that outputs are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to defining such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges for transacting with privacy\footnote{In this work we restrict the discussion of Bitcoin privacy to that of transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{ron2013quantitative,meiklejohn2013fistful,moser2013anonymity}.
 
 The conditions for spending an output are specified in its \texttt{scriptPubKey}, typically requiring that the spending transaction be signed by a specific public key. The signatures authorizing a transaction usually commit to the transaction in its entirety, which makes it possible for mutually distrusting parties to jointly create transactions without risking misallocation of funds: participants will only sign a proposed transaction after confirming that their desired outputs are included.
 
