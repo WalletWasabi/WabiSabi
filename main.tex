@@ -1,4 +1,10 @@
 \documentclass{article}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{wrapfig}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{mdframed}
@@ -7,6 +13,15 @@
 \usepackage[style=alphabetic,minalphanames=3,maxbibnames=99]{biblatex}
 \usepackage{hyperref}
 \addbibresource{references.bib}
+
+\def\bitcoinA{%
+  \leavevmode
+  \vtop{\offinterlineskip %\bfseries
+    \setbox0=\hbox{B}%
+    \setbox2=\hbox to\wd0{\hfil\hskip-.03em
+    \vrule height .3ex width .15ex\hskip .08em
+    \vrule height .3ex width .15ex\hfil}
+    \vbox{\copy2\box0}\box2}}
 
 \newtheorem{definition}{Definition}[section]
 
@@ -39,7 +54,57 @@ Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin}\cite{zerolin
 
 The use of standard denominations in the resulting CoinJoin transaction obscures the relationship between individual inputs and outputs, making the origins of each output ambiguous. Unfortunately standard denominations also present limitations, such as requiring change outputs from these CoinJoin transactions, and limiting the usefulness of the privacy enhanced outputs for payments of arbitrary amounts.
 
-\section{Our Contribution}
+\subsection{Limitations of ZeroLink}
+In this work, we are aiming to improve ZeroLink, the most popular Chaumian CoinJoin implementation for Bitcoin. We identify several privacy shortcomings and inefficiencies of the current protocol as implemented by Wasabi. Some metrics comparing Wasabi, Samourai and other apparent CoinJoin transactions are provided. ``Other'' includes JoinMarket, but also has an inherent false positive error given these transactions are identified heuristically.
+
+\subsubsection{Round denominations}
+
+Due to the nature of blind signatures, mixed outputs of ZeroLink CoinJoins are restricted to a fixed set of value denominations which are multiples of a base denomination\footnote{approximately $0.1$\bitcoinA{}}.
+
+This creates friction when sending or receiving arbitrary amounts of Bitcoin, as the fixed denomination generally creates change which is smaller, both when mixing and when spending mixed outputs.
+
+We define \emph{CoinJoin inefficiency} as the fraction of non-mixed outputs in a CoinJoin transaction, see Figure~\ref{fig:cjinefficiency}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.4]{Figures/CJInefficiency.pdf}
+    \caption{CoinJoin inefficiency of various privacy-focused Bitcoin wallets}
+    \label{fig:cjinefficiency}
+\end{figure}
+
+\subsubsection{Minimum denomination}
+
+In order to pariticpate a user's combined input amount must be greater or equal to the base denomination. We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see Figure~\ref{fig:minimumdenomination}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.4]{Figures/SmallValueInputsWasabi.pdf}
+    \caption{Fraction of input UTXOs with value smaller than the minimum denomination in Wasabi CoinJoin transactions}
+    \label{fig:minimumdenomination}
+\end{figure}
+
+Even if users are able to provide several smaller value input UTXOs with total value greater than the minimum denomination, the coordinator knows those input UTXOs belong to the same user.  In an ideal mixing protocol the coordinator should not obtain more information than the already available blockchain data by coordinating the CoinJoin transaction.
+
+Furthermore if users consolidate their UTXOs before the CoinJoin in an additional transaction in order to be able to participate in a CoinJoin, then this link is revealed publicly based on the common input ownership heuristic~\cite{meiklejohn2013fistful}.
+
+\subsubsection{Variable denominations} Since users pay mining and coordination fees the denominations are gradually reduced between rounds in order to make it possible for users to mix several times without providing additional inputs. This introduces a perverse incentive to minimize coordination fees by remixing in quick succession in order, resulting in a smaller anonymity set than with time-staggered remixes.
+
+\subsubsection{Block-space efficiency}
+
+The rigidity of the current ZeroLink transaction structure, i.e. fixed denominations, constrains users' UTXO set structure as well. These limitations force users to consolidate their UTXOs (see Figure~\ref{fig:postmixmerging}) and create additional interemdiate outputs with constrained amounts when interspersing CoinJoin transactions with transactions that send or receive value.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.4]{Figures/postMixInputMerging.pdf}
+    \caption[]{Average number of inputs from the first post-mix transactions in various CoinJoin schemes.\footnotemark}
+    \label{fig:postmixmerging}
+\end{figure}
+
+\footnotetext{The high numbers of consolidation of other CoinJoin like transactions suggest the algorithm used to identify them yielded a large number of false positive results.}
+
+\subsubsection{Lack of privacy-enhanced payments} Currently ZeroLink supports neither payments from a CoinJoin, nor payments in a CoinJoin. Payments from a CoinJoin would protect sender privacy and improve efficiency by requiring fewer intermediate outputs. Payments within a CoinJoin would protect both sender and receiver privacy, and since it is a form of PayJoin~\cite{payjoin} would also improve privacy since it introduces degrees of freedom in the interpretation of CoinJoins.
+
+\subsection{Our Contribution}
 
 We introduce WabiSabi, a generalization of Chaumian CoinJoin based on a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal}. The use of KVACs replaces blind signatures' standard denominations with homomorphic amount commitments, similar to Confidential Transactions~\cite{maxwell2016confidential}, but retains the invariant that the sum of any one participant's outputs does not exceed that of their inputs without the coordinator learning the underlying values. In addition to being more flexible this improves privacy compared to standard denominations, since smaller inputs can be combined and change outputs created with the same unlinkability guarantees as the privacy enhanced outputs\footnote{Note that the cleartext amounts appearing in the final transaction might still link individual inputs and outputs.}.
 
