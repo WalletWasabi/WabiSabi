@@ -166,7 +166,7 @@ A CoinJoin round consists of an Input Registration, an Output Registration and a
 \begin{enumerate}
     \item While identifying non-compliant inputs during Input Registration phase is trivial, there is no reason for issuing penalties at this point.
     \item Identifying non-compliant inputs during Output Registration phase is not possible, thus this phase always completes and progresses to the Signing Phase.
-    \item During Signing Phase, inputs those do not sign are the non-compliant inputs and they shall be issued a penalties.
+    \item During Signing Phase, inputs those do not sign are non-compliant inputs and they shall be issued a penalties.
 \end{enumerate}
 
 The point of the cryptographic primitives in WabiSabi is to ensure it does not worth for any non-compliant input to sign the final CoinJoin transaction, otherwise non-compliant inputs could not be identified. We achieve this by ensuring no user can register outputs those sum is larger than its registered inputs' sum.
