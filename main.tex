@@ -161,7 +161,7 @@ Finally, $k$ is a protocol level constant, denoting the number of credentials us
 
 \subsection{Scheduling}
 
-A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phases. The goal of WabiSabi is to ensure the inputs of users those do not comply with the protocol are identified, thus these inputs can be excluded from the following rounds in order to ensure completion of the protocol. Discussion of various blame strategies, methods to avoid timing attacks and other scheduling related topics are not part of this overview, rather we concentrate on identifying non-compliant inputs in various phases of the protocol:
+A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phases. The goal of WabiSabi is to ensure the inputs of users who do not comply with the protocol are identified, thus these inputs can be excluded from the following rounds in order to ensure completion of the protocol. Discussion of various blame strategies, methods to avoid timing attacks and other scheduling related topics are not part of this overview. Rather we concentrate on identifying non-compliant inputs in various phases of the protocol:
 
 \begin{enumerate}
     \item While identifying non-compliant inputs during Input Registration phase is trivial, there is no reason for issuing penalties at this point.
