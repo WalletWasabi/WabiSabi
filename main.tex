@@ -79,19 +79,19 @@ In order to pariticpate a user's combined input amount must be greater or equal 
 \begin{figure}[h!]
     \centering
     \includegraphics[scale=0.4]{Figures/SmallValueInputsWasabi.pdf}
-    \caption{Fraction of input UTXOs with value smaller than the minimum denomination in Wasabi CoinJoin transactions}
+    \caption{Fraction of inputs with value smaller than the minimum denomination in Wasabi CoinJoin transactions}
     \label{fig:minimumdenomination}
 \end{figure}
 
-Even if users are able to provide several smaller value input UTXOs with total value greater than the minimum denomination, the coordinator knows those input UTXOs belong to the same user.  In an ideal mixing protocol the coordinator should not obtain more information than the already available blockchain data by coordinating the CoinJoin transaction.
+Even if users are able to provide several smaller value inputs with total value greater than the minimum denomination, the coordinator knows those inputs belong to the same user.  In an ideal mixing protocol the coordinator should not obtain more information than the already available blockchain data by coordinating the CoinJoin transaction.
 
-Furthermore if users consolidate their UTXOs before the CoinJoin in an additional transaction in order to be able to participate in a CoinJoin, then this link is revealed publicly based on the common input ownership heuristic~\cite{meiklejohn2013fistful}.
+Furthermore if users consolidate coins before the CoinJoin in an additional transaction in order to be able to participate in a CoinJoin, then this link is revealed publicly based on the common input ownership heuristic~\cite{meiklejohn2013fistful}.
 
 \subsubsection{Variable denominations} Since users pay mining and coordination fees the denominations are gradually reduced between rounds in order to make it possible for users to mix several times without providing additional inputs. This introduces a perverse incentive to minimize coordination fees by remixing in quick succession in order, resulting in a smaller anonymity set than with time-staggered remixes.
 
 \subsubsection{Block-space efficiency}
 
-The rigidity of the current ZeroLink transaction structure, i.e. fixed denominations, constrains users' UTXO set structure as well. These limitations force users to consolidate their UTXOs (see Figure~\ref{fig:postmixmerging}) and create additional interemdiate outputs with constrained amounts when interspersing CoinJoin transactions with transactions that send or receive value.
+The rigidity of the current transaction structure, i.e. fixed denominations, constrains users' unspent transaction output set structure as well. These limitations force users to consolidate their coins (see Figure~\ref{fig:postmixmerging}) and create additional intermediate outputs with constrained amounts when interspersing CoinJoin transactions with transactions that send or receive value.
 
 \begin{figure}[h!]
     \centering
