@@ -159,9 +159,9 @@ During credential presentation randomized versions of the attributes are present
 
 Finally, $k$ is a protocol level constant, denoting the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges.\footnote{$\log_2(2099999997690000) \approx 50.9$}
 
-\subsection{Scheduling}
+\subsection{Phases}
 
-A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phases. The goal of WabiSabi is to ensure the inputs of users who do not comply with the protocol are identified, thus these inputs can be excluded from the following rounds in order to ensure completion of the protocol. Discussion of various blame strategies, methods to avoid timing attacks and other scheduling related topics are not part of this overview. Rather we concentrate on identifying non-compliant inputs in various phases of the protocol:
+A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phases. To defend against Denial of Service attacks it is important to ensure the inputs of users who do not comply with the protocol are identified, thus these inputs can be excluded from the following rounds in order to ensure completion of the protocol.
 
 \begin{enumerate}
     \item While identifying non-compliant inputs during Input Registration phase is trivial, there is no reason for issuing penalties at this point.
@@ -169,7 +169,7 @@ A CoinJoin round consists of an Input Registration, an Output Registration and a
     \item During Signing Phase, inputs those do not sign are non-compliant inputs and they shall be issued a penalties.
 \end{enumerate}
 
-The point of the cryptographic primitives in WabiSabi is to ensure it does not worth for any non-compliant input to sign the final CoinJoin transaction, otherwise non-compliant inputs could not be identified. We achieve this by ensuring no user can register outputs those sum is larger than its registered inputs' sum.
+The point of the cryptography in WabiSabi is to ensure it does not worth for any non-compliant input to sign the final CoinJoin transaction, otherwise non-compliant inputs could not be identified. We achieve this by ensuring no user can register outputs those sum is larger than its registered inputs' sum.
 
 \subsection{Registration}
 
