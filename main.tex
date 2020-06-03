@@ -157,7 +157,7 @@ In order to facilitate construction of Bitcoin transactions, our credentials rep
 During credential presentation randomized versions of the attributes are presented, which we denote $C_v$ and $C_s$.
 \end{definition}
 
-Finally, $k$ is a protocol level constant, denoting the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges.\footnote{$\log_2(2099999997690000) \approx 50.9$}
+Finally, $k$ denotes the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges.\footnote{$\log_2(2099999997690000) \approx 50.9$}
 
 \subsection{Phases}
 
@@ -169,25 +169,23 @@ A CoinJoin round consists of an Input Registration, an Output Registration and a
     \item During Signing Phase, inputs those do not sign are non-compliant inputs and they shall be issued a penalties.
 \end{enumerate}
 
-The point of the cryptography in WabiSabi is to ensure it does not worth for any non-compliant input to sign the final CoinJoin transaction, otherwise non-compliant inputs could not be identified. We achieve this by ensuring no user can register outputs those sum is larger than its registered inputs' sum.
+The cryptography in WabiSabi ensures honest participants always agree to sign the final CoinJoin transaction from the coordinator assuming it accepts the outputs they request. Anonymous credentials allow the coordinator to verify that amounts of each user's output registrations are funded by input registrations without learning specific relationships between inputs and outputs.
 
 \subsection{Registration}
 
-For intuition we first we describe a pair of naive protocols for input and output registration, followed by a generalization into a unified protocol described in detail in \S\ref{details}.
+For intuition we first describe a pair of protocols where credentials are issued during input registration, and then presented at output registration. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \S\ref{details}.
+
+In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
+
+For fault tolerance request handling should be idempotent, allowing requests whose response was lost to be retried without modification, using the same or a new network identity.
 
 \subsubsection{Input Registration}
 
-The user, acting as Alice, submits an input of value $v_{\mathit{in}}$ along with $k$ pairs of group attributes,
-$(M_{v_i}, M_{s_i})$.
-She proves in zero knowledge that the sum of the requested sub-amounts is equal to $v_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
-
-The coordinator verifies the proofs, and issues $k$ MACs on the requested attributes, along with a proof of knowledge of the secret key as described in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
-
-\begin{figure}
+\begin{figure}[h!]
     \begin{mdframed}
     \begin{enumerate}
-        \item Alice sends $k$ credential requests with accompanying range and sum proofs to the coordinator:  $((M_{v_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1},\pi^{sum},v_{\textit{in}})$.
-        \item The coordinator verifies the received proofs. If they are not verified, coordinator aborts the protocol, otherwise issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{v_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
+        \item The user sends $k$ credential requests with accompanying range and sum proofs to the coordinator:  $((M_{v_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1},\pi^{sum},v_{\textit{in}})$.
+        \item The coordinator verifies the received proofs. If they are not verified it aborts the protocol, otherwise it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{v_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
     \end{enumerate}
 
 \end{mdframed}
@@ -195,20 +193,18 @@ The coordinator verifies the proofs, and issues $k$ MACs on the requested attrib
     \label{fig:inputreg}
 \end{figure}
 
+The user, acting as Alice, submits an input of value $v_{\mathit{in}}$ along with $k$ pairs of group attributes,
+$(M_{v_i}, M_{s_i})$.
+She proves in zero knowledge that the sum of the requested sub-amounts is equal to $v_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
+
+The coordinator verifies the proofs, and issues $k$ MACs on the requested attributes, along with a proof of correct generation of the MAC, as in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
+
 \subsubsection{Output Registration}
 
-Now acting as Bob, to register her output the user randomizes the attributes and generates a proof of knowledge of $k$ valid credentials issued by the coordinator.
-
-Additionally, she proves knowledge of representation of the serial number commitments. These serial numbers are revealed for double spending protection, but the knowledge of commitment opening should be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in output registration time.
-
-Finally, Bob proves that the sum of her randomized amount attributes $C_v$ matches the requested output amount $v_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated}
-
-She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
-
-\begin{figure}[h]
+\begin{figure}[h!]
     \begin{mdframed}
     \begin{enumerate}
-        \item Bob sends $k$ randomized commitments, a proof of a valid MAC for the corresponding non-randomized commitments, the underlying serial numbers with a proof of the representation of their commitments, and finally a proof of the sum of the amounts:   $((C_{v_i},C_{s_i},\pi_{i}^{\textit{MAC}},s_i, \pi_i^{\textit{serial}})^{k}_{i=1}, \pi^{\textit{sum}}, v_{\textit{out}})$.
+        \item The user sends $k$ randomized commitments, a proof of a valid MAC for the corresponding non-randomized commitments, the underlying serial numbers with a proof of the representation of their commitments, and finally a proof of the sum of the amounts:   $((C_{v_i},C_{s_i},\pi_{i}^{\textit{MAC}},s_i, \pi_i^{\textit{serial}})^{k}_{i=1}, \pi^{\textit{sum}}, v_{\textit{out}})$.
         \item The coordinator verifies proofs and registers requested output iff. all proofs are valid and the serial numbers have not been used before.
     \end{enumerate}
 \end{mdframed}
@@ -216,31 +212,27 @@ She submits these proofs, the randomized attributes, and the serial numbers. The
     \label{fig:outputreg}
 \end{figure}
 
-\subsubsection{Unified Registration}
+To register her output the user randomizes the attributes and generates a proof of knowledge of $k$ valid credentials issued by the coordinator.
 
-For more flexibility in a dynamic setting, where a user may not yet know her desired output allocation during input registration, and to allow for small\footnote{Specifically, $2 \le k \le 10 \approx \log_2\left(\frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT} - 58}{274 + 124}\right)$, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting.} values of $k$, we can generalize input and output registration into a single unified protocol, which also supports reissuance.
+Additionally, she proves knowledge of representation of the serial number commitments. These serial numbers are revealed for double spending protection, but the knowledge of commitment opening should be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in output registration time.
 
-In this case Alice or Bob (depending on the registration phase) submits $k$ valid credentials and $k$ credential requests, where the sums of the underlying amount commitments must be balanced.
+Finally, she proves that the sum of her randomized amount attributes $C_v$ matches the requested output amount $v_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated}
 
-To prevent the coordinator from being able to distinguish between initial vs. subsequent input registration requests (which may merge amounts) registration operations credential presentation should be mandatory. Initial credentials can be obtained with an auxiliary bootstrapping operation.
+She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
 
-\begin{figure}[h]
-  \begin{mdframed}
-    \begin{enumerate}
-    \item During input registration phase Alice submits $k$ credential requests:  $(M_{v_i},M_{s_i},\pi^{\mathit{null}}_{i})^{k}_{i=1}$
-    \item The coordinator verifies the received proofs. If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{v_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
-    \end{enumerate}
-  \end{mdframed}
-  \caption{Credential bootstrapping protocol}
-  \label{fig:bootstrap}
+\subsubsection{Unified Registration}\label{unified}
 
+In order to increase flexibility in a dynamic setting, where a user may not yet know her desired output allocations during input registration, and to allow setting a small\footnote{Specifically, $2 \le k \le 10 \approx \log_2\left(\frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT} - 58}{274 + 124}\right)$ the maximum number of participants, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting. The limit on participant count is because 274 and 124 are the minimum weight units required for a participant with only a single input and output, and 58 is the shared per transaction overhead.} value of $k$ as a protocol level constant to reduce privacy leaks, we can generalize input and output registration into a single unified protocol, which also supports reissuance. 
+For complete definitions see \S\ref{details}.
+
+\begin{figure}[h!]
     \begin{mdframed}
     \begin{enumerate}
-        \item During input (output) registration phase, Alice (Bob, resp.) submits:
+        \item During both input and output registration phases the user submits:
         \begin{itemize}
             \item $k$ credential requests with accompanying range and sum proofs to the coordinator:  $(M_{v_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1}$
             \item $k$ randomized commitments, a proof of a valid credential for the corresponding non-randomized commitments, the underlying serial numbers and a proof of the representation of their commitments: $(C_{v_i},C_{s_i},\pi_{i}^{\mathit{MAC}},s_i,\pi_i^{\textit{serial}})^{k}_{i=1}$
-            \item A balance proof: $(\pi^{\textit{sum}}, \Delta_{v})$
+            \item A balance $\Delta_{v}$ and a proof of its correctness $\pi^{\textit{sum}}$
             \item If $\Delta_{v} \ne 0$, an input or output with value $|\Delta_{v}|$.
         \end{itemize}
         \item The coordinator verifies the received proofs, and that the serial numbers have not been used before, and depending on the current phase, $\Delta_{v} \geq 0$ (input) or $\Delta_{v} \leq 0$ (output). If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{v_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$, and if $\Delta_{v} \ne 0$, registers the input or output with value $|\Delta_{v}|$.
@@ -250,10 +242,24 @@ To prevent the coordinator from being able to distinguish between initial vs. su
     \label{fig:reissue}
 \end{figure}
 
+The user submits $k$ valid credentials and $k$ credential requests, where the sums of the underlying amount commitments must be balanced (figure \ref{fig:reissue}).
+
+\begin{figure}[h!]
+  \begin{mdframed}
+    \begin{enumerate}
+    \item During input registration phase the user submits $k$ credential requests:  $(M_{v_i},M_{s_i},\pi^{\mathit{null}}_{i})^{k}_{i=1}$
+    \item The coordinator verifies the received proofs. If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{v_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
+    \end{enumerate}
+  \end{mdframed}
+  \caption{Credential bootstrapping protocol}
+  \label{fig:bootstrap}
+\end{figure}
+
+To prevent the coordinator from being able to distinguish between initial vs. subsequent input registration requests (which may merge amounts) registration operations credential presentation should be mandatory. Initial credentials can be obtained with an auxiliary bootstrapping operation (figure \ref{fig:bootstrap}).
 
 \subsection{Signing phase}
 
-The user fetches the finalized but unsigned transaction as Satoshi, and if she sees her registered outputs she will sign, submitting the signature as Alice(s).
+The user fetches the finalized but unsigned transaction from the coordinator, and if she sees her registered outputs she will sign her inputs and submit the each signatures separately using the network identity used for the that input's registration.
 
 \section{Cryptographic Details}\label{details}
 
