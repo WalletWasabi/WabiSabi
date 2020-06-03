@@ -54,12 +54,12 @@ Chaumian CoinJoin~\cite{mizrahi2013blind}\cite{maxwell2013coinjoin}\cite{zerolin
 
 The use of standard denominations in the resulting CoinJoin transaction obscures the relationship between individual inputs and outputs, making the origins of each output ambiguous. Unfortunately standard denominations also present limitations, such as requiring change outputs from these CoinJoin transactions, and limiting the usefulness of the privacy enhanced outputs for payments of arbitrary amounts.
 
-\subsection{Limitations of ZeroLink}
-In this work, we are aiming to improve ZeroLink, the most popular Chaumian CoinJoin implementation for Bitcoin. We identify several privacy shortcomings and inefficiencies of the current protocol as implemented by Wasabi. Some metrics comparing Wasabi, Samourai and other apparent CoinJoin transactions are provided. ``Other'' includes JoinMarket, but also has an inherent false positive error given these transactions are identified heuristically.
+\subsection{Limitations of Wasabi}
+In this work, we are aiming to improve on ZeroLink~\cite{zerolink} as implemented by Wasabi, the most popular Chaumian CoinJoin implementation for Bitcoin. We identify several privacy shortcomings and inefficiencies of Wasabi CoinJoins. Some metrics comparing Wasabi, Samourai and other apparent CoinJoin transactions are provided. ``Other'' includes JoinMarket, but also has an inherent false positive error given these transactions are identified heuristically.
 
 \subsubsection{Round denominations}
 
-Due to the nature of blind signatures, mixed outputs of ZeroLink CoinJoins are restricted to a fixed set of value denominations which are multiples of a base denomination\footnote{approximately $0.1$\bitcoinA{}}.
+Due to the nature of blind signatures, mixed outputs of Wasabi CoinJoins are restricted to a fixed set of value denominations which are multiples of a base denomination\footnote{approximately $0.1$\bitcoinA{}}.
 
 This creates friction when sending or receiving arbitrary amounts of Bitcoin, as the fixed denomination generally creates change which is smaller, both when mixing and when spending mixed outputs.
 
@@ -102,7 +102,7 @@ The rigidity of the current transaction structure, i.e. fixed denominations, con
 
 \footnotetext{The high numbers of consolidation of other CoinJoin like transactions suggest the algorithm used to identify them yielded a large number of false positive results.}
 
-\subsubsection{Lack of privacy-enhanced payments} Currently ZeroLink supports neither payments from a CoinJoin, nor payments in a CoinJoin. Payments from a CoinJoin would protect sender privacy and improve efficiency by requiring fewer intermediate outputs. Payments within a CoinJoin would protect both sender and receiver privacy, and since it is a form of PayJoin~\cite{payjoin} would also improve privacy since it introduces degrees of freedom in the interpretation of CoinJoins.
+\subsubsection{Lack of privacy-enhanced payments} Currently Wasabi supports neither payments from a CoinJoin, nor payments in a CoinJoin. Payments from a CoinJoin would protect sender privacy and improve efficiency by requiring fewer intermediate outputs. Payments within a CoinJoin would protect both sender and receiver privacy, and since it is a form of PayJoin~\cite{payjoin} would also improve privacy since it introduces degrees of freedom in the interpretation of CoinJoins.
 
 \subsection{Our Contribution}
 
