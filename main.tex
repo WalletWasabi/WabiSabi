@@ -263,8 +263,8 @@ The user fetches the finalized but unsigned transaction from the coordinator, an
 
 \section{Cryptographic Details}\label{details}
 
-Following \cite{chase2019signal}, the scheme is defined in a group \(\mathbb{G}\) of prime order \(q,\) written in multiplicative notation.
-$\mathsf{HashTo\mathbb{G}} : {0,1}^* \mapsto \mathbb{G}$ is a function from strings to group elements, based on a cryptographic hash function.
+Following \cite{chase2019signal}, the credential scheme for the protocol in \S\ref{unified} is defined over a group \(\mathbb{G}\) of prime order \(q,\) written in multiplicative notation.
+$\mathsf{HashTo\mathbb{G}} : \{0,1\}^{*} \mapsto \mathbb{G}$ is a function from strings to group elements, based on a cryptographic hash function\cite{fouque2012indifferentiable}.
 
 We require the following fixed set of group elements for use as generators with different purposes:
 \[
@@ -290,7 +290,7 @@ C_{W}={G_w}^{w} {G_{w^\prime}}^{w^\prime}
 \quad
 I=\frac{G_{V}}{{G_{x_0}}^{x_0} {G_{x_1}}^{x_1} {G_{y_v}}^{y_v} {G_{y_s}}^{y_s}}
 \]
-These are used by the coordinator to prove correctness of issued MACs, and by the users to prove knowledge of a valid MAC.
+and published as part of the round metadata and are used by the coordinator to prove correctness of issued MACs, and by the users to prove knowledge of a valid MAC.
 
 \subsection{Credential Requests}
 
@@ -307,18 +307,18 @@ M_{v_i} = {G_g}^{r_{v_i}}{G_h}^{v_i}
 0 \leq v_i < v_{\mathit{max}} \right\}
 \]
 
-We note that if Bulletproofs~\cite{bunz2018bulletproofs} are utilized for the range proofs $\pi^{\textit{range}}_i$ a single combined proof will significantly decrease the communication overhead.
-
-For initial credential requests the range proofs can be replaced with simpler proofs of $v_i = 0$:
+In credential bootstrap requests the range proofs can be replaced with simpler proofs of $v_i = 0$:
 \[
   \pi^{\mathit{null}}_i = \operatorname{PK}\left\{ \left( r_{v_i}\right) :
     M_{v_i} = {G_{g}}^{r_{v_i}}
   \right\}
 \]
 
+We note that if Bulletproofs~\cite{bunz2018bulletproofs} are utilized for the range proofs $\pi^{\textit{range}}_i$ a combined proof will significantly decrease the communication overhead and that some implementations perform the $\pi^{\mathrm{null}}$ optimization already.
+
 \subsection{Credential Presentation}
 
-The user is in possession of $k$ credentials with a valid MAC obtained from prior registration requests.
+The chooses $k$ unused credentials issued in prior registration requests, i.e. valid MACs $(t_i,U_i,V_i)_{i=1}^k$ on attributes $(M_{v_i}, M_{s_i})_{i=1}^k$ .
 
 For each credential $i \in [1, k]$ she executes a modified version of the $\mathsf{Show}$ protocol described in~\cite{chase2019signal}:
 
