@@ -417,6 +417,43 @@ To unconditionally preserve user privacy in the event that the hardness assumpti
 
 % TODO are the value commitments also an issue? what about for initial credentials where $M_{a_i} = G_h^{r_{a_i}}$? do we gain anything from having a single multi-commitment attribute?
 
+\section{Attacks}
+
+An attacker may attempt to deanonymize participants in the protocol or disrupt it. Some weaknesses are inherent due to Bitcoin itself: inputs and outputs are given in clear text, and the output of the protocol must be valid transaction. Since mitigation depends on implementation details outside the scope of WabiSabi we only provide a brief overview of these aspects.
+
+Denial of service attacks are inherent because unless all parties have provided a signature in the final phase the protocol will fail. A malicious user can disrupt any round by failing to provide a signature while still learning all of the input and output registrations\footnote{If \texttt{SIGHASH\_ANYONECANPAY} is set in the signature flags the full set of inputs can be kept known only to the coordinator until all signatures have been provied.} including amounts and scripts. A malicious coordinator can drop messages causing any user to appear to be non-compliant, and therefore disrupt the protocol arbitrarily, and always learns both inputs and outputs.
+
+Sybil attacks~\cite{douceur2002sybil} are also inherent, because a transaction between $n$ apparent participants $n-1$ of which are controlled by an attacker will fully deanonymize the victim, linking their coins on both sides of the CoinJoin. Such an attack would still give the impression that the victim's privacy has been improved. There is a liquidity requirement for such an attack since participants must provide valid inputs\footnote{See also  (\url{https://gist.github.com/chris-belcher/18ea0e6acdb885a2bfbdee43dcd6b5af}) }, as well as a cost imposed by mining fees. An attacker attempting to Sybil attack all CoinJoins would need sufficient liquidity as well as funding to dominate the combined CoinJoin volume. In the centrally coordinated setting fees paid by users can arbitrarily increase the cost of Sybil attacks by other users but does not protect against a malicious coordinator which is only bound by liquidity.
+
+We assume users participate use a unique network identity for each registration requests so that the coordinator is unable to link them. A global passive adversary may be able to de-anonymize the network layer by traffic analysis, so message size is a consideration (citations?), if it is also able to observe the contents of registration requests (by colluding with the coordinator) then the protocol can make no privacy guarantees at all.
+
+Due to quasi-identifiers associated with registration requests such as timing and amounts, and unique identifiers such as scripts, a considerable amount of information is revealed by registrations which can be related to each other based on their data or metadata. This creates the possibility of long term intersection attacks targeted to specific inputs or combinations of quasi-identifiers. Such attacks can be exacerbated by denial of service causing honest participants to make repeated, similar registrations in different rounds. In the service of de-anonymization , with denial of service causing honest participants to make multiple attempts with similar registrations, identifying informat partitioning honest participants, and by Sybil attacks.
+
+\subsection{Credential Unlinkability}
+
+We can consider registration requests as vertices of a graph, and the edges are given by the credentials, where each credential is an edge labeled by the amount between the request in which it was issued and the request in which it was presented. By the unlinkability of credential presentation to issuance and the homomorphic value commitments, the coordinator can only directly observe the vertices as a partially ordered set.
+
+The use of credentials constrain the overall topology and as enforce the balance invariant between the sums of the edge labels around individual vertices. The maximum degree in the graph is $k$. If credentials are issued only in input registration and presented only at output registration this graph is bipartite, and the unified protocol generalizes that to directed acyclic graphs.
+
+Note that the partial order of the vertices is an extension of the partial order defined by the DAG, which implies the coordinator knows that parallel requests do not share an edge. A malicious coordinator could delay processing of requests in order to gain more information. In the worst case where $k=1$ and users tolerate arbitrary timeouts but issue requests in a timely manner and have minimal dependencies between their requests, the coordinator can attempt to linearize requests in order to learn the graph structure by blocking all users and unblocking them one by one.
+
+In order to mitigate these timing leaks, input registrations should be scheduled to minimize information (randomly? what distribution?), and dummy traffic in the form of reissuance requests should be added.
+
+\subsection{}
+
+A malicious coordinator can fully disrupt the protocol by censoring certain inputs either at input registration or during signing, and by isolating concurrent users into sub-groups can perform set intersection attacks. To mitigate users should sign each others' inputs before proceeding to output registration.
+
+timing during input registration, deregistration, drop out rate and online time
+
+tagging via issuer parameters
+
+timing at phase change - signatures before all have downloaded signature
+
+\begin{itemize}
+    \item how a passive global adversary might deanonymize - temporal analysis
+    \item how an active global adversary might deanonymize
+\end{itemize}
+
 \printbibliography
 
 \end{document}
