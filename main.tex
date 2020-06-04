@@ -356,25 +356,21 @@ using its secret key (independently of the user's derivation), and verifies $\pi
 
 \subsection{Over-spending prevention by balance proof}\label{balance}
 
-The user needs to convince the coordinator that the amounts redeemed and the amounts requested differ by $\Delta_{v}$, which she can prove by including the following witness-hiding proof:
-\[ \pi^{\mathit{sum}}=\left( \sum_{i=1}^{k} r_{v_i}, \sum_{i=1}^k z_i\right) \]
+The user needs to convince the coordinator that the amounts redeemed and the amounts requested differ by $\Delta_{v}$, which she can prove by including the following proof of knowledge:
+\[
+\pi^{\mathit{sum}} = \operatorname{PK}(\{ (z, r) : B = {G_v}^{z} {G_g}^{\Delta_r} \})
+\]
+where
+\[
+B = {G_h}^{\Delta_v} \prod_{i=1}^k \frac{C_{v_i}}{{M^\prime}_{v_i}}
+\qquad
+z = \sum_{i=1}^k z_i
+\qquad
+\Delta_r = \sum_{i=1}^k r_{v_i} - r^{\prime}_{v_i}
+\]
+with $r^{\prime}_{v_i}$ denoting the randomness in the $({M^{\prime}_{v_i})_{i=1}^k$ attributes of the current credential request and $z_i, r_{v_i}$ denoting the ones in the randomized attributes $(C_{v_i})_{i=1}^k$ of the credentials currently being presented.
 
 During the input registration phase $\Delta_{v}$ may be positive, in which case an input of amount $v_{\mathit{in}} = \Delta_{v}$ must be registered with proof of ownership. During the output registration phase $\Delta_{v}$ may be negative, in which case an output of amount $v_{\mathit{out}} = -\Delta_{v}$ is registered. If $\Delta_{v} = 0$ credentials are simply reissued, with no input or output registration occurring.
-
-\[ \prod_{i=1}^{k} \frac{M_{v_i}}{C_{v_i}}
-\stackrel{?}{=}
-\frac{ {G_g}^{\pi^{\mathit{sum}}[1]}{G_h}^{\Delta_{v}} }{ {G_v}^{\pi^{\mathit{sum}}[2]} }
-\]
-
-% remove? rewrite?
-%Note that this equality over the product of the commitments implies the following  equality of the sum of the amounts is correct:
-%\[\prod_{i=1}^{k} M_{v_i}
-%= {G_g}^{\sum_{i=1}^{k} r_{v_i}} {G_h}^{\sum_{i=1}^{k} v_i}
-%\iff
-%\sum_{i=1}^{k} v_i = v_{\mathit{in}}
-%\]
-
-Informally soundness of the proof system holds as user does not know the discrete logs between the generator points used in the randomized commitments. Zero knowledge with respect to the witnesses is ensured since $\sum_{i=1}^{k}z_i$ does not leak anything about individual $z_i$. We can have a similar argument for $\sum_{i=1}^{k}r_{v_i}$ and $r_{v_i}$.
 
 \subsection{Double-spending prevention using serial numbers}
 
