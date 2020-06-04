@@ -362,7 +362,7 @@ using its secret key (independently of the user's derivation), and verifies $\pi
 
 \subsection{Over-spending prevention by balance proof}\label{balance}
 
-The user needs to convince the coordinator that the amounts redeemed and the amounts requested differ by $\Delta_{v}$, which she can prove by including the following proof of knowledge:
+The user needs to convince the coordinator that the amounts redeemed and the amounts requested differ by the public input $\Delta_{v}$, which she can prove by including the following proof of knowledge:
 \[
 \pi^{\mathit{sum}} = \operatorname{PK}(\{ (z, r) : B = {G_v}^{z} {G_g}^{\Delta_r} \})
 \]
@@ -374,7 +374,7 @@ z = \sum_{i=1}^k z_i
 \qquad
 \Delta_r = \sum_{i=1}^k r_{v_i} - r^{\prime}_{v_i}
 \]
-with $r^{\prime}_{v_i}$ denoting the randomness in the $({M^{\prime}_{v_i})_{i=1}^k$ attributes of the current credential request and $z_i, r_{v_i}$ denoting the ones in the randomized attributes $(C_{v_i})_{i=1}^k$ of the credentials currently being presented.
+with $r^{\prime}_{v_i}$ denoting the randomness in the $({M^{\prime}_{v_i})_{i=1}^k$ attributes of the credentials being requested and $z_i, r_{v_i}$ denoting the ones in the randomized attributes $(C_{v_i})_{i=1}^k$ of the credentials being presented.
 
 During the input registration phase $\Delta_{v}$ may be positive, in which case an input of amount $v_{\mathit{in}} = \Delta_{v}$ must be registered with proof of ownership. During the output registration phase $\Delta_{v}$ may be negative, in which case an output of amount $v_{\mathit{out}} = -\Delta_{v}$ is registered. If $\Delta_{v} = 0$ credentials are simply reissued, with no input or output registration occurring.
 
