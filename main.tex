@@ -297,12 +297,12 @@ and published as part of the round metadata and are used by the coordinator to p
 For each $i \in [1, k]$ the user chooses an amount $0 \leq v_i < v_{\mathit{max}}$ subject to the constraints of the balance proof (\S\ref{balance}) and a serial number $s_i \in_R \mathbb{Z}_q$.
 
 She commits to these with randomness $r_{v_i}, r_{s_i} \in_R \mathbb{Z}_q$, and these commitments are the attributes of the requested credentials.:
-\[ M_{v_i}={G_g}^{r_{v_i}}{G_h}^{v_i} \qquad M_{s_i}={G_g}^{r_{s_i}}{G_h}^{s_i} \]
+\[ M_{v_i}={G_h}^{r_{v_i}}{G_g}^{v_i} \qquad M_{s_i}={G_h}^{r_{s_i}}{G_g}^{s_i} \]
 
 For each amount $v_i$ she also computes a range proof which ensures there are no negative values:
 \[
 \pi^{\mathit{range}}_i = \operatorname{PK}\left\{\left(v_i, r_{v_i} \right) :
-M_{v_i} = {G_g}^{r_{v_i}}{G_h}^{v_i}
+M_{v_i} = {G_h}^{r_{v_i}}{G_g}^{v_i}
 \land
 0 \leq v_i < v_{\mathit{max}} \right\}
 \]
@@ -364,11 +364,11 @@ using its secret key (independently of the user's derivation), and verifies $\pi
 
 The user needs to convince the coordinator that the amounts redeemed and the amounts requested differ by the public input $\Delta_{v}$, which she can prove by including the following proof of knowledge:
 \[
-\pi^{\mathit{sum}} = \operatorname{PK}(\{ (z, r) : B = {G_v}^{z} {G_g}^{\Delta_r} \})
+\pi^{\mathit{sum}} = \operatorname{PK}(\{ (z, r) : B = {G_v}^{z} {G_h}^{\Delta_r} \})
 \]
 where
 \[
-B = {G_h}^{\Delta_v} \prod_{i=1}^k \frac{C_{v_i}}{{M^\prime}_{v_i}}
+B = {G_g}^{\Delta_v} \prod_{i=1}^k \frac{C_{v_i}}{{M^\prime}_{v_i}}
 \qquad
 z = \sum_{i=1}^k z_i
 \qquad
@@ -381,7 +381,7 @@ During the input registration phase $\Delta_{v}$ may be positive, in which case 
 \subsection{Double-spending prevention using serial numbers}
 
 The user proves knowledge of representation of her submitted randomized serial number commitments, namely:
-\[ \pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (z_i, r_{s_i}): C_{s_i} = {G_s}^{z_i}{G_g}^{r_{s_i}}{G_h}^{s_i} \} \]
+\[ \pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (z_i, r_{s_i}): C_{s_i} = {G_s}^{z_i}{G_h}^{r_{s_i}}{G_g}^{s_i} \} \]
 where the serial number $s_i$ is a public input, revealed to prevent double spending.
 
 The coordinator verifies the $\pi_{i}^{\mathit{serial}}$ and checks that the $s_i$ have not been used before (allowing for idempotent registration).
@@ -411,11 +411,11 @@ To rule out tagging of individual users the coordinator must prove knowledge of 
 
 \subsection{Perfect Hiding}
 
-Note that after revealing $s_i$ we no longer have perfect hiding in the $M_{s_i}$ commitment, because there is exactly one $r_{s_i} \in \mathbb{Z}_q$ such that $M_{s_i} = {G_g}^{r_{s_i}} {G_h}^{s_i}$. Similarly, randomization by $z_i$ only protects unlinkability of issuance and presentation against a computationally bounded adversary.
+Note that after revealing $s_i$ we no longer have perfect hiding in the $M_{s_i}$ commitment, because there is exactly one $r_{s_i} \in \mathbb{Z}_q$ such that $M_{s_i} = {G_h}^{r_{s_i}} {G_g}^{s_i}$. Similarly, randomization by $z_i$ only protects unlinkability of issuance and presentation against a computationally bounded adversary.
 
-To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_{s_i}^{\prime}$ used with an additional generator $G_g^{\prime}$ to the serial number commitments $M_{s_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_v^{\prime}, G_s^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack network level privacy and the proofs of knowledge are unconditionally hiding.}
+To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_{s_i}^{\prime}$ used with an additional generator $G_h^{\prime}$ to the serial number commitments $M_{s_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_v^{\prime}, G_s^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack network level privacy and the proofs of knowledge are unconditionally hiding.}
 
-% TODO are the value commitments also an issue? what about for initial credentials where $M_{v_i} = G_g^{r_{v_i}}$? do we gain anything from having a single multi-commitment attribute?
+% TODO are the value commitments also an issue? what about for initial credentials where $M_{v_i} = G_h^{r_{v_i}}$? do we gain anything from having a single multi-commitment attribute?
 
 \printbibliography
 
