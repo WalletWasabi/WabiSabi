@@ -157,7 +157,7 @@ In order to facilitate construction of Bitcoin transactions, our credentials rep
 During credential presentation randomized versions of the attributes are presented, which we denote $C_a$ and $C_s$.
 \end{definition}
 
-Finally, $k$ denotes the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges.\footnote{$\log_2(2099999997690000) \approx 50.9$}
+Finally, $k$ denotes the number of credentials used in input and output registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges.\footnote{$\log_2(2099999997690000) \approx 50.9$}
 
 \subsection{Phases}
 
@@ -184,7 +184,7 @@ For fault tolerance request handling should be idempotent, allowing requests who
 \begin{figure}[h!]
     \begin{mdframed}
     \begin{enumerate}
-        \item The user sends $k$ credential requests with accompanying range and sum proofs to the coordinator:  $((M_{a_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1},\pi^{sum},v_{\textit{in}})$.
+        \item The user sends $k$ credential requests with accompanying range and sum proofs to the coordinator:  $((M_{a_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1},\pi^{sum},a_{\textit{in}})$.
         \item The coordinator verifies the received proofs. If they are not verified it aborts the protocol, otherwise it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{a_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
     \end{enumerate}
 
@@ -193,9 +193,9 @@ For fault tolerance request handling should be idempotent, allowing requests who
     \label{fig:inputreg}
 \end{figure}
 
-The user, acting as Alice, submits an input of value $v_{\mathit{in}}$ along with $k$ pairs of group attributes,
+The user, acting as Alice, submits an input of amount $a_{\mathit{in}}$ along with $k$ pairs of group attributes,
 $(M_{a_i}, M_{s_i})$.
-She proves in zero knowledge that the sum of the requested sub-amounts is equal to $v_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
+She proves in zero knowledge that the sum of the requested sub-amounts is equal to $a_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
 
 The coordinator verifies the proofs, and issues $k$ MACs on the requested attributes, along with a proof of correct generation of the MAC, as in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
 
@@ -204,7 +204,7 @@ The coordinator verifies the proofs, and issues $k$ MACs on the requested attrib
 \begin{figure}[h!]
     \begin{mdframed}
     \begin{enumerate}
-        \item The user sends $k$ randomized commitments, a proof of a valid MAC for the corresponding non-randomized commitments, the underlying serial numbers with a proof of the representation of their commitments, and finally a proof of the sum of the amounts:   $((C_{a_i},C_{s_i},\pi_{i}^{\textit{MAC}},s_i, \pi_i^{\textit{serial}})^{k}_{i=1}, \pi^{\textit{sum}}, v_{\textit{out}})$.
+        \item The user sends $k$ randomized commitments, a proof of a valid MAC for the corresponding non-randomized commitments, the underlying serial numbers with a proof of the representation of their commitments, and finally a proof of the sum of the amounts:   $((C_{a_i},C_{s_i},\pi_{i}^{\textit{MAC}},s_i, \pi_i^{\textit{serial}})^{k}_{i=1}, \pi^{\textit{sum}}, a_{\textit{out}})$.
         \item The coordinator verifies proofs and registers requested output iff. all proofs are valid and the serial numbers have not been used before.
     \end{enumerate}
 \end{mdframed}
@@ -216,7 +216,7 @@ To register her output the user randomizes the attributes and generates a proof 
 
 Additionally, she proves knowledge of representation of the serial number commitments. These serial numbers are revealed for double spending protection, but the knowledge of commitment opening should be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in output registration time.
 
-Finally, she proves that the sum of her randomized amount attributes $C_a$ matches the requested output amount $v_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated}
+Finally, she proves that the sum of her randomized amount attributes $C_a$ matches the requested output amount $a_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated}
 
 She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
 
@@ -294,20 +294,20 @@ and published as part of the round metadata and are used by the coordinator to p
 
 \subsection{Credential Requests}
 
-For each $i \in [1, k]$ the user chooses an amount $0 \leq v_i < v_{\mathit{max}}$ subject to the constraints of the balance proof (\S\ref{balance}) and a serial number $s_i \in_R \mathbb{Z}_q$.
+For each $i \in [1, k]$ the user chooses an amount $0 \leq a_i < a_{\mathit{max}}$ subject to the constraints of the balance proof (\S\ref{balance}) and a serial number $s_i \in_R \mathbb{Z}_q$.
 
 She commits to these with randomness $r_{a_i}, r_{s_i} \in_R \mathbb{Z}_q$, and these commitments are the attributes of the requested credentials.:
-\[ M_{a_i}={G_h}^{r_{a_i}}{G_g}^{v_i} \qquad M_{s_i}={G_h}^{r_{s_i}}{G_g}^{s_i} \]
+\[ M_{a_i}={G_h}^{r_{a_i}}{G_g}^{a_i} \qquad M_{s_i}={G_h}^{r_{s_i}}{G_g}^{s_i} \]
 
-For each amount $v_i$ she also computes a range proof which ensures there are no negative values:
+For each amount $a_i$ she also computes a range proof which ensures there are no negative values:
 \[
-\pi^{\mathit{range}}_i = \operatorname{PK}\left\{\left(v_i, r_{a_i} \right) :
-M_{a_i} = {G_h}^{r_{a_i}}{G_g}^{v_i}
+\pi^{\mathit{range}}_i = \operatorname{PK}\left\{\left(a_i, r_{a_i} \right) :
+M_{a_i} = {G_h}^{r_{a_i}}{G_g}^{a_i}
 \land
-0 \leq v_i < v_{\mathit{max}} \right\}
+0 \leq a_i < a_{\mathit{max}} \right\}
 \]
 
-In credential bootstrap requests the range proofs can be replaced with simpler proofs of $v_i = 0$:
+In credential bootstrap requests the range proofs can be replaced with simpler proofs of $a_i = 0$:
 \[
   \pi^{\mathit{null}}_i = \operatorname{PK}\left\{ \left( r_{a_i}\right) :
     M_{a_i} = {G_{g}}^{r_{a_i}}
@@ -376,7 +376,7 @@ z = \sum_{i=1}^k z_i
 \]
 with $r^{\prime}_{a_i}$ denoting the randomness in the $(M^{\prime}_{a_i})_{i=1}^k$ attributes of the credentials being requested and $z_i, r_{a_i}$ denoting the ones in the randomized attributes $(C_{a_i})_{i=1}^k$ of the credentials being presented.
 
-During the input registration phase $\Delta_{a}$ may be positive, in which case an input of amount $v_{\mathit{in}} = \Delta_{a}$ must be registered with proof of ownership. During the output registration phase $\Delta_{a}$ may be negative, in which case an output of amount $v_{\mathit{out}} = -\Delta_{a}$ is registered. If $\Delta_{a} = 0$ credentials are simply reissued, with no input or output registration occurring.
+During the input registration phase $\Delta_{a}$ may be positive, in which case an input of amount $a_{\mathit{in}} = \Delta_{a}$ must be registered with proof of ownership. During the output registration phase $\Delta_{a}$ may be negative, in which case an output of amount $a_{\mathit{out}} = -\Delta_{a}$ is registered. If $\Delta_{a} = 0$ credentials are simply reissued, with no input or output registration occurring.
 
 \subsection{Double-spending prevention using serial numbers}
 
