@@ -389,14 +389,16 @@ The coordinator verifies the $\pi_{i}^{\mathit{serial}}$ and checks that the $s_
 \subsection{Credential Issuance}
 
 If the coordinator accepts all of the above, it registers the input or output if one is provided, and for each $i \in [1,k]$ it issues a credential by responding with
-$(t_i, U_i, V_i) \in \mathbb{Z}_q \times \mathbb{G} \times \mathbb{G}$,
+$(t_i, V_i) \in \mathbb{Z}_q \times \mathbb{G}$,
 which is the output of
 $\mathsf{MAC}_{\mathsf{sk}}(M_{a_i}, M_{s_i})$,
 where:
 \[
-t_i \in_{R} \mathbb{Z}_{q}, U_i \in_{R} \mathbb{G}
-\qquad
-V_i={G_w}^{w} {U_i}^{x_{0}+x_{1} t_i}{M_{a_i}}^{y_a} {M_{s_i}}^{y_s}
+  t_i \in_{R} \mathbb{Z}_{q}
+  \qquad
+  U_i = \mathsf{HashTo\mathbb{G}}(t_i)
+  \qquad
+  V_i={G_w}^{w} {U_i}^{x_{0}+x_{1} t_i}{M_{a_i}}^{y_a} {M_{s_i}}^{y_s}
 \]
 
 To rule out tagging of individual users the coordinator must prove knowledge of the secret key, and that $(t_i, U_i, V_i)$ is correct relative to $\mathit{iparams}=(C_{W}, I)$:
