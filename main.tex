@@ -12,6 +12,11 @@
 \setdefaultlanguage{english}
 \usepackage[style=alphabetic,minalphanames=3,maxbibnames=99]{biblatex}
 \usepackage{hyperref}
+\usepackage{cleveref}
+
+\crefname{section}{\S}{\S\S}
+\Crefname{section}{\S}{\S\S}
+
 \addbibresource{references.bib}
 
 \def\bitcoinA{%
@@ -63,7 +68,7 @@ Due to the nature of blind signatures, mixed outputs of Wasabi CoinJoins are res
 
 This creates friction when sending or receiving arbitrary amounts of Bitcoin, as the fixed denomination generally creates change which is smaller, both when mixing and when spending mixed outputs.
 
-We define \emph{CoinJoin inefficiency} as the fraction of non-mixed outputs in a CoinJoin transaction, see Figure~\ref{fig:cjinefficiency}.
+We define \emph{CoinJoin inefficiency} as the fraction of non-mixed outputs in a CoinJoin transaction, see \cref{fig:cjinefficiency}.
 
 \begin{figure}[h!]
     \centering
@@ -74,7 +79,7 @@ We define \emph{CoinJoin inefficiency} as the fraction of non-mixed outputs in a
 
 \subsubsection{Minimum denomination}
 
-In order to pariticpate a user's combined input amount must be greater or equal to the base denomination. We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see Figure~\ref{fig:minimumdenomination}.
+In order to pariticpate a user's combined input amount must be greater or equal to the base denomination. We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see \cref{fig:minimumdenomination}.
 
 \begin{figure}[h!]
     \centering
@@ -91,7 +96,7 @@ Furthermore if users consolidate coins before the CoinJoin in an additional tran
 
 \subsubsection{Block-space efficiency}
 
-The rigidity of the current transaction structure, i.e. fixed denominations, constrains users' unspent transaction output set structure as well. These limitations force users to consolidate their coins (see Figure~\ref{fig:postmixmerging}) and create additional intermediate outputs with constrained amounts when interspersing CoinJoin transactions with transactions that send or receive value.
+The rigidity of the current transaction structure, i.e. fixed denominations, constrains users' unspent transaction output set structure as well. These limitations force users to consolidate their coins (see \cref{fig:postmixmerging}) and create additional intermediate outputs with constrained amounts when interspersing CoinJoin transactions with transactions that send or receive value.
 
 \begin{figure}[h!]
     \centering
@@ -242,7 +247,7 @@ For complete definitions see \S\ref{details}.
     \label{fig:reissue}
 \end{figure}
 
-The user submits $k$ valid credentials and $k$ credential requests, where the sums of the underlying amount commitments must be balanced (figure \ref{fig:reissue}).
+The user submits $k$ valid credentials and $k$ credential requests, where the sums of the underlying amount commitments must be balanced (\cref{fig:reissue}).
 
 \begin{figure}[h!]
   \begin{mdframed}
@@ -255,7 +260,7 @@ The user submits $k$ valid credentials and $k$ credential requests, where the su
   \label{fig:bootstrap}
 \end{figure}
 
-To prevent the coordinator from being able to distinguish between initial vs. subsequent input registration requests (which may merge amounts) registration operations credential presentation should be mandatory. Initial credentials can be obtained with an auxiliary bootstrapping operation (figure \ref{fig:bootstrap}).
+To prevent the coordinator from being able to distinguish between initial vs. subsequent input registration requests (which may merge amounts) registration operations credential presentation should be mandatory. Initial credentials can be obtained with an auxiliary bootstrapping operation (\cref{fig:bootstrap}).
 
 \subsection{Signing phase}
 
