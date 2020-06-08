@@ -30,8 +30,6 @@
     \vrule height .3ex width .15ex\hfil}
     \vbox{\copy2\box0}\box2}}
 
-\newtheorem{definition}{Definition}[section]
-
 \title{WabiSabi - Draft v0.3}
 \author{Ádám Ficsór, Yuval Kogman, István András Seres}
 \date{\today}
@@ -150,20 +148,6 @@ A very high-level, and hence somewhat imprecise, description of zero-knowledge p
 
 \section{Protocol Overview}
 
-\subsection{Terminology and notation}
-
-\begin{definition} \textbf{Credential}:
-An anonymous credential is issued by the coordinator at input registration, and certifies attributes that the coordinator validates before issuing. The user can then prove possession of a valid credential in zero-knowledge in order to register an output without the coordinator being able to link it to the input registration from which it originates, or any other output registrations.
-
-We use keyed-verification anonymous credentials (introduced in~\cite{chase2014algebraic}), in particular the scheme from~\cite{chase2019signal} which supports group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$). We instantiate this scheme with a single group attribute.
-\end{definition}
-
-\begin{definition}\textbf{Attribute}:
-In order to facilitate construction of Bitcoin transactions, our credentials represent confidential Bitcoin amounts. The group attribute $M_a$ is a commitment to the amount of the registered input in satoshis. During credential presentation randomized versions of the attributes are presented, which we denote $C_a$.
-\end{definition}
-
-Finally, $k$ denotes the number of credentials used in input and output registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges.\footnote{$\log_2(2099999997690000) \approx 50.9$}
-
 \subsection{Phases}
 
 A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phases. To defend against Denial of Service attacks it is important to ensure the inputs of users who do not comply with the protocol are identified, thus these inputs can be excluded from the following rounds in order to ensure completion of the protocol.
@@ -176,9 +160,15 @@ A CoinJoin round consists of an Input Registration, an Output Registration and a
 
 The cryptography in WabiSabi ensures honest participants always agree to sign the final CoinJoin transaction from the coordinator assuming it accepts the outputs they request. Anonymous credentials allow the coordinator to verify that amounts of each user's output registrations are funded by input registrations without learning specific relationships between inputs and outputs.
 
+\subsection{Credentials}
+
+The coordinator issues anonymous credentials which authenticate attributes in response to registration requests. We use keyed-verification anonymous credentials (introduced in~\cite{chase2014algebraic}), in particular the scheme from~\cite{chase2019signal} which supports group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$). A user can then prove possession of a credential in zero knowledge in a subsequent registration request, without the coordinator being able to link it to the registration from which it originates.
+
+In order to facilitate construction of a CoinJoin transaction while protecting the privacy of participants we instantiate the scheme with a single group attribute $M_a$ which encodes a confidential Bitcoin amount as a Pedersen commitment. These commitments are never opened, instead properties of the underlying values are proven in zero knowledge, allowing the coordinator to verify validity of the requests made by honest participants. Ideally the coordinator would not learn anything that can't be learned from the resulting CoinJoin transaction.
+
 \subsection{Registration}
 
-For intuition we first describe a pair of protocols where credentials are issued during input registration, and then presented at output registration. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \S\ref{details}.
+For intuition we first describe a pair of protocols where credentials are issued during input registration, and then presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges\footnote{$\log_2(2099999997690000) \approx 50.9$}. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
 
 In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
 
