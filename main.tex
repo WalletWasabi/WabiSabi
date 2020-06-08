@@ -5,6 +5,7 @@
 \usepackage{multirow}
 \usepackage{tabularx}
 \usepackage{graphicx}
+\usepackage{pgf, tikz}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{mdframed}
@@ -13,11 +14,12 @@
 \usepackage[style=alphabetic,minalphanames=3,maxbibnames=99]{biblatex}
 \usepackage{hyperref}
 \usepackage{cleveref}
-
 \crefname{section}{\S}{\S\S}
 \Crefname{section}{\S}{\S\S}
 
 \addbibresource{references.bib}
+
+\usetikzlibrary{arrows, automata}
 
 \def\bitcoinA{%
   \leavevmode
@@ -261,6 +263,125 @@ To prevent the coordinator from being able to distinguish between initial vs. su
 \subsection{Signing phase}
 
 The user fetches the finalized but unsigned transaction from the coordinator, and if she sees her registered outputs she will sign her inputs and submit the each signatures separately using the network identity used for the that input's registration.
+
+\subsection{Examples}
+
+To illustrate the above protocols, \cref{fig:ex1,fig:ex2} show how a user might register inputs and outputs when credentials are only presented during the output registration phase and \cref{fig:ex3,fig:ex4} show the unified protocol, when credentials are both presented and requested in every registration request.
+
+Registrations requests are depicted as vertices labeled with $\Delta_a$, a double stroke denoting output registrations. A credential is an edge from the registration in which it was requested to the registration where it was presented, also labeled with the amount. The sum of a vertex's label and the labels of its incoming edges must equal to the sum of the labels of its outgoing edges. Note that edges and their labels are only known to the owners of the credentials. For simplicity we omit credentials with zero value.
+
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[
+    auto,
+    node distance = 1cm,
+    shorten  >=1pt,
+    ]
+
+    \tikzstyle{every state}=[
+    draw = black,
+    thick,
+    fill = white,
+    ]
+
+    \node[state] (i) {10};
+    \node[accepting,state] (o1) [above right of=i, xshift=1.75cm] {7};
+    \node[accepting,state] (o2) [below right of=i, xshift=1.75cm] {3};
+
+    \path[->] (i) edge node {\tiny{7}} (o1);
+    \path[->] (i) edge node {\tiny{3}} (o2);
+  \end{tikzpicture}
+  \caption{Alice wants to spend an input of amount 10 and create two outputs with amounts 7 and 3 (e.g. a payment and change)}
+  \label{fig:ex1}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[
+    auto,
+    node distance = 1.5cm,
+    shorten  >=1pt,
+    semithick,
+    ]
+
+    \tikzstyle{every state}=[
+    draw = black,
+    thick,
+    fill = white,
+    ]
+
+    \node[state] (i1) {6};
+    \node[state] (i2) [below of=i1] {4};
+    \node[accepting,state] (o1) [right of=i1, xshift=1.75cm] {7};
+    \node[accepting,state] (o2) [right of=i2, xshift=1.75cm] {3};
+
+    \path[->] (i1) edge node {\tiny{6}} (o1);
+    \path[->] (i2) edge node {\tiny{1}} (o1);
+    \path[->] (i2) edge node {\tiny{3}} (o2);
+  \end{tikzpicture}
+  \caption{Alice wants to combine her inputs valued 6 and 4 and register two outputs as in the previous example.}
+  \label{fig:ex2}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[
+    auto,
+    node distance = 1.75cm,
+    shorten  >=1pt,
+    semithick,
+    ]
+
+    \tikzstyle{every state}=[
+    draw = black,
+    thick,
+    fill = white,
+    ]
+
+    \node[state] (i1) {6};
+    \node[state] (i2) [right of=i1] {4};
+    \node[accepting,state] (o1) [above right of=i2, xshift=1.75cm] {7};
+    \node[accepting,state] (o2) [below right of=i2, xshift=1.75cm] {3};
+
+    \path[->] (i1) edge node {\tiny{6}} (i2);
+    \path[->] (i2) edge node {\tiny{7}} (o1);
+    \path[->] (i2) edge node {\tiny{3}} (o2);
+  \end{tikzpicture}
+  \caption{Alice wants to spend two inputs and register two outputs using the unified protocol, which allows her to present the credential from her first input registration when registering her second input to combine the amounts.}
+  \label{fig:ex3}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[
+    auto,
+    node distance = 1.75cm,
+    shorten  >=1pt,
+    semithick,
+    ]
+
+    \tikzstyle{every state}=[
+    draw = black,
+    thick,
+    fill = white,
+    ]
+
+    \node[state] (i1) {$6_A$};
+    \node[state] (i2) [right of=i1] {$4_A$};
+    \node[state] (i3) [below right of=i2] {$4_B$};
+    \node[accepting,state] (o1) [above right of=i2, xshift=2.5cm] {$3_A$};
+    \node[accepting,state] (o2) [below of=o1] {$10_B$};
+    \node[accepting,state] (o3) [below of=o2] {$1_B$};
+
+    \path[->] (i1) edge node {\tiny{6}} (i2);
+    \path[->] (i2) edge node {\tiny{7}} (i3);
+    \path[->] (i2) edge node {\tiny{3}} (o1);
+    \path[->] (i3) edge node {\tiny{10}} (o2);
+    \path[->] (i3) edge node {\tiny{1}} (o3);
+  \end{tikzpicture}
+  \caption{Alice wants to pay Bob, who is also participating in protocol. Alice combines her amounts at input registration and reveals a credential corresponding to the payment amount to Bob. Bob presents this credential in his own input registration. Alice registers a change output, and Bob registers two outputs. Only Alice knows the details of the request in which the credential labeled 7 was issued and only Bob knows where it was presented, but both know the amount.}
+  \label{fig:ex4}
+\end{figure}
 
 \section{Cryptographic Details}\label{details}
 
