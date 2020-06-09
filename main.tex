@@ -111,16 +111,16 @@ The rigidity of the current transaction structure, i.e. fixed denominations, con
 
 \subsection{Our Contribution}
 
-We present WabiSabi, a generalization of Chaumian CoinJoin based on a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal}. The use of KVACs replaces blind signatures' standard denominations with homomorphic amount commitments, similar to Confidential Transactions~\cite{maxwell2016confidential}, but retains the invariant that the sum of any one participant's outputs does not exceed that of their inputs without the coordinator learning the underlying values. In addition to being more flexible this improves privacy compared to standard denominations, since smaller inputs can be combined and change outputs created with the same unlinkability guarantees as the privacy enhanced outputs\footnote{Note that the cleartext amounts appearing in the final transaction might still link individual inputs and outputs.}.
+We present WabiSabi, a generalization of Chaumian CoinJoin based on a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal}. The use of KVACs replaces blind signatures' standard denominations with homomorphic amount commitments, similar to Confidential Transactions~\cite{maxwell2016confidential} in that that the sum of any one participant's outputs does not exceed that of their inputs while hiding the underlying values from the coordinator. In addition to being more flexible this improves privacy compared to standard denominations, since smaller inputs can be combined and change outputs created with the same unlinkability guarantees as the privacy enhanced outputs\footnote{Note that the cleartext amounts appearing in the final transaction might still link individual inputs and outputs.}.
 
-WabiSabi can be instantiated to construct a variety of CoinJoin transaction structures that depart from the standard output denomination convention, used by SharedCoin\footnote{\url{https://github.com/sharedcoin/Sharedcoin}} and CashFusion\footnote{\url{https://github.com/cashshuffle/spec}} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Additionally it makes possible arbitrary consolidation of outputs, minimizes unmixed change, relaxes minimum required denominations, improves block space efficiency, and makes payments from as well as within CoinJoins, also known as PayJoins, possible.
+WabiSabi can be instantiated to construct a variety of CoinJoin transaction structures that depart from the standard output denomination convention, used by SharedCoin\footnote{\url{https://github.com/sharedcoin/Sharedcoin}} and CashFusion\footnote{\url{https://github.com/cashshuffle/spec}} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Additionally it makes arbitrary consolidation of outputs possible, minimizes unmixed change, relaxes minimum required denominations, improves block space efficiency, and makes payments from as well as within CoinJoins, also known as PayJoins, possible.
 
 \section{Preliminaries}
 
 Hereby we give an informal and high-level description of applied cryptographic primitives. In the following the security parameter is denoted as $\lambda$.
 
 \subsection{Commitment schemes}
-A commitment scheme allows one to commit to a chosen message while preventing them from changng the message after publishing the commitment. These commitments should not reveal anything about the chosen message.
+A commitment scheme allows one to commit to a chosen message while preventing them from changng the message after publishing the commitment. Secure commitments do not reveal anything about the chosen message.
 
 \noindent$\mathsf{Commit}(m,r)\xrightarrow{}\mathcal{C}$. The $\mathsf{Commit}$ algorithm generates a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
 
@@ -144,7 +144,7 @@ A very high-level, and hence somewhat imprecise, description of zero-knowledge p
 
 \noindent$\mathsf{Prove}(x,w,\mathcal{R})\xrightarrow{}\pi$. Given $x$ and the private witness $w$ the prover generates a proof $\pi$.
 
-\noindent$\mathsf{Verify}(x,\pi,\mathcal{R})\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The verifier is given the proof $\pi$ and $x$ and decides whether the prover knows a secret $w$ such that $\mathcal{R}(x,w)=1$ holds.
+\noindent$\mathsf{Verify}(x,\pi,\mathcal{R})\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The verifier is given the proof $\pi$ and $x$ with which they determine whether the prover knows a secret $w$ such that $\mathcal{R}(x,w)=1$ holds.
 
 \section{Protocol Overview}
 
@@ -153,9 +153,9 @@ A very high-level, and hence somewhat imprecise, description of zero-knowledge p
 A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phase. To defend against Denial of Service attacks it is important to ensure the inputs of users who do not comply with the protocol are identified so these inputs can be excluded from the following rounds in order to ensure completion of the protocol.
 
 \begin{enumerate}
-    \item While identifying non-compliant inputs during Input Registration phase is trivial, there is no reason for issuing penalties at this point.
-    \item Identifying non-compliant inputs during Output Registration phase is not possible, thus this phase always completes and progresses to the Signing Phase.
-    \item During Signing Phase, inputs which are not signed are non-compliant inputs and they shall be issued penalties.
+    \item While identifying non-compliant inputs during Input Registration phase is trivial, there is no reason to issue penalties at this point.
+    \item Identifying non-compliant inputs during Output Registration phase is not possible, thus this phase always completes and progresses to the Signing phase.
+    \item During Signing phase, inputs which are not signed are non-compliant inputs and they shall be issued penalties.
 \end{enumerate}
 
 The cryptography in WabiSabi ensures honest participants always agree to sign the final CoinJoin transaction from the coordinator assuming it accepts the outputs they request. Anonymous credentials allow the coordinator to verify that amounts of each user's output registrations are funded by input registrations without learning specific relationships between inputs and outputs.
@@ -164,15 +164,15 @@ The cryptography in WabiSabi ensures honest participants always agree to sign th
 
 The coordinator issues anonymous credentials which authenticate attributes in response to registration requests. We use keyed-verification anonymous credentials (introduced in~\cite{chase2014algebraic}), in particular the scheme from~\cite{chase2019signal} which supports group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$). A user can then prove possession of a credential in zero knowledge in a subsequent registration request, without the coordinator being able to link it to the registration from which it originates.
 
-In order to facilitate construction of a CoinJoin transaction while protecting the privacy of participants, we instantiate the scheme with a single group attribute $M_a$ which encodes a confidential Bitcoin amount as a Pedersen commitment. These commitments are never opened. Instead, properties of the underlying values are proven in zero knowledge, allowing the coordinator to validate the requests made by honest participants. Ideally the coordinator would not learn anything that can't be learned from the resulting CoinJoin transaction.
+In order to facilitate construction of a CoinJoin transaction while protecting the privacy of participants, we instantiate the scheme with a single group attribute $M_a$ which encodes a confidential Bitcoin amount as a Pedersen commitment. These commitments are never opened. Instead, properties of the values they commit to are proven in zero knowledge, allowing the coordinator to validate the requests made by honest participants. Ideally the coordinator does not learn anything that can't be learned from the resulting CoinJoin transaction.
 
 \subsection{Registration}
 
-For intuition we first describe a pair of protocols where credentials are issued during input registration, and then presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges\footnote{$\log_2(2099999997690000) \approx 50.9$}. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
+To aid intuition we first describe a pair of protocols. One where credentials are issued during input registration, and then one where they're presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the range of amount values \footnote{$\log_2(2099999997690000) \approx 50.9$}. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
 
 In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
 
-For fault tolerance request handling should be idempotent, allowing requests whose response was lost to be retried without modification, using the same or a new network identity.
+For fault tolerance, request handling should be idempotent, allowing requests whose response was lost to retry without modification, regardless of network identity.
 
 \subsubsection{Input Registration}
 
@@ -252,13 +252,13 @@ To prevent the coordinator from being able to distinguish between initial vs. su
 
 \subsection{Signing phase}
 
-The user fetches the finalized but unsigned transaction from the coordinator, and if she sees her registered outputs she will sign her inputs and submit the each signatures separately using the network identity used for the that input's registration.
+The user fetches the finalized but unsigned transaction from the coordinator. If it contains the outputs she registered she will sign her inputs and submit each signature separately using the network identity used for the that input's registration.
 
 \subsection{Examples}
 
 To illustrate the above protocols, \cref{fig:ex1,fig:ex2} show how a user might register inputs and outputs when credentials are only presented during the output registration phase and \cref{fig:ex3,fig:ex4} show the unified protocol, when credentials are both presented and requested in every registration request.
 
-Registrations requests are depicted as vertices labeled with $\Delta_a$, a double stroke denoting output registrations. A credential is an edge from the registration in which it was requested to the registration where it was presented, also labeled with the amount. The sum of a vertex's label and the labels of its incoming edges must equal to the sum of the labels of its outgoing edges. Note that edges and their labels are only known to the owners of the credentials. For simplicity we omit credentials with zero value.
+Registration requests are depicted as vertices labeled with $\Delta_a$, a double stroke denoting output registrations. A credential is an edge from the registration in which it was requested to the registration where it was presented, also labeled with the amount. The sum of a vertex's label and the labels of its incoming edges must equal to the sum of the labels of its outgoing edges. Note that edges and their labels are only known to the owners of the credentials. For simplicity we omit credentials with zero value.
 
 \begin{figure}[h!]
   \centering
@@ -390,7 +390,7 @@ We require the following fixed set of group elements for use as generators with 
 \]
 chosen so that nobody knows the discrete logarithms between any pair of them, e.g. $G_h = \mathsf{HashTo\mathbb{G}}(``\texttt{h}")$.
 
-This notation deviates slightly from \cite{chase2019signal}, in that we subscript the attribute generators $G_{y_i}$ as $G_a$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attribute $M_a$ as a Pedersen commitments.
+Our notation deviates slightly from \cite{chase2019signal}, in that we subscript the attribute generators $G_{y_i}$ as $G_a$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attribute $M_a$ as a Pedersen commitment.
 
 As with the generator names, we modify the names of the attribute related components of the secret key
 $\mathrm{sk} = (w, w^{\prime}, x_{0}, x_{1}, y_{a}) \in_R {\mathbb{Z}_q}^5$
@@ -408,7 +408,7 @@ and published as part of the round metadata and are used by the coordinator to p
 
 \subsection{Credential Requests}
 
-For each $i \in [1, k]$ the user chooses an amount $0 \leq a_i < a_{\mathit{max}}$ subject to the constraints of the balance proof (\cref{balance}).
+For each $i \in [1, k]$ the user chooses an amount $a_i \mid 0 \leq a_i < a_{\mathit{max}}$ subject to the constraints of the balance proof (\cref{balance}).
 
 She commits to the amount with randomness $r_i \in_R \mathbb{Z}_q$, and this commitments is the attribute of the requested credentials.:
 \[ M_{a_i}={G_h}^{r_i}{G_g}^{a_i} \]
