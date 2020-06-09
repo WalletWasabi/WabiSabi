@@ -41,7 +41,7 @@
 \begin{abstract}
   Bitcoin's model for value transfer is a publicly verifiable ledger of transactions, with ownership of coins defined in terms of public keys. Although this design lacks strong guarantees for privacy, it does not rule it out.
   Despite the potential for private use, research has shown that users' activity can often be traced in practice.
-  This lack of inherent privacy has given rise to business models built on dragnet surveillance of Bitcoin users which is problematic for Bitcoin's fungibility.
+  This lack of inherent privacy has given rise to business models built on dragnet surveillance of Bitcoin users which is threat to Bitcoin's fungibility.
 
   A number of methods have been proposed to mitigate these issues. Among these, CoinJoin is an approach to structuring transactions which adds ambiguity and breaks common assumptions that underlie heuristics used for surveillance.
   Current implementations of CoinJoin transactions present a number of limitations which may partly explain their lack of widespread adoption.
@@ -51,7 +51,7 @@
 
 \section{Introduction}
 
-Bitcoin transactions redistribute funds by consuming as inputs the outputs of previous transactions, and creating new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the monetary supply and that outputs are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to defining such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges for transacting with privacy\footnote{In this work we restrict the discussion of Bitcoin privacy to that of transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{reid2013analysis,ron2013quantitative,androulaki2013evaluating,ober2013structure,moeser2013inquiry,meiklejohn2013fistful}.
+Bitcoin transactions redistribute funds by consuming outputs of previous transactions as inputs, and creating new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the monetary supply and that outputs are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to defining such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges for transacting with privacy\footnote{In this work we restrict the discussion of Bitcoin privacy to that of transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{reid2013analysis,ron2013quantitative,androulaki2013evaluating,ober2013structure,moeser2013inquiry,meiklejohn2013fistful}.
 
 The conditions for spending a transaction output are specified in its \texttt{scriptPubKey}, typically requiring that the spending transaction be signed by a specific public key. The signatures authorizing a transaction usually commit to the transaction in its entirety, which makes it possible for mutually distrusting parties to jointly create transactions without risking misallocation of funds: participants will only sign a proposed transaction after confirming that their desired outputs are included.
 
@@ -64,31 +64,31 @@ In this work, we are aiming to improve on ZeroLink~\cite{zerolink} as implemente
 
 \subsubsection{Round denominations}
 
-Due to the nature of blind signatures, mixed outputs of Wasabi CoinJoins are restricted to a fixed set of value denominations which are multiples of a base denomination\footnote{approximately $0.1$\bitcoinA{}}.
+Due to the nature of blind signatures, mixed outputs of Wasabi CoinJoins are restricted to a fixed set of value denominations which are multiples of a base denomination\footnote{Approximately $0.1$\bitcoinA{}}.
 
 This creates friction when sending or receiving arbitrary amounts of Bitcoin, as the fixed denomination generally creates change which is smaller, both when mixing and when spending mixed outputs.
 
-We define \emph{CoinJoin inefficiency} as the fraction of non-mixed outputs in a CoinJoin transaction, see \cref{fig:cjinefficiency}.
+We define \emph{CoinJoin inefficiency} as the fraction of non-mixed change outputs in a CoinJoin transaction, see \cref{fig:cjinefficiency}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[scale=0.4]{Figures/CJInefficiency.pdf}
-    \caption{CoinJoin inefficiency of various privacy-focused Bitcoin wallets}
+    \caption{CoinJoin inefficiency of various privacy-focused Bitcoin wallets.}
     \label{fig:cjinefficiency}
 \end{figure}
 
 \subsubsection{Minimum denomination}
 
-In order to pariticpate a user's combined input amount must be greater or equal to the base denomination. We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see \cref{fig:minimumdenomination}.
+In order to pariticpate a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins is usually slightly higher than the announced, agreed upon base denomination. Thus participants sometimes get back slightly more value in the CoinJoins than how much they put into.} We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see \cref{fig:minimumdenomination}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[scale=0.4]{Figures/SmallValueInputsWasabi.pdf}
-    \caption{Fraction of inputs with value smaller than the minimum denomination in Wasabi CoinJoin transactions}
+    \caption{Fraction of inputs with value smaller than the minimum denomination in Wasabi CoinJoin transactions.}
     \label{fig:minimumdenomination}
 \end{figure}
 
-Even if users are able to provide several smaller value inputs with total value greater than the minimum denomination, the coordinator knows those inputs belong to the same user.  In an ideal mixing protocol the coordinator should not obtain more information than the already available blockchain data by coordinating the CoinJoin transaction.
+Even if users are able to provide several smaller value inputs with total value greater than the minimum denomination, the coordinator knows those inputs belong to the same user. In an ideal mixing protocol the coordinator should not obtain more information than the already available blockchain data by coordinating the CoinJoin transaction. This is especially important in practice as identifying  sub-transactions when many multiple inputs and outputs are provided by the same parties is often computationally expensive with currently known algorithms, even without equal amounts being utilized~\cite{maurer2017anonymous}.
 
 Furthermore if users consolidate coins before the CoinJoin in an additional transaction in order to be able to participate in a CoinJoin, then this link is revealed publicly based on the common input ownership heuristic~\cite{meiklejohn2013fistful}.
 
@@ -210,7 +210,7 @@ To register her output the user randomizes the attributes and generates a proof 
 
 Additionally, she proves the serial number is valid. These serial numbers are required for double spending protection, and must be correspond but unlinkable to a specific $M_a$.
 
-Finally, she proves that the sum of her randomized amount attributes $C_a$ matches the requested output amount $a_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated}
+Finally, she proves that the sum of her randomized amount attributes $C_a$ matches the requested output amount $a_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated.}
 
 She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
 
