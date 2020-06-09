@@ -14,6 +14,9 @@
 \usepackage[style=alphabetic,minalphanames=3,maxbibnames=99]{biblatex}
 \usepackage{hyperref}
 \usepackage{cleveref}
+\crefname{section}{\S}{\S\S}
+\Crefname{section}{\S}{\S\S}
+
 \addbibresource{references.bib}
 
 \usetikzlibrary{arrows, automata}
@@ -26,8 +29,6 @@
     \vrule height .3ex width .15ex\hskip .08em
     \vrule height .3ex width .15ex\hfil}
     \vbox{\copy2\box0}\box2}}
-
-\newtheorem{definition}{Definition}[section]
 
 \title{WabiSabi - Draft v0.3}
 \author{Yuval Kogman, István András Seres, Ádám Ficsór}
@@ -67,7 +68,7 @@ Due to the nature of blind signatures, mixed outputs of Wasabi CoinJoins are res
 
 This creates friction when sending or receiving arbitrary amounts of Bitcoin, as the fixed denomination generally creates change which is smaller, both when mixing and when spending mixed outputs.
 
-We define \emph{CoinJoin inefficiency} as the fraction of non-mixed change outputs in a CoinJoin transaction, see Figure~\ref{fig:cjinefficiency}.
+We define \emph{CoinJoin inefficiency} as the fraction of non-mixed change outputs in a CoinJoin transaction, see \cref{fig:cjinefficiency}.
 
 \begin{figure}[h!]
     \centering
@@ -78,7 +79,7 @@ We define \emph{CoinJoin inefficiency} as the fraction of non-mixed change outpu
 
 \subsubsection{Minimum denomination}
 
-In order to pariticpate a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins is usually slightly higher than the announced, agreed upon base denomination. Thus participants sometimes get back slightly more value in the CoinJoins than how much they put into.} We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see Figure~\ref{fig:minimumdenomination}.
+In order to pariticpate a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins is usually slightly higher than the announced, agreed upon base denomination. Thus participants sometimes get back slightly more value in the CoinJoins than how much they put into.} We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see \cref{fig:minimumdenomination}.
 
 \begin{figure}[h!]
     \centering
@@ -95,7 +96,7 @@ Furthermore if users consolidate coins before the CoinJoin in an additional tran
 
 \subsubsection{Block-space efficiency}
 
-The rigidity of the current transaction structure, i.e. fixed denominations, constrains users' unspent transaction output set structure as well. These limitations force users to consolidate their coins (see Figure~\ref{fig:postmixmerging}) and create additional intermediate outputs with constrained amounts when interspersing CoinJoin transactions with transactions that send or receive value.
+The rigidity of the current transaction structure, i.e. fixed denominations, constrains users' unspent transaction output set structure as well. These limitations force users to consolidate their coins (see \cref{fig:postmixmerging}) and create additional intermediate outputs with constrained amounts when interspersing CoinJoin transactions with transactions that send or receive value.
 
 \begin{figure}[h!]
     \centering
@@ -147,22 +148,6 @@ A very high-level, and hence somewhat imprecise, description of zero-knowledge p
 
 \section{Protocol Overview}
 
-\subsection{Terminology and notation}
-
-\begin{definition} \textbf{Credential}:
-An anonymous credential is issued by the coordinator at input registration, and certifies attributes that the coordinator validates before issuing. The user can then prove possession of a valid credential in zero-knowledge in order to register an output without the coordinator being able to link it to the input registration from which it originates, or any other output registrations.
-
-We use keyed-verification anonymous credentials (introduced in~\cite{chase2014algebraic}), in particular the scheme from~\cite{chase2019signal} which supports group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$). We instantiate this scheme with two group attributes.
-\end{definition}
-
-\begin{definition}\textbf{Attribute}:
-In order to facilitate construction of Bitcoin transactions, our credentials represent confidential Bitcoin amounts. For this we use two attributes: $M_a$ is a commitment to the amount of the registered input in satoshis and $M_s$ is a commitment to a serial number used for double spending prevention.
-
-During credential presentation randomized versions of the attributes are presented, which we denote $C_a$ and $C_s$.
-\end{definition}
-
-Finally, $k$ denotes the number of credentials used in input and output registration requests, and $v_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges.\footnote{$\log_2(2099999997690000) \approx 50.9$}
-
 \subsection{Phases}
 
 A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phases. To defend against Denial of Service attacks it is important to ensure the inputs of users who do not comply with the protocol are identified, thus these inputs can be excluded from the following rounds in order to ensure completion of the protocol.
@@ -175,9 +160,15 @@ A CoinJoin round consists of an Input Registration, an Output Registration and a
 
 The cryptography in WabiSabi ensures honest participants always agree to sign the final CoinJoin transaction from the coordinator assuming it accepts the outputs they request. Anonymous credentials allow the coordinator to verify that amounts of each user's output registrations are funded by input registrations without learning specific relationships between inputs and outputs.
 
+\subsection{Credentials}
+
+The coordinator issues anonymous credentials which authenticate attributes in response to registration requests. We use keyed-verification anonymous credentials (introduced in~\cite{chase2014algebraic}), in particular the scheme from~\cite{chase2019signal} which supports group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$). A user can then prove possession of a credential in zero knowledge in a subsequent registration request, without the coordinator being able to link it to the registration from which it originates.
+
+In order to facilitate construction of a CoinJoin transaction while protecting the privacy of participants we instantiate the scheme with a single group attribute $M_a$ which encodes a confidential Bitcoin amount as a Pedersen commitment. These commitments are never opened, instead properties of the underlying values are proven in zero knowledge, allowing the coordinator to verify validity of the requests made by honest participants. Ideally the coordinator would not learn anything that can't be learned from the resulting CoinJoin transaction.
+
 \subsection{Registration}
 
-For intuition we first describe a pair of protocols where credentials are issued during input registration, and then presented at output registration. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \S\ref{details}.
+For intuition we first describe a pair of protocols where credentials are issued during input registration, and then presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges\footnote{$\log_2(2099999997690000) \approx 50.9$}. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
 
 In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
 
@@ -188,8 +179,8 @@ For fault tolerance request handling should be idempotent, allowing requests who
 \begin{figure}[h!]
     \begin{mdframed}
     \begin{enumerate}
-        \item The user sends $k$ credential requests with accompanying range and sum proofs to the coordinator:  $((M_{a_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1},\pi^{sum},v_{\textit{in}})$.
-        \item The coordinator verifies the received proofs. If they are not verified it aborts the protocol, otherwise it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{a_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
+        \item The user sends $k$ credential requests with accompanying range and sum proofs to the coordinator:  $((M_{a_i},\pi^{\textit{range}}_{i})^{k}_{i=1},\pi^{sum},a_{\textit{in}})$.
+        \item The coordinator verifies the received proofs. If they are not verified it aborts the protocol, otherwise it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{a_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
     \end{enumerate}
 
 \end{mdframed}
@@ -197,9 +188,8 @@ For fault tolerance request handling should be idempotent, allowing requests who
     \label{fig:inputreg}
 \end{figure}
 
-The user, acting as Alice, submits an input of value $v_{\mathit{in}}$ along with $k$ pairs of group attributes,
-$(M_{a_i}, M_{s_i})$.
-She proves in zero knowledge that the sum of the requested sub-amounts is equal to $v_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
+The user submits an input of amount $a_{\mathit{in}}$ along with $k$ group attributes, $(M_{a_i})$.
+She proves in zero knowledge that the sum of the requested sub-amounts is equal to $a_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
 
 The coordinator verifies the proofs, and issues $k$ MACs on the requested attributes, along with a proof of correct generation of the MAC, as in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
 
@@ -208,7 +198,7 @@ The coordinator verifies the proofs, and issues $k$ MACs on the requested attrib
 \begin{figure}[h!]
     \begin{mdframed}
     \begin{enumerate}
-        \item The user sends $k$ randomized commitments, a proof of a valid MAC for the corresponding non-randomized commitments, the underlying serial numbers with a proof of the representation of their commitments, and finally a proof of the sum of the amounts:   $((C_{a_i},C_{s_i},\pi_{i}^{\textit{MAC}},s_i, \pi_i^{\textit{serial}})^{k}_{i=1}, \pi^{\textit{sum}}, v_{\textit{out}})$.
+        \item The user sends $k$ randomized commitments, a proof of a valid MAC for the corresponding non-randomized commitments, serial numbers with a proof of their validity, and finally a proof of the sum of the amounts: $((C_{a_i},\pi_{i}^{\textit{MAC}},S_i,\pi_i^{\textit{serial}})^{k}_{i=1}, \pi^{\textit{sum}}, a_{\textit{out}})$.
         \item The coordinator verifies proofs and registers requested output iff. all proofs are valid and the serial numbers have not been used before.
     \end{enumerate}
 \end{mdframed}
@@ -218,48 +208,47 @@ The coordinator verifies the proofs, and issues $k$ MACs on the requested attrib
 
 To register her output the user randomizes the attributes and generates a proof of knowledge of $k$ valid credentials issued by the coordinator.
 
-Additionally, she proves knowledge of representation of the serial number commitments. These serial numbers are revealed for double spending protection, but the knowledge of commitment opening should be done in zero knowledge to avoid revealing the randomness of the original commitment in the input registration phase or the randomization added in output registration time.
+Additionally, she proves the serial number is valid. These serial numbers are required for double spending protection, and must be correspond but unlinkable to a specific $M_a$.
 
-Finally, she proves that the sum of her randomized amount attributes $C_a$ matches the requested output amount $v_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated.}
+Finally, she proves that the sum of her randomized amount attributes $C_a$ matches the requested output amount $a_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated.}
 
 She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
 
 \subsubsection{Unified Registration}\label{unified}
 
-In order to increase flexibility in a dynamic setting, where a user may not yet know her desired output allocations during input registration, and to allow setting a small\footnote{Specifically, $2 \le k \le 10 \approx \log_2\left(\frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT} - 58}{274 + 124}\right)$ the maximum number of participants, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting. The limit on participant count is because 274 and 124 are the minimum weight units required for a participant with only a single input and output, and 58 is the shared per transaction overhead.} value of $k$ as a protocol level constant to reduce privacy leaks, we can generalize input and output registration into a single unified protocol, which also supports reissuance. 
-For complete definitions see \S\ref{details}.
+In order to increase flexibility in a dynamic setting, where a user may not yet know her desired output allocations during input registration, and to allow setting a small\footnote{Specifically, $2 \le k \le 10 \approx \log_2\left(\frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT} - 58}{274 + 124}\right)$ the maximum number of participants, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting. The limit on participant count is because 274 and 124 are the minimum weight units required for a participant with only a single input and output, and 58 is the shared per transaction overhead.} value of $k$ as a protocol level constant to reduce privacy leaks, we can generalize input and output registration into a single unified protocol for use in both phases, which also supports reissuance. For complete definitions see \cref{details}.
 
 \begin{figure}[h!]
     \begin{mdframed}
     \begin{enumerate}
         \item During both input and output registration phases the user submits:
         \begin{itemize}
-            \item $k$ credential requests with accompanying range and sum proofs to the coordinator:  $(M_{a_i},M_{s_i},\pi^{\textit{range}}_{i})^{k}_{i=1}$
-            \item $k$ randomized commitments, a proof of a valid credential for the corresponding non-randomized commitments, the underlying serial numbers and a proof of the representation of their commitments: $(C_{a_i},C_{s_i},\pi_{i}^{\mathit{MAC}},s_i,\pi_i^{\textit{serial}})^{k}_{i=1}$
+            \item $k$ credential requests with accompanying range and sum proofs to the coordinator:  $(M_{a_i},\pi^{\textit{range}}_{i})^{k}_{i=1}$
+            \item $k$ randomized commitments, proofs of valid credentials issued for the corresponding non-randomized commitments, serial numbers, and proofs of their validity: $(C_{a_i},\pi_{i}^{\mathit{MAC}},S_i,\pi_i^{\textit{serial}})^{k}_{i=1}$
             \item A balance $\Delta_{a}$ and a proof of its correctness $\pi^{\textit{sum}}$
             \item If $\Delta_{a} \ne 0$, an input or output with value $|\Delta_{a}|$.
         \end{itemize}
-        \item The coordinator verifies the received proofs, and that the serial numbers have not been used before, and depending on the current phase, $\Delta_{a} \geq 0$ (input) or $\Delta_{a} \leq 0$ (output). If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{a_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$, and if $\Delta_{a} \ne 0$, registers the input or output with value $|\Delta_{a}|$.
+        \item The coordinator verifies the received proofs, and that the serial numbers have not been used before, and depending on the current phase, $\Delta_{a} \geq 0$ (input) or $\Delta_{a} \leq 0$ (output). If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{a_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$, and if $\Delta_{a} \ne 0$, registers the input or output with value $|\Delta_{a}|$.
     \end{enumerate}
     \end{mdframed}
     \caption{Unified Registration protocol}
     \label{fig:reissue}
 \end{figure}
 
-The user submits $k$ valid credentials and $k$ credential requests, where the sums of the underlying amount commitments must be balanced (figure \ref{fig:reissue}).
+The user submits $k$ valid credentials and $k$ credential requests, where the sums of the underlying amount commitments must be balanced (\cref{fig:reissue}).
 
 \begin{figure}[h!]
   \begin{mdframed}
     \begin{enumerate}
-    \item During input registration phase the user submits $k$ credential requests:  $(M_{a_i},M_{s_i},\pi^{\mathit{null}}_{i})^{k}_{i=1}$
-    \item The coordinator verifies the received proofs. If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{a_i},M_{s_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
+    \item During input registration phase the user submits $k$ credential requests:  $(M_{a_i},\pi^{\mathit{null}}_{i})^{k}_{i=1}$
+    \item The coordinator verifies the received proofs. If it accepts, it issues $k$ MACs on the requested attributes $(\mathsf{MAC}_\mathsf{sk}(M_{a_i}), \pi_i^{\mathrm{iparams}})^{k}_{i=1}$.
     \end{enumerate}
   \end{mdframed}
   \caption{Credential bootstrapping protocol}
   \label{fig:bootstrap}
 \end{figure}
 
-To prevent the coordinator from being able to distinguish between initial vs. subsequent input registration requests (which may merge amounts) registration operations credential presentation should be mandatory. Initial credentials can be obtained with an auxiliary bootstrapping operation (figure \ref{fig:bootstrap}).
+To prevent the coordinator from being able to distinguish between initial vs. subsequent input registration requests (which may merge amounts) registration operations credential presentation should be mandatory. Initial credentials can be obtained with an auxiliary bootstrapping operation (\cref{fig:bootstrap}).
 
 \subsection{Signing phase}
 
@@ -386,23 +375,25 @@ Registrations requests are depicted as vertices labeled with $\Delta_a$, a doubl
 
 \section{Cryptographic Details}\label{details}
 
-Following \cite{chase2019signal}, the credential scheme for the protocol in \S\ref{unified} is defined over a group \(\mathbb{G}\) of prime order \(q,\) written in multiplicative notation.
+Following \cite{chase2019signal}, the credential scheme for the protocol in \cref{unified} is defined over a group \(\mathbb{G}\) of prime order \(q,\) written in multiplicative notation.
 $\mathsf{HashTo\mathbb{G}} : \{0,1\}^{*} \mapsto \mathbb{G}$ is a function from strings to group elements, based on a cryptographic hash function\cite{fouque2012indifferentiable}.
 
 We require the following fixed set of group elements for use as generators with different purposes:
 \[
 \underbrace{G_{w}, G_{w^{\prime}}, G_{x_{0}}, G_{x_{1}}, G_{V}}_{\mathsf{MAC} \text{~and~} \mathsf{Show}}
 \qquad
-\underbrace{G_{a}, G_{s}}_{\text{attributes}}
+\underbrace{G_a}_{\text{attributes}}
 \qquad
 \underbrace{G_g, G_h}_{\text{commitments}}
+\qquad
+\underbrace{G_s}_{\text{serial number}}
 \]
 chosen so that nobody knows the discrete logarithms between any pair of them, e.g. $G_h = \mathsf{HashTo\mathbb{G}}(``\texttt{h}")$.
 
-This notation deviates slightly from \cite{chase2019signal}, in that we subscript the attribute generators $G_{y_i}$ as $G_a$ and $G_s$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attributes $M_a$ and $M_s$ as Pedersen commitments.
+This notation deviates slightly from \cite{chase2019signal}, in that we subscript the attribute generators $G_{y_i}$ as $G_a$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attribute $M_a$ as a Pedersen commitments.
 
 As with the generator names, we modify the names of the attribute related components of the secret key
-$\mathrm{sk} = (w, w^{\prime}, x_{0}, x_{1}, y_{a}, y_{s}) \in_R {\mathbb{Z}_q}^6$
+$\mathrm{sk} = (w, w^{\prime}, x_{0}, x_{1}, y_{a}) \in_R {\mathbb{Z}_q}^5$
 according to our fixed set of group attributes.
 
 The coordinator parameters
@@ -411,37 +402,63 @@ are computed as:
 \[
 C_{W}={G_w}^{w} {G_{w^\prime}}^{w^\prime}
 \quad
-I=\frac{G_{V}}{{G_{x_0}}^{x_0} {G_{x_1}}^{x_1} {G_{y_a}}^{y_a} {G_{y_s}}^{y_s}}
+I=\frac{G_{V}}{{G_{x_0}}^{x_0} {G_{x_1}}^{x_1} {G_a}^{y_a} }
 \]
 and published as part of the round metadata and are used by the coordinator to prove correctness of issued MACs, and by the users to prove knowledge of a valid MAC.
 
 \subsection{Credential Requests}
 
-For each $i \in [1, k]$ the user chooses an amount $0 \leq v_i < v_{\mathit{max}}$ subject to the constraints of the balance proof (\S\ref{balance}) and a serial number $s_i \in_R \mathbb{Z}_q$.
+For each $i \in [1, k]$ the user chooses an amount $0 \leq a_i < a_{\mathit{max}}$ subject to the constraints of the balance proof (\cref{balance}).
 
-She commits to these with randomness $r_{a_i}, r_{s_i} \in_R \mathbb{Z}_q$, and these commitments are the attributes of the requested credentials.:
-\[ M_{a_i}={G_h}^{r_{a_i}}{G_g}^{v_i} \qquad M_{s_i}={G_h}^{r_{s_i}}{G_g}^{s_i} \]
+She commits to the amount with randomness $r_i \in_R \mathbb{Z}_q$, and this commitments is the attribute of the requested credentials.:
+\[ M_{a_i}={G_h}^{r_i}{G_g}^{a_i} \]
 
-For each amount $v_i$ she also computes a range proof which ensures there are no negative values:
+For each amount $a_i$ she also computes a range proof which ensures there are no negative values:
 \[
-\pi^{\mathit{range}}_i = \operatorname{PK}\left\{\left(v_i, r_{a_i} \right) :
-M_{a_i} = {G_h}^{r_{a_i}}{G_g}^{v_i}
+\pi^{\mathit{range}}_i = \operatorname{PK}\left\{\left(a_i, r_i \right) :
+M_{a_i} = {G_h}^{r_i}{G_g}^{a_i}
 \land
-0 \leq v_i < v_{\mathit{max}} \right\}
+0 \leq a_i < a_{\mathit{max}} \right\}
 \]
 
-In credential bootstrap requests the range proofs can be replaced with simpler proofs of $v_i = 0$:
+In credential bootstrap requests the range proofs can be replaced with simpler proofs of $a_i = 0$:
 \[
-  \pi^{\mathit{null}}_i = \operatorname{PK}\left\{ \left( r_{a_i}\right) :
-    M_{a_i} = {G_{g}}^{r_{a_i}}
+  \pi^{\mathit{null}}_i = \operatorname{PK}\left\{ \left( r_i\right) :
+    M_{a_i} = {G_{g}}^{r_i}
   \right\}
 \]
 
 We note that if Bulletproofs~\cite{bunz2018bulletproofs} are utilized for the range proofs $\pi^{\textit{range}}_i$ a combined proof will significantly decrease the communication overhead and that some implementations perform the $\pi^{\mathrm{null}}$ optimization already.
 
-\subsection{Credential Presentation}
+\subsection{Credential Issuance}
 
-The chooses $k$ unused credentials issued in prior registration requests, i.e. valid MACs $(t_i,U_i,V_i)_{i=1}^k$ on attributes $(M_{a_i}, M_{s_i})_{i=1}^k$ .
+If the coordinator accepts the requests (see \cref{presentation,serial,balance}), it registers the input or output if one is provided, and for each $i \in [1,k]$ it issues a credential by responding with
+$(t_i, V_i) \in \mathbb{Z}_q \times \mathbb{G}$,
+which is the output of
+$\mathsf{MAC}_{\mathsf{sk}}(M_{a_i})$,
+where:
+\[
+  t_i \in_{R} \mathbb{Z}_{q}
+  \qquad
+  U_i = \mathsf{HashTo\mathbb{G}}(t_i)
+  \qquad
+  V_i={G_w}^{w} {U_i}^{x_{0}+x_{1} t_i}{M_{a_i}}^{y_a}
+\]
+
+
+To rule out tagging of individual users the coordinator must prove knowledge of the secret key, and that $(t_i, U_i, V_i)$ are correct relative to $\mathit{iparams}=(C_{W}, I)$:
+
+\begin{align*}
+  \pi_{i}^{\mathit{iparams}}=\operatorname{PK}\{ & (w, w^{\prime}, x_{0}, x_{1}, y_a): \\
+                                                 &C_{W}={G_{w}}^{w} {G_{w^{\prime}}}^{w^\prime} \land \\
+                                                 &I=\frac{G_{V}}{{G_{x_{0}}}^{x_0} {G_{x_1}}^{x_1} {G_a}^{y_a}}  \land \\
+                                                 &V_i={G_w}^{w}{U_i}^{x_{0}+x_{1}t_i} {M_{a_i}}^{y_a}
+                                                   \}
+\end{align*}
+
+\subsection{Credential Presentation}\label{presentation}
+
+The user chooses $k$ unused credentials issued in prior registration requests, i.e. valid MACs $(t_i,V_i)_{i=1}^k$ on attributes $(M_{a_i})_{i=1}^k$ .
 
 For each credential $i \in [1, k]$ she executes a modified version of the $\mathsf{Show}$ protocol described in~\cite{chase2019signal}:
 
@@ -450,10 +467,10 @@ For each credential $i \in [1, k]$ she executes a modified version of the $\math
 \item She chooses
 $z_i \in_{R} \mathbb{Z}_{q}$, and computes
 $z_{0_i}=-{t_i} {z_i} (\bmod q)$
-and the randomized commitments:
+and the serial number and randomized commitments:
 \begin{align*}
+S_i        &= {G_s}^{r_i} \\
 C_{a_i}     &= {G_a}^{z_i} M_{a_i} \\
-C_{s_i}     &= {G_s}^{z_i} M_{s_i} \\
 C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
 C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
 C_{V_i}     &= {G_V}^{z_i} V_i
@@ -466,79 +483,54 @@ C_{V_i}     &= {G_V}^{z_i} V_i
 & Z_i =I^{z_i} \land \\
 & C_{x_{1_i}} = {C_{x_{0_i}}}^{t_i} {G_{x_0}}^{z_{0_i}} {G_{x_1}}^{z_i} \}
 \end{align*}
-which implies the following without allowing the coordinator to link $\pi_{i}^\mathit{MAC}$ to the underlying attributes $(M_{a_i}, M_{s_i})$:
+which implies the following without allowing the coordinator to link $\pi_{i}^\mathit{MAC}$ to the underlying attributes $(M_{a_i})$:
 \[
-\mathsf{Verify}((C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{a_i}, C_{s_i}, Z_i), \pi_i^{\mathit{MAC}})
+\mathsf{Verify}((C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{a_i}, Z_i), \pi_i^{\mathit{MAC}})
 \iff
-\mathsf{VerifyMAC}_{\mathsf{sk}}(M_{a_i}, M_{s_i})
+\mathsf{VerifyMAC}_{\mathsf{sk}}(M_{a_i})
 \]
 
-\item She sends $(C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{a_i}, C_{s_i}, \pi_i^{\mathit{MAC}})$ and the coordinator computes:
+\item She sends $(C_{x_{0_i}}, C_{x_{1_i}}, C_{V_i}, C_{a_i},\pi_i^{\mathit{MAC}})$ and the coordinator computes:
 \[
 Z_i=\frac{C_{V_i}}{{G_w}^w {C_{x_{0_i}}}^{x_0} {C_{x_{1_i}}}^{x_{1}}
-{C_{a_i}}^{y_a} {C_{s_i}}^{y_s}
+{C_{a_i}}^{y_a}
 }
 \]
 using its secret key (independently of the user's derivation), and verifies $\pi_i^{\mathit{MAC}}$.
 
 \end{enumerate}
 
+\subsection{Double-spending prevention using serial numbers}\label{serial}
+
+The user proves that the group element $S_i$, which is used as a serial number, was generated correctly with respect to $C_{a_i}$:
+\[ \pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (z_i,a_i,r_i): S_i = {G_s}^{r_i} \land C_{a_i} = {G_a}^{z_i}{G_h}^{r_i}{G_g}^{a_i} \} \]
+
+The coordinator verifies $\pi_{i}^{\mathit{serial}}$ and checks that the $S_i$ has not been used before (allowing for idempotent registration).
+
+Note that since the logical conjunction of $\pi_i^{\mathit{serial}}$ and $\pi_i^{\mathit{MAC}}$ is required for each credential, and because these proofs share both public and private inputs it is appropriate to use a single proof for both statements.
+
 \subsection{Over-spending prevention by balance proof}\label{balance}
 
-The user needs to convince the coordinator that the amounts redeemed and the amounts requested differ by the public input $\Delta_{a}$, which she can prove by including the following proof of knowledge:
-\[
-\pi^{\mathit{sum}} = \operatorname{PK}(\{ (z, r) : B = {G_a}^{z} {G_h}^{\Delta_r} \})
+The user needs to convince the coordinator that the total amounts redeemed and the requested differ by the public input $\Delta_{a}$, which she can prove by including the following proof of knowledge:
+\[ \pi^{\mathit{sum}} = \operatorname{PK}(\{ (z, r) : B = {G_a}^{z} {G_h}^{\Delta_r} \})
 \]
 where
 \[
-B = {G_g}^{\Delta_a} \prod_{i=1}^k \frac{C_{a_i}}{{M^\prime}_{a_i}}
+B = {G_g}^{\Delta_a} \prod_{i=1}^k \frac{C_{a_i}}{M^{\prime}_{a_i}}
 \qquad
 z = \sum_{i=1}^k z_i
 \qquad
-\Delta_r = \sum_{i=1}^k r_{a_i} - r^{\prime}_{a_i}
+\Delta_r = \sum_{i=1}^k r_i - r^{\prime}_i
 \]
-with $r^{\prime}_{a_i}$ denoting the randomness in the $(M^{\prime}_{a_i})_{i=1}^k$ attributes of the credentials being requested and $z_i, r_{a_i}$ denoting the ones in the randomized attributes $(C_{a_i})_{i=1}^k$ of the credentials being presented.
+with $r^{\prime}_i$ denoting the randomness terms in the $(M^{\prime}_{a_i})_{i=1}^k$ attributes of the credentials being requested and $z_i, r_i$ denoting the ones in the randomized attributes $(C_{a_i})_{i=1}^k$ of the credentials being presented.
 
-During the input registration phase $\Delta_{a}$ may be positive, in which case an input of amount $v_{\mathit{in}} = \Delta_{a}$ must be registered with proof of ownership. During the output registration phase $\Delta_{a}$ may be negative, in which case an output of amount $v_{\mathit{out}} = -\Delta_{a}$ is registered. If $\Delta_{a} = 0$ credentials are simply reissued, with no input or output registration occurring.
-
-\subsection{Double-spending prevention using serial numbers}
-
-The user proves knowledge of representation of her submitted randomized serial number commitments, namely:
-\[ \pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (z_i, r_{s_i}): C_{s_i} = {G_s}^{z_i}{G_h}^{r_{s_i}}{G_g}^{s_i} \} \]
-where the serial number $s_i$ is a public input, revealed to prevent double spending.
-
-The coordinator verifies the $\pi_{i}^{\mathit{serial}}$ and checks that the $s_i$ have not been used before (allowing for idempotent registration).
-
-\subsection{Credential Issuance}
-
-If the coordinator accepts all of the above, it registers the input or output if one is provided, and for each $i \in [1,k]$ it issues a credential by responding with
-$(t_i, U_i, V_i) \in \mathbb{Z}_q \times \mathbb{G} \times \mathbb{G}$,
-which is the output of
-$\mathsf{MAC}_{\mathsf{sk}}(M_{a_i}, M_{s_i})$,
-where:
-\[
-t_i \in_{R} \mathbb{Z}_{q}, U_i \in_{R} \mathbb{G}
-\qquad
-V_i={G_w}^{w} {U_i}^{x_{0}+x_{1} t_i}{M_{a_i}}^{y_a} {M_{s_i}}^{y_s}
-\]
-
-To rule out tagging of individual users the coordinator must prove knowledge of the secret key, and that $(t_i, U_i, V_i)$ is correct relative to $\mathit{iparams}=(C_{W}, I)$:
-
-\begin{align*}
-\pi_{i}^{\mathit{iparams}}=\operatorname{PK}\{ & (w, w^{\prime}, x_{0}, x_{1}, y_a, y_s): \\
-&C_{W}={G_{w}}^{w} {G_{w^{\prime}}}^{w^\prime} \land \\
-&I=\frac{G_{V}}{{G_{x_{0}}}^{x_0} {G_{x_1}}^{x_1} {G_{y_a}}^{y_a} {G_{y_s}}^{y_s}} \land \\
-&V_i={G_w}^{w}{U_i}^{x_{0}+x_{1}t_i} {M_{a_i}}^{y_a} {M_{s_i}}^{y_s}
-\}
-\end{align*}
+During the input registration phase $\Delta_{a}$ may be positive, in which case an input of amount $a_{\mathit{in}} = \Delta_{a}$ must be registered with proof of ownership. During the output registration phase $\Delta_{a}$ may be negative, in which case an output of amount $a_{\mathit{out}} = -\Delta_{a}$ is registered. If $\Delta_{a} = 0$ credentials are simply reissued, with no input or output registration occurring.
 
 \subsection{Perfect Hiding}
 
-Note that after revealing $s_i$ we no longer have perfect hiding in the $M_{s_i}$ commitment, because there is exactly one $r_{s_i} \in \mathbb{Z}_q$ such that $M_{s_i} = {G_h}^{r_{s_i}} {G_g}^{s_i}$. Similarly, randomization by $z_i$ only protects unlinkability of issuance and presentation against a computationally bounded adversary.
+Note that $S_i$ is not perfect hiding because there is exactly one $r_i \in \mathbb{Z}_q$ such that $S_i = {G_s}^{r_i}$. Similarly, randomization by $z_i$ only protects unlinkability of issuance and presentation against a computationally bounded adversary. Null credentials have the same issue, since the the amount exponent is known to be zero.
 
-To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_{s_i}^{\prime}$ used with an additional generator $G_h^{\prime}$ to the serial number commitments $M_{s_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_a^{\prime}, G_s^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack network level privacy and the proofs of knowledge are unconditionally hiding.}
-
-% TODO are the value commitments also an issue? what about for initial credentials where $M_{a_i} = G_h^{r_{a_i}}$? do we gain anything from having a single multi-commitment attribute?
+To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_i^{\prime}$ used with an additional generator $G_h^{\prime}$ to the amount commitments $M_{a_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_a^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack network level privacy and the proofs of knowledge are unconditionally hiding.}
 
 \printbibliography
 
