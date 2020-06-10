@@ -172,7 +172,7 @@ To aid intuition we first describe a pair of protocols. One where credentials ar
 
 In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
 
-For fault tolerance, request handling should be idempotent, allowing requests whose response was lost to retry without modification, regardless of network identity.
+For fault tolerance, request handling should be idempotent, allowing a client to retry a failed request without modification using a fresh network identity or one which was previously used to attempt that request.
 
 \subsubsection{Input Registration}
 
