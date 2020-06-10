@@ -62,7 +62,7 @@ The use of standard denominations in the resulting CoinJoin transaction obscures
 \subsection{Limitations of Wasabi}
 In this work, we aim to improve on ZeroLink~\cite{zerolink} as implemented by Wasabi, the most popular Chaumian CoinJoin implementation for Bitcoin. We identify several privacy shortcomings and inefficiencies of Wasabi CoinJoins. Some metrics comparing Wasabi, Samourai and other apparent CoinJoin transactions are provided. The ``Other'' category includes JoinMarket, but also has an inherent false positive error given these transactions are identified heuristically.
 
-\subsubsection{Fixed denominations}
+\subsubsection{Denominations}
 
 Due to the nature of blind signatures, mixed outputs of Wasabi CoinJoins are restricted to a fixed set of value denominations which are multiples of a base denomination\footnote{Approximately $0.1$\bitcoinA{}}.
 
