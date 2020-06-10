@@ -467,9 +467,8 @@ For each credential $i \in [1, k]$ she executes a the $\mathsf{Show}$ protocol d
 \item She chooses
 $z_i \in_{R} \mathbb{Z}_{q}$, and computes
 $z_{0_i}=-{t_i} {z_i} (\bmod q)$
-and the serial number and randomized commitments:
+and the randomized commitments:
 \begin{align*}
-S_i        &= {G_s}^{r_i} \\
 C_{a_i}     &= {G_a}^{z_i} M_{a_i} \\
 C_{x_{0_i}} &= {G_{x_0}}^{z_i} {U_i} \\
 C_{x_{1_i}} &= {G_{x_1}}^{z_i} {U_i}^{t_i} \\
@@ -502,7 +501,7 @@ using its secret key (independently of the user's derivation), and verifies $\pi
 
 \subsection{Double-spending prevention using serial numbers}\label{serial}
 
-The user proves that the group element $S_i$, which is used as a serial number, was generated correctly with respect to $C_{a_i}$:
+The user proves that the group element $S_i = {G_s}^{r_i}$, which is used as a serial number, was generated correctly with respect to $C_{a_i}$:
 \[ \pi_{i}^{\mathit{serial}}=\operatorname{PK}\{ (z_i,a_i,r_i): S_i = {G_s}^{r_i} \land C_{a_i} = {G_a}^{z_i}{G_h}^{r_i}{G_g}^{a_i} \} \]
 
 The coordinator verifies $\pi_{i}^{\mathit{serial}}$ and checks that the $S_i$ has not been used before (allowing for idempotent registration).
