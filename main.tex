@@ -88,7 +88,7 @@ In order to pariticpate a user's combined input amount must be greater or equal 
     \label{fig:minimumdenomination}
 \end{figure}
 
-Even when users are able to provide several smaller value inputs with total value greater than the minimum denomination, the coordinator knows those inputs belong to the same user. In an ideal mixing protocol the coordinator should not obtain more information than the already available public ledger data by coordinating the CoinJoin transaction. This is especially important in practice as identifying sub-transactions when many multiple inputs and outputs are provided by the same parties is often computationally expensive using currently known algorithms, even without equal amounts being utilized~\cite{maurer2017anonymous}.
+Even when users are able to provide several smaller value inputs with total value greater than the minimum denomination, the coordinator knows those inputs belong to the same user. In an ideal mixing protocol the coordinator should not obtain more information than the already available public ledger data by coordinating the CoinJoin transaction. This information removes many degrees of freedom when assigning non-derived sub-transactions~\cite{maurer2017anonymous}, potentially removing ambiguity when there are multiple valid assignments or reducing the computational cost of such an analysis.
 
 Furthermore if users consolidate coins before the CoinJoin in an additional transaction in order to be able to participate in a CoinJoin, then this link is revealed publicly based on the common input ownership heuristic~\cite{meiklejohn2013fistful}.
 
