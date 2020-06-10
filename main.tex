@@ -39,30 +39,30 @@
 \maketitle
 
 \begin{abstract}
-  Bitcoin's model for value transfer is a publicly verifiable ledger of transactions, with ownership of coins defined in terms of public keys. Although this design lacks strong guarantees for privacy, it does not rule it out.
-  Despite the potential for private use, research has shown that users' activity can often be traced in practice.
-  This lack of inherent privacy has given rise to business models built on dragnet surveillance of Bitcoin users which is threat to Bitcoin's fungibility.
+  Bitcoin transfers value on a public ledger of transactions anyone can verify. Coin ownership is defined there in terms of public keys.
+  Despite potential use for private transfers, research has shown that users' activity can often be traced in practice. Businesses are built on dragnet surveillance of Bitcoin users because of this lack of inherent privacy which harms its fungibility, a basic property of functional money.
 
-  A number of methods have been proposed to mitigate these issues. Among these, CoinJoin is an approach to structuring transactions which adds ambiguity and breaks common assumptions that underlie heuristics used for surveillance.
-  Current implementations of CoinJoin transactions present a number of limitations which may partly explain their lack of widespread adoption.
+  Although the public nature of this design lacks strong guarantees for privacy, it does not rule it out.
+  A number of methods have been proposed to create privacy. Among these, CoinJoin is an approach to structure transactions which adds ambiguity and breaks common assumptions that underlie heuristics used for surveillance.
+  Earlier implementations of CoinJoin transactions present a number of limitations which may partly explain the lack of their widespread adoption.
 
-  This work introduces a new protocol for centrally coordinated CoinJoin implementations utilizing keyed verification anonymous credentials and homomorphic value commitments. This is an improvement on the current approach which utilizes blind signatures in both privacy and flexibility, enabling additional use cases and reduced overheads.
+  This work introduces \emph{WabiSabi}, a new protocol for centrally coordinated CoinJoin implementations utilizing keyed verification anonymous credentials and homomorphic value commitments. This improves earlier approaches which utilize blind signatures in both privacy and flexibility, enabling novel use cases and reduced overhead.
 \end{abstract}
 
 \section{Introduction}
 
-Bitcoin transactions redistribute funds by consuming outputs of previous transactions as inputs, and creating new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the monetary supply and that outputs are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to defining such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges for transacting with privacy\footnote{In this work we restrict the discussion of Bitcoin privacy to that of transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{reid2013analysis,ron2013quantitative,androulaki2013evaluating,ober2013structure,moeser2013inquiry,meiklejohn2013fistful}.
+Bitcoin transactions redistribute funds by consuming outputs of previous transactions as inputs to create new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the money supply and that outputs are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to define such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges to transacting privately\footnote{In this work we restrict the discussion of Bitcoin privacy to that of public ledger transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{reid2013analysis,ron2013quantitative,androulaki2013evaluating,ober2013structure,moeser2013inquiry,meiklejohn2013fistful}.
 
-The conditions for spending a transaction output are specified in its \texttt{scriptPubKey}, typically requiring that the spending transaction be signed by a specific public key. The signatures authorizing a transaction usually commit to the transaction in its entirety, which makes it possible for mutually distrusting parties to jointly create transactions without risking misallocation of funds: participants will only sign a proposed transaction after confirming that their desired outputs are included.
+The conditions for spending a transaction output are specified in its \texttt{scriptPubKey}, typically requiring that the spending transaction be signed by a specific key. The signatures authorizing a transaction usually commit to the transaction in its entirety, making it possible for mutually distrusting parties to jointly create transactions without risking misallocation of funds: participants will only sign a proposed transaction after confirming that their desired outputs are included.
 
-Chaumian CoinJoin~\cite{mizrahi2013blind,maxwell2013coinjoin,zerolink} is a privacy enhancing technique that uses this atomicity property and Chaumian blind signatures~\cite{chaum1983blind} to construct collaborative Bitcoin transactions, also known as CoinJoins. Participants connect to a server, known as the coordinator, and submit their inputs and outputs using different anonymity network identities. That alone would provide anonymity but since outputs are unconstrained it's not robust against malicious users who can disrupt the protocol by claiming more than their fair share. To mitigate this the coordinator provides blind signatures representing units of standard denominations in response to submitted inputs. Output registration is authorized by presenting a valid signature without the coordinator being able to link the signature to a specific input.
+Chaumian CoinJoin~\cite{mizrahi2013blind,maxwell2013coinjoin,zerolink} is a privacy enhancing technique that uses this atomicity property and Chaumian blind signatures~\cite{chaum1983blind} to construct collaborative Bitcoin transactions, also known as CoinJoins. Participants connect to a server, known as the coordinator, and submit their inputs and outputs using different anonymity network identities. That alone provides anonymity but since outputs are unconstrained it's not robust against malicious users who may disrupt the protocol by claiming more than their fair share. To mitigate this the coordinator provides blind signatures representing units of standard denominations in response to submitted inputs. By unblinding and presenting this valid signature back to the coordinator, participants authorize registration of their outputs so the coordinator is unable to link the signed output to a specific input.
 
-The use of standard denominations in the resulting CoinJoin transaction obscures the relationship between individual inputs and outputs, making the origins of each output ambiguous. Unfortunately standard denominations also present limitations, such as requiring change outputs from these CoinJoin transactions, and limiting the usefulness of the privacy enhanced outputs for payments of arbitrary amounts.
+The use of standard denominations in the resulting CoinJoin transaction obscures the relationship between individual inputs and outputs, making the origins of each output ambiguous. Unfortunately standard denominations limits the use of privacy-enhanced outputs for payments of arbitrary amounts and results in change which maintains a link to the non-private input.
 
 \subsection{Limitations of Wasabi}
-In this work, we are aiming to improve on ZeroLink~\cite{zerolink} as implemented by Wasabi, the most popular Chaumian CoinJoin implementation for Bitcoin. We identify several privacy shortcomings and inefficiencies of Wasabi CoinJoins. Some metrics comparing Wasabi, Samourai and other apparent CoinJoin transactions are provided. ``Other'' includes JoinMarket, but also has an inherent false positive error given these transactions are identified heuristically.
+In this work, we aim to improve on ZeroLink~\cite{zerolink} as implemented by Wasabi, the most popular Chaumian CoinJoin implementation for Bitcoin. We identify several privacy shortcomings and inefficiencies of Wasabi CoinJoins. Some metrics comparing Wasabi, Samourai and other apparent CoinJoin transactions are provided. The ``Other'' category includes JoinMarket, but also has an inherent false positive error given these transactions are identified heuristically.
 
-\subsubsection{Round denominations}
+\subsubsection{Denominations}
 
 Due to the nature of blind signatures, mixed outputs of Wasabi CoinJoins are restricted to a fixed set of value denominations which are multiples of a base denomination\footnote{Approximately $0.1$\bitcoinA{}}.
 
@@ -79,7 +79,7 @@ We define \emph{CoinJoin inefficiency} as the fraction of non-mixed change outpu
 
 \subsubsection{Minimum denomination}
 
-In order to pariticpate a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins is usually slightly higher than the announced, agreed upon base denomination. Thus participants sometimes get back slightly more value in the CoinJoins than how much they put into.} We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see \cref{fig:minimumdenomination}.
+In order to pariticpate a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins is usually slightly higher than the announced, agreed upon base denomination. Thus participants sometimes get back slightly more value in the CoinJoins than they put in.} We observe, that considerable portion of CoinJoin inputs amount to less than this minimum denomination, see \cref{fig:minimumdenomination}.
 
 \begin{figure}[h!]
     \centering
@@ -88,11 +88,11 @@ In order to pariticpate a user's combined input amount must be greater or equal 
     \label{fig:minimumdenomination}
 \end{figure}
 
-Even if users are able to provide several smaller value inputs with total value greater than the minimum denomination, the coordinator knows those inputs belong to the same user. In an ideal mixing protocol the coordinator should not obtain more information than the already available blockchain data by coordinating the CoinJoin transaction. This is especially important in practice as identifying  sub-transactions when many multiple inputs and outputs are provided by the same parties is often computationally expensive with currently known algorithms, even without equal amounts being utilized~\cite{maurer2017anonymous}.
+Even when users are able to provide several smaller value inputs with total value greater than the minimum denomination, the coordinator knows those inputs belong to the same user. In an ideal mixing protocol the coordinator should not obtain more information than the already available public ledger data by coordinating the CoinJoin transaction. This information removes many degrees of freedom when assigning non-derived sub-transactions~\cite{maurer2017anonymous}, potentially removing ambiguity when there are multiple valid assignments or reducing the computational cost of such an analysis.
 
 Furthermore if users consolidate coins before the CoinJoin in an additional transaction in order to be able to participate in a CoinJoin, then this link is revealed publicly based on the common input ownership heuristic~\cite{meiklejohn2013fistful}.
 
-\subsubsection{Variable denominations} Since users pay mining and coordination fees the denominations are gradually reduced between rounds in order to make it possible for users to mix several times without providing additional inputs. This introduces a perverse incentive to minimize coordination fees by remixing in quick succession in order, resulting in a smaller anonymity set than with time-staggered remixes.
+\subsubsection{Variable denominations} Since users pay mining and coordination fees the denominations are gradually reduced between rounds of consecutive CoinJoins in order to make it possible for users to mix several times without providing additional inputs. This introduces a perverse incentive to minimize coordination fees by remixing in quick succession in order, resulting in a smaller anonymity set than with time-staggered remixes.
 
 \subsubsection{Block-space efficiency}
 
@@ -105,28 +105,28 @@ The rigidity of the current transaction structure, i.e. fixed denominations, con
     \label{fig:postmixmerging}
 \end{figure}
 
-\footnotetext{The high numbers of consolidation of other CoinJoin like transactions suggest the algorithm used to identify them yielded a large number of false positive results.}
+\footnotetext{The high numbers of consolidation of other CoinJoin-like transactions suggest the algorithm used to identify them yielded a large number of false positive results.}
 
-\subsubsection{Lack of privacy-enhanced payments} Currently Wasabi supports neither payments from a CoinJoin, nor payments in a CoinJoin. Payments from a CoinJoin would protect sender privacy and improve efficiency by requiring fewer intermediate outputs. Payments within a CoinJoin would protect both sender and receiver privacy, and since it is a form of PayJoin\footnote{\url{https://en.bitcoin.it/wiki/PayJoin}} would also improve privacy since it introduces degrees of freedom in the interpretation of CoinJoins.
+\subsubsection{Lack of privacy-enhanced payments} Currently Wasabi supports neither payments from a CoinJoin, nor payments in a CoinJoin. Payments from a CoinJoin would protect sender privacy and improve efficiency by requiring fewer intermediate outputs. Payments within a CoinJoin would protect both sender and receiver privacy, and since they are a form of PayJoin\footnote{\url{https://en.bitcoin.it/wiki/PayJoin}} would also improve privacy by introducing degrees of freedom in the interpretation of CoinJoins.
 
 \subsection{Our Contribution}
 
-We introduce WabiSabi, a generalization of Chaumian CoinJoin based on a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal}. The use of KVACs replaces blind signatures' standard denominations with homomorphic amount commitments, similar to Confidential Transactions~\cite{maxwell2016confidential}, but retains the invariant that the sum of any one participant's outputs does not exceed that of their inputs without the coordinator learning the underlying values. In addition to being more flexible this improves privacy compared to standard denominations, since smaller inputs can be combined and change outputs created with the same unlinkability guarantees as the privacy enhanced outputs\footnote{Note that the cleartext amounts appearing in the final transaction might still link individual inputs and outputs.}.
+We present WabiSabi, a generalization of Chaumian CoinJoin based on a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal}. The use of KVACs replaces blind signatures' standard denominations with homomorphic amount commitments, similar to Confidential Transactions~\cite{maxwell2016confidential} in that that the sum of any one participant's outputs does not exceed that of their inputs while hiding the underlying values from the coordinator. In addition to being more flexible this improves privacy compared to standard denominations, since smaller inputs can be combined and change outputs created with the same unlinkability guarantees as the privacy enhanced outputs\footnote{Note that the cleartext amounts appearing in the final transaction might still link individual inputs and outputs.}.
 
-WabiSabi can be instantiated to construct a variety of CoinJoin transaction structures that depart from the standard output denomination convention, such as SharedCoin\footnote{\url{https://github.com/sharedcoin/Sharedcoin}} and CashFusion\footnote{\url{https://github.com/cashshuffle/spec}} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Additionally it makes possible arbitrary consolidation of outputs, minimizing unmixed change, relaxing minimum required denominations, improved block space efficiency, making payments from CoinJoins, as well as payments within CoinJoins, also known as PayJoins.
+WabiSabi can be instantiated to construct a variety of CoinJoin transaction structures that depart from the standard output denomination convention, used by SharedCoin\footnote{\url{https://github.com/sharedcoin/Sharedcoin}} and CashFusion\footnote{\url{https://github.com/cashshuffle/spec}} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Payments from CoinJoin transactions are possible, as are payments within them making this potentially a multiparty PayJoin that trades the steganographic properties for improved privacy from counterparties. Additionally, restrictions on consolidation of inputs can be removed, and there are opportunities for reducing unmixed change and relaxing minimum required denominations, and improved block space efficiency.
 
 \section{Preliminaries}
 
 Hereby we give an informal and high-level description of applied cryptographic primitives. In the following the security parameter is denoted as $\lambda$.
 
 \subsection{Commitment schemes}
-A commitment scheme allows a party to commit to a message without enabling them to change their mind about the committed message after publishing the commitment. On the other hand the commitment should not reveal anything about the committed message.
+A commitment scheme allows one to commit to a chosen message while preventing them from changng the message after publishing the commitment. Secure commitments do not reveal anything about the chosen message.
 
 \noindent$\mathsf{Commit}(m,r)\xrightarrow{}\mathcal{C}$. The $\mathsf{Commit}$ algorithm generates a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
 
 \noindent$\mathsf{OpenCom}(\mathcal{C},m,r)\xrightarrow{}\{\mathit{True},\mathit{False}\}$: one can verify the correctness of the opening of a commitment by checking $\mathcal{C}\stackrel{?}{=}\mathsf{Commit}(m,r)$. If equality holds the algorithm outputs $\mathit{True}$, otherwise $\mathit{False}$.
 
-For ease of understanding the reader can assume in the following that the commitment scheme is instantiated as a Pedersen commitment.
+For ease of understanding one may assume in the following that the commitment scheme is instantiated as a Pedersen commitment.
 
 \subsection{MAC}
 A message authentication code (MAC) ensures the integrity of a message and consists of the following three probabilistic polynomial-time algorithms.
@@ -137,25 +137,25 @@ A message authentication code (MAC) ensures the integrity of a message and consi
 
 \noindent$\mathsf{VerifyMAC}_{\mathsf{sk}}(m,t)\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The issuer of the MAC can verify a MAC $t$ given the message $m$ it was issued on.
 
-The reader might intuitively think of a MAC as the symmetric-key counterpart of digital signatures. They both have the same goals and similar security requirements, however a MAC is not publicly verifiable.
+One might intuitively think of a MAC as the symmetric-key counterpart of digital signatures. They both have the same goals and similar security requirements, however a MAC requires a secret rather than public key to verify.
 
 \subsection{Zero-knowledge proofs of knowledge}
 A very high-level, and hence somewhat imprecise, description of zero-knowledge proofs is provided. This protocol involves a prover and a verifier. A prover wishes to prove that a relation $\mathcal{R}$ holds with respect to a secret input $w$, called witness, and public input $x$. Specifically, the prover wants to prove that $(x, w) \in \mathcal{R}$ without revealing anything about $w$.
 
 \noindent$\mathsf{Prove}(x,w,\mathcal{R})\xrightarrow{}\pi$. Given $x$ and the private witness $w$ the prover generates a proof $\pi$.
 
-\noindent$\mathsf{Verify}(x,\pi,\mathcal{R})\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The verifier is given the proof $\pi$ and $x$ and decides whether the prover knows a secret $w$ such that $\mathcal{R}(x,w)=1$ holds.
+\noindent$\mathsf{Verify}(x,\pi,\mathcal{R})\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The verifier is given the proof $\pi$ and $x$ with which they determine whether the prover knows a secret $w$ such that $\mathcal{R}(x,w)=1$ holds.
 
 \section{Protocol Overview}
 
 \subsection{Phases}
 
-A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phases. To defend against Denial of Service attacks it is important to ensure the inputs of users who do not comply with the protocol are identified, thus these inputs can be excluded from the following rounds in order to ensure completion of the protocol.
+A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phase. To defend against Denial of Service attacks it is important to ensure the inputs of users who do not comply with the protocol are identified so these inputs can be excluded from the following rounds in order to ensure completion of the protocol.
 
 \begin{enumerate}
-    \item While identifying non-compliant inputs during Input Registration phase is trivial, there is no reason for issuing penalties at this point.
-    \item Identifying non-compliant inputs during Output Registration phase is not possible, thus this phase always completes and progresses to the Signing Phase.
-    \item During Signing Phase, inputs those do not sign are non-compliant inputs and they shall be issued a penalties.
+    \item While identifying non-compliant inputs during Input Registration phase is trivial, there is no reason to issue penalties at this point.
+    \item Identifying non-compliant inputs during Output Registration phase is not possible, thus this phase always completes and progresses to the Signing phase.
+    \item During Signing phase, inputs which are not signed are non-compliant inputs and they shall be issued penalties.
 \end{enumerate}
 
 The cryptography in WabiSabi ensures honest participants always agree to sign the final CoinJoin transaction from the coordinator assuming it accepts the outputs they request. Anonymous credentials allow the coordinator to verify that amounts of each user's output registrations are funded by input registrations without learning specific relationships between inputs and outputs.
@@ -164,15 +164,15 @@ The cryptography in WabiSabi ensures honest participants always agree to sign th
 
 The coordinator issues anonymous credentials which authenticate attributes in response to registration requests. We use keyed-verification anonymous credentials (introduced in~\cite{chase2014algebraic}), in particular the scheme from~\cite{chase2019signal} which supports group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$). A user can then prove possession of a credential in zero knowledge in a subsequent registration request, without the coordinator being able to link it to the registration from which it originates.
 
-In order to facilitate construction of a CoinJoin transaction while protecting the privacy of participants we instantiate the scheme with a single group attribute $M_a$ which encodes a confidential Bitcoin amount as a Pedersen commitment. These commitments are never opened, instead properties of the underlying values are proven in zero knowledge, allowing the coordinator to verify validity of the requests made by honest participants. Ideally the coordinator would not learn anything that can't be learned from the resulting CoinJoin transaction.
+In order to facilitate construction of a CoinJoin transaction while protecting the privacy of participants, we instantiate the scheme with a single group attribute $M_a$ which encodes a confidential Bitcoin amount as a Pedersen commitment. These commitments are never opened. Instead, properties of the values they commit to are proven in zero knowledge, allowing the coordinator to validate the requests made by honest participants. In ideal circumstances the coordinator would not learn anything beyond what be learned from the resulting CoinJoin transaction, but despite the unlinkability of the credentials registration requests may still be linkable due to the timing of requests or when a user experiences connectivity issues.
 
 \subsection{Registration}
 
-For intuition we first describe a pair of protocols where credentials are issued during input registration, and then presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the amount value ranges\footnote{$\log_2(2099999997690000) \approx 50.9$}. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
+To aid intuition we first describe a pair of protocols. One where credentials are issued during input registration, and then one where they're presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the range of amount values\footnote{$\log_2(2099999997690000) \approx 50.9$}. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
 
 In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
 
-For fault tolerance request handling should be idempotent, allowing requests whose response was lost to be retried without modification, using the same or a new network identity.
+For fault tolerance, request handling should be idempotent, allowing a client to retry a failed request without modification using a fresh network identity or one which was previously used to attempt that request.
 
 \subsubsection{Input Registration}
 
@@ -252,13 +252,13 @@ To prevent the coordinator from being able to distinguish between initial vs. su
 
 \subsection{Signing phase}
 
-The user fetches the finalized but unsigned transaction from the coordinator, and if she sees her registered outputs she will sign her inputs and submit the each signatures separately using the network identity used for the that input's registration.
+The user fetches the finalized but unsigned transaction from the coordinator. If it contains the outputs she registered she will sign her inputs and submit each signature separately using the network identity used for that input's registration.
 
 \subsection{Examples}
 
 To illustrate the above protocols, \cref{fig:ex1,fig:ex2} show how a user might register inputs and outputs when credentials are only presented during the output registration phase and \cref{fig:ex3,fig:ex4} show the unified protocol, when credentials are both presented and requested in every registration request.
 
-Registrations requests are depicted as vertices labeled with $\Delta_a$, a double stroke denoting output registrations. A credential is an edge from the registration in which it was requested to the registration where it was presented, also labeled with the amount. The sum of a vertex's label and the labels of its incoming edges must equal to the sum of the labels of its outgoing edges. Note that edges and their labels are only known to the owners of the credentials. For simplicity we omit credentials with zero value.
+Registration requests are depicted as vertices labeled with $\Delta_a$, a double stroke denoting output registrations. A credential is an edge from the registration in which it was requested to the registration where it was presented, also labeled with the amount. The sum of a vertex's label and the labels of its incoming edges must equal to the sum of the labels of its outgoing edges. Note that edges and their labels are only known to the owners of the credentials. For simplicity we omit credentials with zero value.
 
 \begin{figure}[h!]
   \centering
@@ -390,7 +390,7 @@ We require the following fixed set of group elements for use as generators with 
 \]
 chosen so that nobody knows the discrete logarithms between any pair of them, e.g. $G_h = \mathsf{HashTo\mathbb{G}}(``\texttt{h}")$.
 
-This notation deviates slightly from \cite{chase2019signal}, in that we subscript the attribute generators $G_{y_i}$ as $G_a$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attribute $M_a$ as a Pedersen commitments.
+Our notation deviates slightly from \cite{chase2019signal}, in that we subscript the attribute generators $G_{y_i}$ as $G_a$ instead of using numerical indices, and we require two additional generators $G_g$ and $G_h$ for constructing the attribute $M_a$ as a Pedersen commitment.
 
 As with the generator names, we modify the names of the attribute related components of the secret key
 $\mathrm{sk} = (w, w^{\prime}, x_{0}, x_{1}, y_{a}) \in_R {\mathbb{Z}_q}^5$
@@ -408,9 +408,9 @@ and published as part of the round metadata and are used by the coordinator to p
 
 \subsection{Credential Requests}
 
-For each $i \in [1, k]$ the user chooses an amount $0 \leq a_i < a_{\mathit{max}}$ subject to the constraints of the balance proof (\cref{balance}).
+For each $i \in [1, k]$ the user chooses an amount $a_i \mid 0 \leq a_i < a_{\mathit{max}}$ subject to the constraints of the balance proof (\cref{balance}).
 
-She commits to the amount with randomness $r_i \in_R \mathbb{Z}_q$, and this commitments is the attribute of the requested credentials.:
+She commits to the amount with randomness $r_i \in_R \mathbb{Z}_q$, and these commitments are the attributes of the requested credentials:
 \[ M_{a_i}={G_h}^{r_i}{G_g}^{a_i} \]
 
 For each amount $a_i$ she also computes a range proof which ensures there are no negative values:
