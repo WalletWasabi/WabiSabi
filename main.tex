@@ -512,7 +512,7 @@ Note that since the logical conjunction of $\pi_i^{\mathit{serial}}$ and $\pi_i^
 \subsection{Over-spending prevention by balance proof}\label{balance}
 
 The user needs to convince the coordinator that the total amounts redeemed and the requested differ by the public input $\Delta_{a}$, which she can prove by including the following proof of knowledge:
-\[ \pi^{\mathit{sum}} = \operatorname{PK}(\{ (z, r) : B = {G_a}^{z} {G_h}^{\Delta_r} \})
+\[ \pi^{\mathit{sum}} = \operatorname{PK}(\{ (z, \Delta_r) : B = {G_a}^{z} {G_h}^{\Delta_r} \})
 \]
 where
 \[
