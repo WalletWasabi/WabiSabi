@@ -168,7 +168,7 @@ In order to facilitate construction of a CoinJoin transaction while protecting t
 
 \subsection{Registration}
 
-To aid intuition we first describe a pair of protocols. One where credentials are issued during input registration, and then one where they're presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the range of amount values \footnote{$\log_2(2099999997690000) \approx 50.9$}. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
+To aid intuition we first describe a pair of protocols. One where credentials are issued during input registration, and then one where they're presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the range of amount values\footnote{$\log_2(2099999997690000) \approx 50.9$}. To improve privacy and efficiency these two cases are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
 
 In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
 
