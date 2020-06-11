@@ -43,21 +43,21 @@
   Despite potential use for private transfers, research has shown that users' activity can often be traced in practice. Businesses are built on dragnet surveillance of Bitcoin users because of this lack of inherent privacy which harms its fungibility, a basic property of functional money.
 
   Although the public nature of this design lacks strong guarantees for privacy, it does not rule it out.
-  A number of methods have been proposed to create privacy. Among these, CoinJoin is an approach to structure transactions which adds ambiguity and breaks common assumptions that underlie heuristics used for surveillance.
-  Earlier implementations of CoinJoin present a number of limitations which may partly explain the lack of their widespread adoption.
+  A number of methods have been proposed to create privacy. Among these is CoinJoin, which is an approach to structure transactions which adds ambiguity and breaks common assumptions that underlie heuristics used for surveillance.
+  Existing implementations of CoinJoin present a number of limitations which may partly explain the lack of their widespread adoption.
 
   This work introduces \emph{WabiSabi}, a new protocol for centrally coordinated CoinJoin implementations utilizing keyed verification anonymous credentials and homomorphic value commitments. This improves earlier approaches which utilize blind signatures in both privacy and flexibility, enabling novel use cases and reduced overhead.
 \end{abstract}
 
 \section{Introduction}
 
-Bitcoin transactions redistribute funds by consuming outputs of previous transactions as inputs to create new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the money supply and that outputs are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to define such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges to transacting privately\footnote{In this work we restrict the discussion of Bitcoin privacy to that of public ledger transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{reid2013analysis,ron2013quantitative,androulaki2013evaluating,ober2013structure,moeser2013inquiry,meiklejohn2013fistful}.
+Bitcoin transactions transfer funds by consuming unspent outputs of previous transactions as inputs to create new outputs. The protocol rules enforced by the network ensure that transactions do not arbitrarily inflate the money supply and that outputs are spent at most once. While some newer cryptocurrencies use more sophisticated approaches to define such rules, in Bitcoin the amounts as well as the specific outputs being spent are broadcast in the clear as part of the transaction. This presents significant challenges to transacting privately\footnote{In this work we restrict the discussion of Bitcoin privacy to that of public ledger transactions, but there are other considerations especially at the network layer. For a more comprehensive discussion see \url{https://en.bitcoin.it/wiki/Privacy}.} as shown already in some of the earliest academic studies of Bitcoin~\cite{reid2013analysis,ron2013quantitative,androulaki2013evaluating,ober2013structure,moeser2013inquiry,meiklejohn2013fistful}.
 
 The conditions for spending a transaction output are specified in its \texttt{scriptPubKey}, typically requiring that the spending transaction be signed by a specific set of keys. The signatures authorizing a transaction usually commit to the transaction in its entirety, making it possible for mutually distrusting parties to jointly create transactions without risking misallocation of funds: participants will only sign a proposed transaction after confirming that their desired outputs are included.
 
 Chaumian CoinJoin~\cite{mizrahi2013blind,maxwell2013coinjoin,zerolink} is a privacy enhancing technique that uses this atomicity property and Chaumian blind signatures~\cite{chaum1983blind} to construct collaborative Bitcoin transactions, also known as CoinJoins. Participants connect to a server, known as the coordinator, and submit their inputs and outputs using different anonymity network identities. That alone provides anonymity but since outputs are unconstrained it's not robust against malicious users who may disrupt the protocol by claiming more than their fair share. To mitigate this the coordinator provides blind signatures representing units of standard denominations in response to submitted inputs. By unblinding and presenting this valid signature back to the coordinator, participants authorize registration of their outputs so the coordinator is unable to link the signed output to specific inputs.
 
-The use of standard denominations in the resulting CoinJoin transaction obscures the relationship between individual inputs and outputs, making the origins of each output ambiguous. Unfortunately standard denominations limits the use of privacy-enhanced outputs for payments of arbitrary amounts and results in change which maintains a link to the non-private inputs.
+The use of standard denominations in the resulting CoinJoin transaction obscures the relationship between individual inputs and outputs, making the origins of each output ambiguous. Unfortunately standard denominations limit the use of privacy-enhanced outputs for payments of arbitrary amounts and result in a change output which maintains a link to the non-private input.
 
 \subsection{Limitations of Wasabi}
 In this work, we aim to improve on ZeroLink~\cite{zerolink} as implemented by Wasabi, the most popular Chaumian CoinJoin implementation for Bitcoin. We identify several privacy shortcomings and inefficiencies of Wasabi CoinJoins. Some metrics comparing Wasabi, Samourai and other apparent CoinJoin transactions are provided. The ``Other'' category includes JoinMarket, but also has an inherent false positive error given these transactions are identified heuristically.
@@ -79,7 +79,7 @@ We define \emph{CoinJoin inefficiency} as the fraction of non-mixed change outpu
 
 \subsubsection{Minimum denomination}
 
-In order to pariticpate a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins is usually slightly higher than the announced, agreed upon base denomination. Thus participants sometimes get back slightly more value in the CoinJoins than they put in.} We observe, that considerable portion of CoinJoin inputs amount to less than this minimum denomination, see \cref{fig:minimumdenomination}.
+In order to particpate a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins are usually slightly higher than the announced, agreed upon base denomination. Thus participants sometimes get back slightly more value in the CoinJoins than they put in.} We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see \cref{fig:minimumdenomination}.
 
 \begin{figure}[h!]
     \centering
@@ -107,11 +107,11 @@ The rigidity of the current transaction structure, i.e. fixed denominations, con
 
 \footnotetext{The high numbers of consolidation of other CoinJoin-like transactions suggest the algorithm used to identify them yielded a large number of false positive results.}
 
-\subsubsection{Lack of privacy-enhanced payments} Currently Wasabi supports neither payments from a CoinJoin, nor payments in a CoinJoin. Payments from a CoinJoin would protect sender privacy and improve efficiency by requiring fewer intermediate outputs. Payments within a CoinJoin would protect both sender and receiver privacy, and since they are a form of PayJoin\footnote{\url{https://en.bitcoin.it/wiki/PayJoin}} would also improve privacy by introducing degrees of freedom in the interpretation of CoinJoins.
+\subsubsection{Lack of privacy-enhanced payments} Currently Wasabi supports neither payments from a CoinJoin, nor payments in a CoinJoin. Payments from a CoinJoin would protect sender privacy and improve efficiency by requiring fewer intermediate outputs. Payments within a CoinJoin would protect both sender and receiver privacy, and since they are a form of PayJoin\footnote{\url{https://en.bitcoin.it/wiki/PayJoin}} it would also improve privacy by introducing degrees of freedom in the interpretation of CoinJoins.
 
 \subsection{Our Contribution}
 
-We present WabiSabi, a generalization of Chaumian CoinJoin based on a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal}. The use of KVACs replaces blind signatures' standard denominations with homomorphic amount commitments, similar to Confidential Transactions~\cite{maxwell2016confidential} in that that the sum of any one participant's outputs does not exceed that of their inputs while hiding the underlying values from the coordinator. In addition to being more flexible this improves privacy compared to standard denominations, since smaller inputs can be combined and change outputs created with the same unlinkability guarantees as the privacy enhanced outputs\footnote{Note that the cleartext amounts appearing in the final transaction might still link individual inputs and outputs.}.
+We present WabiSabi, a generalization of Chaumian CoinJoin based on a Keyed-Verification Anonymous Credentials-based (KVAC) scheme~\cite{chase2019signal}. The use of KVACs replaces blind signatures' standard denominations with homomorphic amount commitments, similar to Confidential Transactions~\cite{maxwell2016confidential} in that the sum of any participant's outputs does not exceed that of their inputs while hiding the underlying values from the coordinator. In addition to being more flexible this improves privacy compared to standard denominations, since smaller inputs can be combined and change outputs created with the same unlinkability guarantees as the privacy enhanced outputs\footnote{Note that the cleartext amounts appearing in the final transaction might still link individual inputs and outputs.}.
 
 WabiSabi can be instantiated to construct a variety of CoinJoin transaction structures that depart from the standard output denomination convention, used by SharedCoin\footnote{\url{https://github.com/sharedcoin/Sharedcoin}} and CashFusion\footnote{\url{https://github.com/cashshuffle/spec}} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Payments from CoinJoin transactions are possible, as are payments within them making this potentially a multiparty PayJoin that trades the steganographic properties for improved privacy from counterparties. Additionally, restrictions on consolidation of inputs can be removed, and there are opportunities for reducing unmixed change and relaxing minimum required denominations, and improved block space efficiency.
 
@@ -120,7 +120,7 @@ WabiSabi can be instantiated to construct a variety of CoinJoin transaction stru
 Hereby we give an informal and high-level description of applied cryptographic primitives. In the following the security parameter is denoted as $\lambda$.
 
 \subsection{Commitment schemes}
-A commitment scheme allows one to commit to a chosen message while preventing them from changng the message after publishing the commitment. Secure commitments do not reveal anything about the chosen message.
+A commitment scheme allows one to commit to a chosen message while preventing them from changing the message after publishing the commitment. Secure commitments do not reveal anything about the chosen message.
 
 \noindent$\mathsf{Commit}(m,r)\xrightarrow{}\mathcal{C}$. The $\mathsf{Commit}$ algorithm generates a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
 
@@ -133,7 +133,7 @@ A message authentication code (MAC) ensures the integrity of a message and consi
 
 \noindent$\mathsf{GenMACKey}(\lambda)\xrightarrow{}{\mathsf{sk}}$. a party generates a secret key $\mathsf{sk}$ for MAC generation and verification.
 
-\noindent$\mathsf{MAC}_{\mathsf{sk}}(m)\xrightarrow{}t$. one can generate a MAC $t$ on a message a $m$ by using their $\mathsf{sk}$.
+\noindent$\mathsf{MAC}_{\mathsf{sk}}(m)\xrightarrow{}t$. one can generate a MAC $t$ on a message $m$ by using their $\mathsf{sk}$.
 
 \noindent$\mathsf{VerifyMAC}_{\mathsf{sk}}(m,t)\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The issuer of the MAC can verify a MAC $t$ given the message $m$ it was issued on.
 
@@ -164,7 +164,7 @@ The cryptography in WabiSabi ensures honest participants always agree to sign th
 
 The coordinator issues anonymous credentials which authenticate attributes in response to registration requests. We use keyed-verification anonymous credentials (introduced in~\cite{chase2014algebraic}), in particular the scheme from~\cite{chase2019signal} which supports group attributes (attributes whose value is an element of the underlying group $\mathbb{G}$). A user can then prove possession of a credential in zero knowledge in a subsequent registration request, without the coordinator being able to link it to the registration from which it originates.
 
-In order to facilitate construction of a CoinJoin transaction while protecting the privacy of participants, we instantiate the scheme with a single group attribute $M_a$ which encodes a confidential Bitcoin amount as a Pedersen commitment. These commitments are never opened. Instead, properties of the values they commit to are proven in zero knowledge, allowing the coordinator to validate the requests made by honest participants. In ideal circumstances the coordinator would not learn anything beyond what be learned from the resulting CoinJoin transaction, but despite the unlinkability of the credentials registration requests may still be linkable due to the timing of requests or when a user experiences connectivity issues.
+In order to facilitate construction of a CoinJoin transaction while protecting the privacy of participants, we instantiate the scheme with a single group attribute $M_a$ which encodes a confidential Bitcoin amount as a Pedersen commitment. These commitments are never opened. Instead, properties of the values they commit to are proven in zero knowledge, allowing the coordinator to validate the requests made by honest participants. In ideal circumstances the coordinator would not learn anything beyond what can be learned from the resulting CoinJoin transaction, but despite the unlinkability of the credentials registration requests may still be linkable due to the timing of requests or when a user experiences connectivity issues.
 
 \subsection{Registration}
 
@@ -212,7 +212,7 @@ Additionally, she proves the serial number is valid. These serial numbers are re
 
 Finally, she proves that the sum of her randomized amount attributes $C_a$ matches the requested output amount $a_{\mathit{out}}$, analogously to input registration.\footnote{Note that there is no need for range proofs, since amounts have been previously validated.}
 
-She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if it accepts the output will be included in the transaction.
+She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if accepted the output will be included in the transaction.
 
 \subsubsection{Unified Registration}\label{unified}
 
@@ -530,6 +530,10 @@ During the input registration phase $\Delta_{a}$ may be positive, in which case 
 Note that $S_i$ is not perfect hiding because there is exactly one $r_i \in \mathbb{Z}_q$ such that $S_i = {G_s}^{r_i}$. Similarly, randomization by $z_i$ only protects unlinkability of issuance and presentation against a computationally bounded adversary. Null credentials have the same issue, since the the amount exponent is known to be zero.
 
 To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_i^{\prime}$ used with an additional generator $G_h^{\prime}$ to the amount commitments $M_{a_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_a^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack network level privacy and the proofs of knowledge are unconditionally hiding.}
+
+\section{Acknowledgements}
+
+We would like to acknowledge the inputs and invaluable contributions of ZmnSCPxj, Yahia Chiheb, Thaddeus Dryja, Adam Gibson, Dan Gould, Ethan Heilman, Max Hillebrand, Aviv Milner, Jonas Nick, Lucas Ontivero, Tim Ruffing, Ruben Somsen and Greg Zaverucha to this paper.
 
 \printbibliography
 
