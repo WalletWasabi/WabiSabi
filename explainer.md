@@ -29,7 +29,7 @@ The coordinator will need an office to meet with the users, a
 [seal](https://en.wikipedia.org/wiki/Seal_\(emblem\)) and some sealing
 wax, an accurate scale with a large tray, and a blowtorch. The users
 will need a number of envelopes, some sand, their own scales for private
-use, and an some convincing fake moustaches for incognito interactions
+use, and some convincing fake moustaches for incognito interactions
 with the coordinator.
 
 We will assume the weight of the envelope themselves is negligible, or
