@@ -42,10 +42,12 @@ in order to build up an intuition first.
 
 # Input Registration
 
-In the privacy of her own home, for every UTXO a user wants to register
-as an input she weighs out some sand in proportion to the UTXO's value.
-She then divides the sand she measured out into several envelopes as she
-pleases, and closes them.
+For every UTXO a user wants to register as an input she will repeat the
+following steps.
+
+In the privacy of her own home she weighs out a quantity of sand, which we
+assume is worthless, in proportion to the UTXO's value. She then distributes
+the sand into a number of envelopes as she pleases, and closes them.
 
 With her envelopes prepared, she puts on fake moustache (a different one
 for each input), so that the coordinator can't recognize her, and enters
@@ -70,11 +72,11 @@ The user collects the sealed envelopes from the tray and leaves.
 # Output Registration
 
 After all inputs have been registered, users can now use their envelopes
-to register output amounts.
+to register output amounts. The following steps are also repeated once per
+output.
 
-For each output a user will put on yet another fake moustache, come into
-the coordinator's office, and place an arbitrary combination of
-envelopes on the scale.
+Theuser will put on yet another fake moustache, come into the coordinator's
+office, and place an arbitrary combination of envelopes on the scale.
 
 The coordinator checks that the seals are authentic, and then to ensure
 that the envelopes can't be used again or weighed individually, they are
@@ -82,12 +84,14 @@ set on fire using the blowtorch, allowing the sand to spill out onto the
 tray.
 
 The coordinator adds the requested output with an amount corresponding
-to weight of the sand on the tray, and the user leaves.
+to weight of the sand on the tray, and the user leaves. The sand can be
+discarded having served its purpose.
 
 # Signing
 
-When the total weights balance out, the coordinator builds the final
-CoinJoin transaction with the registered inputs and outputs.
+When the input and output amounts are balanced the coordinator can conclude
+that no non-empty envelopes remain, and builds the final CoinJoin transaction
+with the registered inputs and outputs.
 
 The users go back into the coordinator's office, once for each input
 (wearing the appropriate moustache) and after confirming that the output
