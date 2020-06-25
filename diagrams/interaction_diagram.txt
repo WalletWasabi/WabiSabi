@@ -92,6 +92,9 @@ return UnsignedTransactionSecret
 
 == Transaction Signing ==
 
+Satoshis -> Coordinator ++ : GetCoinjoinStatuses
+return CoinjoinStatuses[]
+
 Alice1 -> Coordinator ++: TSIG - RoundId, AliceId, InputSig
 note right of Coordinator
     IsRoundFound()
