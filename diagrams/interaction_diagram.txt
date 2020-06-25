@@ -1,0 +1,123 @@
+@startuml
+collections Satoshis
+participant Coordinator
+participant Alice1
+participant Alice2
+participant Bob
+database Mempool
+
+title Scenario: A Participant Is Consolidating 2 Coins (Alice1, Alice2) Into 1 (Bob)\n
+
+== Input Registration ==
+
+Satoshis -> Coordinator ++ : GetCoinjoinStatuses
+return CoinjoinStatuses[]
+
+Alice1 -> Coordinator ++: IREG - RoundId, Input, RoundParamSig, ZeroCredReqs[]
+note right of Coordinator
+    IsRoundFound()
+    IsIRegPhase()
+    IsUnspent()
+    IsConfirmed()
+    IsMature()
+    IsStandardScript()
+    IsNotMalleable()
+    CheckRoundParamSig()
+    IsAllowedIfBlameRound()
+    IsNotBanned()
+    UpdateIfDuplicateInput()
+end note
+return AliceId, ZeroCreds[]
+...
+
+Alice1 -> Coordinator ++: CCONF - RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+note right of Coordinator
+    IsRoundFound()
+    IsIRegOrCConfPhase()
+    IsAliceFound()
+    EnsureUniqueSerialNumber()
+    CheckCredProofs()
+end note
+return ZeroCreds[]
+
+Alice2 -> Coordinator ++: IREG - RoundId, Input, RoundParamSig, ZeroCredReqs[]
+note right of Coordinator
+    IsRoundFound()
+    IsIRegPhase()
+    IsUnspent()
+    IsConfirmed()
+    IsMature()
+    IsStandardScript()
+    IsNotMalleable()
+    CheckRoundParamSig()
+    IsAllowedIfBlameRound()
+    IsNotBanned()
+    UpdateIfDuplicateInput()
+end note
+return AliceId, ZeroCreds[]
+
+== Connection Confirmation ==
+
+Alice1 -> Coordinator ++: CCONF - RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+note right of Coordinator
+    IsRoundFound()
+    IsIRegOrCConfPhase()
+    IsAliceFound()
+    EnsureUniqueSerialNumber()
+    CheckCredProofs()
+end note
+return RealCreds[]
+
+Alice2 -> Coordinator ++: CCONF - RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+note right of Coordinator
+    IsRoundFound()
+    IsIRegOrCConfPhase()
+    IsAliceFound()
+    EnsureUniqueSerialNumber()
+    CheckCredProofs()
+end note
+return RealCreds[]
+
+== Output Registration ==
+
+Bob -> Coordinator ++: OREG - RoundId, Output, PresentedCreds[]
+note right of Coordinator
+    IsRoundFound()
+    IsORegPhase()
+    IsStandardScript()
+    EnsureUniqueSerialNumber()
+    CheckCredProofs()
+end note
+return UnsignedTransactionSecret
+
+== Transaction Signing ==
+
+Satoshis -> Coordinator ++ : GetCoinjoinStatuses
+return CoinjoinStatuses[]
+
+Alice1 -> Coordinator ++: TSIG - RoundId, AliceId, InputSig
+note right of Coordinator
+    IsRoundFound()
+    IsTSigPhase()
+    IsAliceFound()
+    CheckInputSig()
+end note
+return ACK
+
+Alice2 -> Coordinator ++: TSIG - RoundId, AliceId, InputSig
+note right of Coordinator
+    IsRoundFound()
+    IsTSigPhase()
+    IsAliceFound()
+    CheckInputSig()
+end note
+return ACK
+
+== Transaction Broadcasting ==
+
+Coordinator -> Mempool**  : SignedTransaction
+
+Satoshis -> Coordinator ++ : GetCoinjoinStatuses
+return CoinjoinStatuses[]
+
+@enduml

@@ -1,0 +1,85 @@
+@startuml
+
+hide empty description
+
+state "Created" as created
+created: funding tx
+created: in mempool
+note right of created
+    A child of a banned
+    input may start in
+    the banned stated.
+    
+    For simplicity, and
+    because destroying
+    UTXOs incurs a cost,
+    we illustrate a DoS
+    policy that doesn't
+    take provenance into
+    account.
+end note
+state "Mined" as mined
+mined: funding tx
+mined: confirmed
+note left of destroyed
+    For simplicity reorgs
+    are not shown, so the
+    mined and destroyed
+    states assume sufficient
+    confirmation depth.
+end note
+state "Spent" as spent
+spent: spending tx
+spent: in mempool
+state "Destroyed" as destroyed
+destroyed: spending tx
+destroyed: confirmed
+
+
+state "Coordinator State" as round {
+    state "Registered" as ireg
+    state "Confirmed" as cconf
+    state "Signed" as signed
+    state nc <<choice>>
+    state "Banned" as banned
+    
+    ireg --> cconf
+    cconf --> signed
+    cconf --> nc
+    signed --> ireg
+
+    ireg --> nc
+    
+    mined --> ireg
+    signed --> spent
+    signed --> mined
+    
+    nc --> banned
+    nc --> mined
+    note left of nc
+        DoS prevention policy
+        
+        De-registration and timeouts
+        follow this path, since
+        repeated de-registration may
+        suggest a DoS attack
+        
+        Repeated non-signing inputs
+        strongly suggests DoS attempts
+        but there's always plausible
+        deniability due to connectivity
+        issues, so bans should expire.
+    end note
+
+    banned --> mined
+    banned --> destroyed
+}
+[*] --> created
+created --> mined
+mined --> spent
+spent --> destroyed
+spent --> mined
+created --> [*]
+destroyed --> [*]
+
+@enduml

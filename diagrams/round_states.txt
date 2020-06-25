@@ -1,0 +1,65 @@
+@startuml
+
+hide empty description
+state "Input Registration" as in
+state "Input Registered" as regin <<sdlreceive>>
+state "Connection Confirmation" as conf
+state "Input Confirmed" as confin <<sdlreceive>>
+state "Output Registration" as out
+state "Output Registered" as regout <<sdlreceive>>
+state "Transaction Signing" as sign
+note left of sign
+    If signing times out a new MAC key must be generated
+    and only signing inputs permitted to re-register
+end note
+state "Input Signed" as sig <<sdlreceive>>
+state "Transaction Broadcast" as bcast
+state c1 <<choice>>
+state c2 <<choice>>
+state c3 <<choice>>
+state c4 <<choice>>
+state c5 <<choice>>
+state c6 <<choice>>
+state c7 <<choice>>
+note left of c7
+    If broadcast fails, only inptus which weren't
+    double spent are  permitted to re-register
+end note
+
+[*] --> in
+in --> regin
+regin --> c1
+in --> c5 : timeout
+c5 --> conf : [registered >= min]
+c5 --> [*] : [registered < min]
+c1 --> in : [registered < max]
+c1 --> conf : [registered == max]
+conf --> c6 : timeout
+c6 --> [*] : [confirmed < min]
+c6 --> out : [confirmed >= min]
+conf --> confin
+confin --> c2
+c2 --> conf  : [unconfirmed > 0]
+c2 --> out : [unconfirmed == 0]
+out --> regout
+regout --> c3
+c3 --> sign : [balance == 0]
+c3 --> out : [balance > 0]
+out --> sign : timeout
+sign --> sig
+sig --> c4
+c4 --> sign : [unsigned > 0]
+c4 --> bcast : [unsigned == 0]
+sign --> in  : timeout
+bcast --> c7
+c7 --> [*]
+c7 -up-> in
+
+
+
+regin: nonempty description
+confin: nonempty description
+regout: nonempty description
+sig: nonempty description
+
+@enduml
