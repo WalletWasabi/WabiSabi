@@ -18,8 +18,7 @@ a singler user (e.g. by amounts, script types, or address reuse).
 
 ## Roles
 
-A single user assumes multiple roles in the protocol, each with its own network
-level identity (separate tor circuit):
+A single user assumes multiple roles in the protocol, each with its own anonymity network identity:
 
 - Satoshi - used to obtain round information
 - Alice - used for input registration (can be instantited multiple times per
