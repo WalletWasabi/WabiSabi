@@ -61,8 +61,7 @@ honestly, allowing faulty/malicious users to be excluded from a re-attempted
 round.
 
 Round metadata such as coordinator parameters for the WabiSabi credentials,
-information is provided in response to `GetCoinjoinStatuses` requests
-([details TBD](https://github.com/zkSNACKs/WabiSabi/issues/64#issuecomment-648872493)).
+information is provided in responses to `GetCoinjoinStatuses` requests.
 
 ## Attacks
 
