@@ -566,6 +566,47 @@ Note that $S_i$ is not perfectly hiding because there is exactly one $r_i \in \m
 
 To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_i^{\prime}$ used with an additional generator $G_h^{\prime}$ to the amount commitments $M_{a_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_a^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack network level privacy and proofs of knowledge are unconditionally hiding.}
 
+\section{Security and Privacy} \label{sec:securitayandprivacy}
+
+In this section, we discuss the security and privacy guarantees of the WabiSabi credential scheme for construction of CoinJoin transactions. Theft concerns addressed through Bitcoin's security model, making WabiSabi trustless in that regard. Since CoinJoins are an overt technique privacy strongly depends on the structure of the transactions themselves. WabiSabi is designed as a general purpose mechanism, so those details are outside of the scope of this work.
+
+The goal of the protocol is to allow a coordinator to provide the service to honest participants, without learning anything about the mapping between registered input and outputs, apart from what is already deducible given the public amounts visible on the Bitcoin blockchain. WabiSabi leverages the unlinkability of anonymous credentials and the hiding property of the amount commitments to minimize privacy leaks when a set of participants utilizes a centralized coordinator to reach agreement about such a transaction.
+
+\subsection{Availability}
+
+\subsubsection{Malicious Coordinator}
+
+Being a central point of failure, the coordinator is a trusted party with regards to availability. If competing coordinators charge fees for their services then this is a minimal assumption in practice given the financial incentive.
+
+A malicious coordinator can fully disrupt the protocol by censoring certain inputs either at input registration or during the signing phase. Such denial of service can amplify attacks on privacy, by partitioning users in order to perform set intersection attacks. A malicious coordinator can drop messages causing any user to appear to be non-compliant, and therefore disrupt the protocol arbitrarily, and always learns the requested inputs and outputs, even if a round fails.
+
+\subsubsection{Malicious Users}
+Signatures can only be made after a transaction has been negotiated, and all inputs must provide a valid signature. Consequentially users can always disrupt the protocol during the final phase. Failure to sign is attributable to specific inputs and therefore can be mitigated by the coordinator. This allows the remaining honest participants to restart the protocol. Denial of service is not costless because unspent transaction outputs are a limited resource.
+
+A malicious participant still learns all of the input and output registrations\footnote{If \texttt{SIGHASH\_ANYONECANPAY} is set in the signature flags the full set of inputs could be kept known only to the coordinator until all signatures have been provided.} including amounts and scripts, so denial of service also presents privacy concerns.
+
+\subsection{Unlinkability}
+
+A mixing scheme should ensure that any links between registered inputs and outputs are only known to their owners. The unlinkability property in~\cite{chase2019signal} ensures that presentation of credentials cannot be linked back to their issuance. Since every registration request is only associated with a single input or output, only information that would need be broadcast publicly on the blockchain if the protocol succeeds is revealed directly.
+
+However, there are other means participants or the coordinator could reduce or potentially eliminate the achieved privacy guarantees.
+
+\subsubsection{Passive attacks}
+
+As in \cref{sec:examples} we can consider registration requests as vertices labeled by $\Delta_a$ of a graph where credentials are edges labeled by the amount from issuance to presentation. In the unified protocol this is a directed acyclic graph with indegree and outdegree $k$. The unlinkabilility of credentials and hiding property of the amount commitments obscure the edges and their labels. The serial number and balance proofs enforce a global invariant where the sums of the inwards and outwards edges of every vertex differ by its label.
+
+The coordinator observes registration requests according to a partial order which is an extension of the partial order defined by the DAG, in other words the coordinator knows that parallel requests do not share an edge and that dependent requests must be made sequentially. Clients can mitigate these leaks by minimizing dependencies between requests, scheduling requests randomly during phases of a known duration, and making additional reissuance requests.
+
+\subsubsection{Active attacks}
+
+Sybil attacks~\cite{douceur2002sybil} are inherent to mixing schemes, because a transaction between $n$ apparent participants $n-1$ of which are controlled by an attacker will fully link the victim's coins on both sides of the CoinJoin while giving the impression that the victim's privacy has been improved. There is a liquidity requirement for such an attack since participants must provide valid inputs\footnote{See also JoinMarket fidelity bonds: \url{https://gist.github.com/chris-belcher/18ea0e6acdb885a2bfbdee43dcd6b5af}}, as well as a cost imposed by mining fees.
+
+An attacker attempting to Sybil attack all CoinJoins would need to control some multiple of the combined CoinJoin volume contributed by honest participants, and to successfully partition honest participants to a sufficient degree. In the centrally coordinated setting fees paid by users can arbitrarily increase the cost of Sybil attacks by other users. However, this does not protect against a malicious coordinator which is only bound by liquidity and mining fees. Furthermore, service fees paid by honest participants may reduce the cost of such an attack or even make it profitable.
+
+A malicious coordinator could also delay processing of requests in order to gain more through timing and ordering leaks. In the worst case the coordinator can attempt to linearize all requests by blocking and unblocking individual users to recover full set of labeled edges. This is possible when $k=1$ and users have minimal dependencies between their requests and tolerate arbitrary timeouts but issue requests in a timely manner.
+
+A malicious coordinator may also tag users by providing them with different issuer parameters. When registering inputs a proof of ownership must be provided. If signatures are used, by covering the issuer parameters and a unique round identifier these proofs allow other participants to verify that everyone was given the same parameters.
+
 \section{Acknowledgements}
 
 We would like to acknowledge the inputs and invaluable contributions of ZmnSCPxj, Yahia Chiheb, Thaddeus Dryja, Adam Gibson, Dan Gould, Ethan Heilman, Max Hillebrand, Aviv Milner, Jonas Nick, Lucas Ontivero, Tim Ruffing, Ruben Somsen and Greg Zaverucha to this paper.
