@@ -670,6 +670,9 @@ In \cref{table:coinjoin,table:noncoinjoin}, $n$ denotes the number of participan
 
 Our application of \cite{chase2019signal} has similarities to Danake~\cite{devalence2020danake}, another recent application of KVACs which has additional considerations for longer lived tokens. It uses the credentials of \cite{chase2014algebraic}, hiding the amounts using blind issuance with ElGamal encrypted attribute values.
 
+\section{Conclusion}\label{sec:conclusion}
+In this work, we introduced WabiSabi, an application of the keyed-verification anonymous credentials scheme proposed in~\cite{chase2019signal} to Bitcoin mixing. WabiSabi builds on Chaumian CoinJoins, adding support for arbitrarily variable amounts. The goal of this extension of previous work is to make CoinJoins more practical by enabling new use cases and removing existing restrictions of deployed solutions. We note that the credential scheme can be applied in centrally coordinated settings which are not necessarily based on CoinJoins for a wider range of theft and availability threat models.
+
 \section{Acknowledgements}
 
 We would like to acknowledge the inputs and invaluable contributions of ZmnSCPxj, Yahia Chiheb, Thaddeus Dryja, Adam Gibson, Dan Gould, Ethan Heilman, Max Hillebrand, Aviv Milner, Jonas Nick, Lucas Ontivero, Tim Ruffing, Ruben Somsen and Greg Zaverucha to this paper.
