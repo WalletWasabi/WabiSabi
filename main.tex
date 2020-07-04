@@ -179,8 +179,8 @@ A very high-level, and hence somewhat imprecise, description of zero-knowledge p
 \item[$\mathsf{Verify}_{\mathcal{R}}(x,\pi)\mapsto{}\{\mathit{True},\mathit{False}\}$:] The verifier is given the proof $\pi$ and $x$ with which they determine whether the prover knows a secret $w$ such that $(w,x) \in \mathcal{R}$ holds.
 \end{description}
 
-\section{Protocol Overview}
-
+\section{Overview} \label{sec:overview}
+In this section we provide a high-level overview of our WabiSabi protocol.
 \subsection{Phases}
 
 A CoinJoin round consists of an Input Registration, an Output Registration and a Transaction Signing phase. To defend against Denial of Service attacks it is important to ensure the inputs of users who do not comply with the protocol are identified so these inputs can be excluded from the following rounds in order to ensure completion of the protocol.
@@ -201,7 +201,7 @@ In order to facilitate construction of a CoinJoin transaction while protecting t
 
 \subsection{Registration}
 
-To aid intuition we first describe a pair of protocols, where credentials are issued during input registration, and then then presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the range of amount values\footnote{$\log_2(2099999997690000) \approx 50.9$}. For better privacy and efficiency these are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{details}.
+To aid intuition we first describe a pair of protocols, where credentials are issued during input registration, and then then presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the range of amount values\footnote{$\log_2(2099999997690000) \approx 50.9$}. For better privacy and efficiency these are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{sec:details}.
 
 In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
 
@@ -247,9 +247,9 @@ Finally, she proves that the sum of her randomized amount attributes $C_a$ match
 
 She submits these proofs, the randomized attributes, and the serial numbers. The coordinator verifies the proofs, and if accepted the output will be included in the transaction.
 
-\subsubsection{Unified Registration}\label{unified}
+\subsubsection{Unified Registration}\label{sec:unified}
 
-In order to increase flexibility in a dynamic setting, where a user may not yet know her desired output allocations during input registration, and to allow setting a small\footnote{Specifically, $2 \le k \le 10 \approx \log_2\left(\frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT} - 58}{274 + 124}\right)$ the maximum number of participants, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting. The limit on participant count is because 274 and 124 are the minimum weight units required for a participant with only a single input and output, and 58 is the shared per transaction overhead.} value of $k$ as a protocol level constant to reduce privacy leaks, we can generalize input and output registration into a single unified protocol for use in both phases, which also supports reissuance. For complete definitions see \cref{details}.
+In order to increase flexibility in a dynamic setting, where a user may not yet know her desired output allocations during input registration, and to allow setting a small\footnote{Specifically, $2 \le k \le 10 \approx \log_2\left(\frac{\mathtt{MAX\_STANDARD\_TX\_WEIGHT} - 58}{274 + 124}\right)$ the maximum number of participants, because although $k=1$ suffices for flexibility it limits parallelism, leaking privacy by temporal fingerprinting. The limit on participant count is because 274 and 124 are the minimum weight units required for a participant with only a single input and output, and 58 is the shared per transaction overhead.} value of $k$ as a protocol level constant to reduce privacy leaks, we can generalize input and output registration into a single unified protocol for use in both phases, which also supports reissuance. For complete definitions see \cref{sec:details}.
 
 \begin{figure}[h!]
     \begin{mdframed}
