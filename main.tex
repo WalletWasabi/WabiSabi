@@ -410,9 +410,9 @@ Registration requests are depicted as vertices labeled with $\Delta_a$, a double
   \caption{Credential usage examples}
 \end{figure}
 
-\section{Cryptographic Details}\label{details}
+\section{WabiSabi Credentials}\label{sec:details}
 
-Following \cite{chase2019signal}, the credential scheme for the protocol in \cref{unified} is defined over a group \(\mathbb{G}\) of prime order \(q,\) written in multiplicative notation.
+In this section we provide the details of the unified protocol (\cref{sec:unified}) and its use of the KVAC scheme introduced in~\cite{chase2019signal}. Following that work our protocol is defined over an Abelian group \(\mathbb{G}\) of prime order \(q,\) written in multiplicative notation.
 $\mathsf{HashTo\mathbb{G}} : \{0,1\}^{*} \mapsto \mathbb{G}$ is a function from strings to group elements, based on a cryptographic hash function\cite{fouque2012indifferentiable}.
 
 We require the following fixed set of group elements for use as generators with different purposes:
@@ -560,11 +560,11 @@ with $r^{\prime}_i$ denoting the randomness terms in the $(M^{\prime}_{a_i})_{i=
 
 During the input registration phase $\Delta_{a}$ may be positive, in which case an input of amount $a_{\mathit{in}} = \Delta_{a}$ must be registered with proof of ownership. During the output registration phase $\Delta_{a}$ may be negative, in which case an output of amount $a_{\mathit{out}} = -\Delta_{a}$ is registered. If $\Delta_{a} = 0$ credentials are simply reissued, with no input or output registration occurring.
 
-\subsection{Perfect Hiding}
+\subsection{Unconditional Hiding}
 
 Note that $S_i$ is not perfectly hiding because there is exactly one $r_i \in \mathbb{Z}_q$ such that $S_i = {G_s}^{r_i}$. Similarly, randomization by $z_i$ only protects unlinkability of issuance and presentation against a computationally bounded adversary. Null credentials have the same issue, since the amount exponent is known to be zero.
 
-To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_i^{\prime}$ used with an additional generator $G_h^{\prime}$ to the amount commitments $M_{a_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_a^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack the network level privacy and the proofs of knowledge are unconditionally hiding.}
+To unconditionally preserve user privacy in the event that the hardness assumption of the discrete logarithm problem in $\mathbb{G}$ is broken we can add an additional randomness term $r_i^{\prime}$ used with an additional generator $G_h^{\prime}$ to the amount commitments $M_{a_i}$, and similarly another randomness term $z_i^{\prime}$ and generators $G_a^{\prime}, G_{x_0}^{\prime}, G_{x_1}^{\prime}, G_V^{\prime}$ in order to obtain unconditional unlinkability for the commitments.\footnote{Assuming the coordinator is not able to attack network level privacy and proofs of knowledge are unconditionally hiding.}
 
 \section{Acknowledgements}
 
