@@ -607,6 +607,69 @@ A malicious coordinator could also delay processing of requests in order to gain
 
 A malicious coordinator may also tag users by providing them with different issuer parameters. When registering inputs a proof of ownership must be provided. If signatures are used, by covering the issuer parameters and a unique round identifier these proofs allow other participants to verify that everyone was given the same parameters.
 
+\section{Related Work}\label{sec:relatedwork}
+
+The Bitcoin privacy-enhancing literature is extensive, with notable published works including:~\cite{bonneau2014mixcoin,bissias2014sybil,ruffing2014coinshuffle,valenta2015blindcoin,ziegeldorf2015coinparty,ruffing2017p2p,maurer2017anonymous,heilman2017tumblebit}. The deployed solutions so far have been mostly CoinJoin based~\cite{maxwell2013coinjoin}, with various limitations and relying on some simplifying assumptions. This leaves a gap between the privacy technology available to Bitcoin users in the real world and the stronger decentralization or trustlessness properties of schemes that remain unused. We believe that the lack of practical use and deployment of most of the Bitcoin privacy-enhancing literature is due to shortcomings in one or more of these aspects.
+ 
+\begin{description}
+ \item[Denomination] Some of the proposed and deployed schemes only support fixed amounts. Support for variable amounts typically add complexity, reduces privacy, or both.
+ \item[Performance] Fully decentralized schemes, CoinJoin based or otherwise, typically have higher communication complexity and therefore support fewer participants compared to centralized ones. CoinJoin-based mixing protocols provide mixing in a single Bitcoin transaction. Non-CoinJoin schemes often require more block space, for instance Xim~\cite{bissias2014sybil} requires $7$ on-chain transactions, TumbleBit~\cite{heilman2017tumblebit} $4$ transactions, Blindcoin~\cite{valenta2015blindcoin} and Mixcoin~\cite{bonneau2014mixcoin} both require $2$ transactions. Long sequence of on-chain transactions result in longer delays for users.
+ \item[Infrastructure] Several mixing-protocols assume and rely on infrastructure which is not practically available. For example, CoinShuffle assumes a peer-to-peer public bulletin board.
+ \item[Trustlessness] Some protocols have stronger trust assumptions with respect to theft, for example Mixcoin and Blindcoin\footnote{Both protocols have provisions for accountability of the mixes, mitigating theft concerns}, whereas other protocols utilize Bitcoin's scripting capabilities to secure user funds.
+\end{description}
+
+Since Chaumian CoinJoins have been successfully deployed despite some limitations (see \cref{sec:limitations}), it appears that centrally coordinated CoinJoins strike a desirable balance in the Bitcoin privacy design space. It is non-custodial, has low messaging complexity, and results in a single transaction minimizing delays and network fees.
+
+In \cref{table:coinjoin,table:noncoinjoin}, $n$ denotes the number of participants. Overt transactions are apparent and fingerprintable on the blockchain, but still provide privacy within the transaction. Disjoint transactions do not link individual users' inputs and outputs on the blockchain. Covert transactions are not fingerprintable as privacy enhancing transactions.
+
+\begin{table}[h!]
+\begin{minipage}{\textwidth}
+\renewcommand{\thefootnote}{\thempfootnote} % for multiple references to minipage footnotes
+\centering
+\begin{tabular}{lcccccc}
+	&&&& \multicolumn{2}{c}{Privacy against}  \\
+	%\cline{5-6}
+	&Messages & Denominations & Coordination & Server & Participants \\
+
+	Knapsack~\cite{maurer2017anonymous} & - & variable & - & - & -\footnote{Transaction structure guarantees minimal ambiguity in sub-transaction assignments} \\
+	CoinShuffle~\cite{ruffing2014coinshuffle} &$\mathcal{O}(n^2)$ & fixed & decentralized & n.a. & \cmark\footnote{Requires only 2 honest participants.} \\
+	CoinShuffle++~\cite{ruffing2017p2p} & $\mathcal{O}(n)$ & fixed & decentralized & n.a. & \cmark\footnotemark[\value{footnote}] \\
+	CashFusion & $\mathcal{O}(n)$ & variable & centralized & \cmark\footnote{Assuming server does not participate as a verifier.} & \cmark\footnote{Transaction ambiguity guarantees are probablistic, with additional computational difficulty under assumptions.} \\
+	JoinMarket & $\mathcal{O}(n)$ & variable & by taker\footnote{Transactions are initiated and coordinated by users buying mixing offers on a decentralized markeplace.} & n.a.\footnotemark[\value{footnote}] & \cmark \\
+	Chaumian CoinJoin & $\mathcal{O}(n)$ & fixed & centralized & \cmark & \cmark \\
+	This Work & $\mathcal{O}(n)$ & variable & centralized & \cmark & \cmark \\
+\end{tabular}
+\end{minipage}
+\caption{CoinJoin based protocols, no theft risk and requiring a single overt transaction.}
+\label{table:coinjoin}
+\end{table}
+
+\begin{table}[h!]
+\begin{minipage}{\textwidth}
+\renewcommand{\thefootnote}{\thempfootnote} % for multiple references to minipage footnotes
+\centering
+\begin{tabular}{lcccccccc}
+	&&&&&& \multicolumn{3}{c}{Privacy against} \\
+	%\cline{7-9}
+	&Msg. &Txn. & Denom. & Theft & Coord. & Srv. & Part. & Blockchain \\
+
+	Custodial & - & - & - & \xmark & cent. & TTP & TTP & - \\
+	Mixcoin~\cite{bonneau2014mixcoin} & $2n$\footnote{Per mixnet stage}      & $2n$\footnotemark[\value{footnote}] & var.\footnote{Fixed chunk size recommended for privacy, but technically not required.} & TTP\footnote{Provides server accountability} & cent. & TTP & TTP & disjoint \\
+	Blindcoin~\cite{valenta2015blindcoin} & $4n$      & $2n$ & fix.  & TTP\footnotemark[\value{footnote}] & cent. & \cmark & \cmark & disjoint \\
+	TumbleBit~\cite{heilman2017tumblebit} & $12n$      & $4n$ & fix. & \cmark &  cent. & \cmark & \cmark & overt\footnote{TumbleBit provides $k$-anonymity per multi-transaction epoch.} \\
+	CoinSwap\cite{maxwell2013coinswap} & $\mathcal{O}(1)$\footnote{$n=2$} & 4\footnotemark[\value{footnote}] & var. & \cmark & p2p & n.a. & \xmark & disjoint \\
+	Xim~\cite{bissias2014sybil} & n.a. & $7$\footnotemark[\value{footnote}] & var. & \cmark &  p2p\footnote{Advertisements are made on the blockchain} & n.a. & \xmark & disjoint \\
+	CoinParty~\cite{ziegeldorf2015coinparty}& ?$\mathcal{O}(n \log n)$? & 2n & fix. & \cmark\footnote{Assuming $\frac{1}{3}$ of participants are honest.} & dec. & n.a. & \cmark\footnote{Assuming at least 2 participants are honest.} & covert \\
+	CoinSwap\cite{belcher2020design} & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ & var. & \cmark &  taker & n.a. & \cmark & covert \\
+	% A2L?
+\end{tabular}
+\end{minipage}
+\caption{Non-CoinJoin based protocols.}
+\label{table:noncoinjoin}
+\end{table}
+
+Our application of \cite{chase2019signal} has similarities to Danake~\cite{devalence2020danake}, another recent application of KVACs which has additional considerations for longer lived tokens. It uses the credentials of \cite{chase2014algebraic}, hiding the amounts using blind issuance with ElGamal encrypted attribute values.
+
 \section{Acknowledgements}
 
 We would like to acknowledge the inputs and invaluable contributions of ZmnSCPxj, Yahia Chiheb, Thaddeus Dryja, Adam Gibson, Dan Gould, Ethan Heilman, Max Hillebrand, Aviv Milner, Jonas Nick, Lucas Ontivero, Tim Ruffing, Ruben Somsen and Greg Zaverucha to this paper.
