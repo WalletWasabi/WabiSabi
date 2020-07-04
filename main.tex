@@ -137,36 +137,47 @@ We present WabiSabi, a generalization of Chaumian CoinJoin based on a keyed-veri
 
 WabiSabi can be instantiated to construct a variety of CoinJoin transaction structures that depart from the standard output denomination convention, as in SharedCoin\footnote{\url{https://github.com/sharedcoin/Sharedcoin}} and CashFusion\footnote{\url{https://github.com/cashshuffle/spec}} style transactions and Knapsack~\cite{maurer2017anonymous} mixing. Payments from CoinJoin transactions are possible, as are payments within them, effectively a multiparty PayJoin that trades the steganographic properties for improved privacy from counterparties. Additionally, restrictions on consolidation of inputs can be removed, and there are opportunities for reducing unmixed change and relaxing minimum required denominations, and improved block space efficiency.
 
-\section{Preliminaries}
+The rest of this paper is organized as follows. In \cref{sec:preliminaries} we provide some background on our applied cryptographic building blocks. In \cref{sec:overview} we introduce our protocol, WabiSabi, at a high-level, while in \cref{sec:details} we describe in-depth the cryptographic details of WabiSabi. In \cref{sec:securitayandprivacy} we argue about the security and privacy of WabiSabi.
+We review related work in \cref{sec:relatedwork}. Finally, we conclude our paper in \cref{sec:conclusion}.
+
+\section{Preliminaries}\label{sec:preliminaries}
 
 Hereby we give an informal and high-level description of applied cryptographic primitives. In the following the security parameter is denoted as $\lambda$.
 
 \subsection{Commitment schemes}
-A commitment scheme allows one to commit to a chosen message while preventing them from changing the message after publishing the commitment. Secure commitments do not reveal anything about the chosen message.
+A commitment scheme allows one to commit to a chosen message while preventing them from changing the message after publishing the commitment. Secure commitments hide the chosen message until they are opened. We assume Pedersen commitments throughout this work.
 
-\noindent$\mathsf{Commit}(m,r)\xrightarrow{}\mathcal{C}$. The $\mathsf{Commit}$ algorithm generates a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
+\begin{description}
 
-\noindent$\mathsf{OpenCom}(\mathcal{C},m,r)\xrightarrow{}\{\mathit{True},\mathit{False}\}$: one can verify the correctness of the opening of a commitment by checking $\mathcal{C}\stackrel{?}{=}\mathsf{Commit}(m,r)$. If equality holds the algorithm outputs $\mathit{True}$, otherwise $\mathit{False}$.
+\item[$\mathsf{Commit}(m,r)\mapsto{}\mathcal{C}$:] generate a commitment $\mathcal{C}$ to message $m$ using randomness $r$.
 
-For ease of understanding one may assume in the following that the commitment scheme is instantiated as a Pedersen commitment.
+\item[$\mathsf{OpenCom}(\mathcal{C},m,r)\mapsto{}\{\mathit{True},\mathit{False}\}$:] verify the correctness of the opening of a commitment by checking $\mathcal{C}\stackrel{?}{=}\mathsf{Commit}(m,r)$. If equality holds the algorithm outputs $\mathit{True}$, otherwise $\mathit{False}$.
+
+\end{description}.
 
 \subsection{MAC}
-A message authentication code (MAC) ensures the integrity of a message and consists of the following three probabilistic polynomial-time algorithms.
+A message authentication code (MAC) ensures the integrity of a message and consists of the following three probabilistic polynomial-time algorithms:
 
-\noindent$\mathsf{GenMACKey}(\lambda)\xrightarrow{}{\mathsf{sk}}$. a party generates a secret key $\mathsf{sk}$ for MAC generation and verification.
+\begin{description}
 
-\noindent$\mathsf{MAC}_{\mathsf{sk}}(m)\xrightarrow{}t$. one can generate a MAC $t$ on a message $m$ by using their $\mathsf{sk}$.
+\item[$\mathsf{GenMACKey}(\lambda)\mapsto{}{\mathsf{sk}}$:] generate a secret key $\mathsf{sk}$ for MAC generation and verification.
 
-\noindent$\mathsf{VerifyMAC}_{\mathsf{sk}}(m,t)\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The issuer of the MAC can verify a MAC $t$ given the message $m$ it was issued on.
+\item[$\mathsf{MAC}_{\mathsf{sk}}(m)\mapsto{}t$:] generate a tag $t$ on a message $m$ using secret key $\mathsf{sk}$.
+
+\item[$\mathsf{VerifyMAC}_{\mathsf{sk}}(m,t)\mapsto{}\{\mathit{True},\mathit{False}\}$:] verify that tag $t$ is valid for message $m$ using secret key $\mathsf{sk}$.
+
+\end{description}
 
 One might intuitively think of a MAC as the symmetric-key counterpart of digital signatures. They both have the same goals and similar security requirements, however a MAC requires a secret rather than public key to verify.
 
 \subsection{Zero-knowledge proofs of knowledge}
 A very high-level, and hence somewhat imprecise, description of zero-knowledge proofs is provided. This protocol involves a prover and a verifier. A prover wishes to prove that a relation $\mathcal{R}$ holds with respect to a secret input $w$, called witness, and public input $x$. Specifically, the prover wants to prove that $(x, w) \in \mathcal{R}$ without revealing anything about $w$.
 
-\noindent$\mathsf{Prove}(x,w,\mathcal{R})\xrightarrow{}\pi$. Given $x$ and the private witness $w$ the prover generates a proof $\pi$.
+\begin{description}
+\item[$\mathsf{Prove}_{\mathcal{R}}(x,w)\mapsto{}\pi$:] Given $x$ and the private witness $w$ the prover generates a proof $\pi$. For the specific outputs of $\mathsf{Prove}$ we use the notation of~\cite{camenisch1997proof}, with the witness and statement: $\pi = \operatorname{PK}\{ (w) : (w, x) \in \mathcal{R} \}$.
 
-\noindent$\mathsf{Verify}(x,\pi,\mathcal{R})\xrightarrow{}\{\mathit{True},\mathit{False}\}$. The verifier is given the proof $\pi$ and $x$ with which they determine whether the prover knows a secret $w$ such that $\mathcal{R}(x,w)=1$ holds.
+\item[$\mathsf{Verify}_{\mathcal{R}}(x,\pi)\mapsto{}\{\mathit{True},\mathit{False}\}$:] The verifier is given the proof $\pi$ and $x$ with which they determine whether the prover knows a secret $w$ such that $(w,x) \in \mathcal{R}$ holds.
+\end{description}
 
 \section{Protocol Overview}
 
