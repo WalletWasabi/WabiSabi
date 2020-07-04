@@ -59,14 +59,14 @@
 \maketitle
 
 \begin{abstract}
-  Bitcoin transfers value on a public ledger of transactions anyone can verify. Coin ownership is defined there in terms of public keys.
-  Despite potential use for private transfers, research has shown that users' activity can often be traced in practice. Businesses are built on dragnet surveillance of Bitcoin users because of this lack of inherent privacy which harms its fungibility, a basic property of functional money.
+Bitcoin transfers value on a public ledger of transactions anyone can verify. Coin ownership is defined there in terms of public keys.
+Despite potential use for private transfers, research has shown that users' activity can often be traced in practice. Businesses have been built on dragnet surveillance of Bitcoin users because of this lack of strong privacy, which harms its fungibility, a basic property of functional money.
 
-  Although the public nature of this design lacks strong guarantees for privacy, it does not rule it out.
-  A number of methods have been proposed to create privacy. Among these is CoinJoin, which is an approach to structure transactions which adds ambiguity and breaks common assumptions that underlie heuristics used for surveillance.
-  Existing implementations of CoinJoin present a number of limitations which may partly explain the lack of their widespread adoption.
+Although the public nature of this design lacks strong guarantees for privacy, it does not rule it out.
+A number of methods have been proposed to strengthen privacy. Among these is CoinJoin, which is an approach to structure transactions which adds ambiguity and breaks common assumptions that underlie heuristics used for surveillance.
+Existing implementations of CoinJoin present a number of limitations which may partly explain the lack of their widespread adoption.
 
-  This work introduces \emph{WabiSabi}, a new protocol for centrally coordinated CoinJoin implementations utilizing keyed verification anonymous credentials and homomorphic value commitments. This improves earlier approaches which utilize blind signatures in both privacy and flexibility, enabling novel use cases and reduced overhead.
+This work introduces \emph{WabiSabi}\footnote{The Japanese concept \emph{wabi-sabi} is an aesthetic world view which among other things emphasizes acceptance of imperfections, in our case Bitcoin's challenges for privacy, and an appreciation for simplicity and economy.}, a new protocol for centrally coordinated CoinJoin implementations utilizing keyed verification anonymous credentials and homomorphic value commitments. This improves earlier approaches which utilize blind signatures in both privacy and flexibility, enabling novel use cases and reduced overhead.
 \end{abstract}
 
 \section{Introduction}
