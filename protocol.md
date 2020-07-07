@@ -107,7 +107,7 @@ The Interaction Diagram denotes Satoshi actors those are polling the Coordinator
 
 - `Phase`
 - `RoundId`
-- `Timeout`
+- `PhaseDeadline`
 - `BlameOf` // If it's a blame round, then it is the `RoundId` of the parent round.
 - `PhaseStatus` // What else the response contains depends on the current phase.
 
@@ -117,6 +117,7 @@ The Interaction Diagram denotes Satoshi actors those are polling the Coordinator
 - `RegisteredInputCount`
 - `MaxRegisteredInputCount`
 - `FeeRate`
+- `ReconfirmationDeadline`
 
 #### `CoordinatorParameters`
 
