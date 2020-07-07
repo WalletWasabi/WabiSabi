@@ -60,8 +60,7 @@ honestly, allowing faulty/malicious users to be excluded from a re-attempted
 round.
 
 Round metadata such as coordinator parameters for the WabiSabi credentials,
-information is provided in response to `GetCoinjoinStatuses` requests
-([details TBD](https://github.com/zkSNACKs/WabiSabi/issues/64#issuecomment-648872493)).
+information is provided in responses to `GetCoinjoinStatuses` requests.
 
 ## Attacks
 
@@ -103,6 +102,56 @@ The following diagram illustrates the messages of a single user during the
 course of a round.
 
 ![Interaction Diagram](diagrams/interaction_diagram.svg)
+
+The Interaction Diagram denotes Satoshi actors those are polling the Coordinator with `GetCoinJoinStatuses` requests. Satoshis are not only participants of the round, but they are any wallet users. This mitigates information learned by the Coordinator about participants of the coinjoins. Every element in the `CoinJoinStatuses[]` array is a status of an alive round. The structure of an element in the returned array is the following:
+
+- `Phase`
+- `RoundId`
+- `Timeout`
+- `BlameOf` // If it's a blame round, then it is the `RoundId` of the parent round.
+- `PhaseStatus` // What else the response contains depends on the current phase.
+
+### `PhaseStatus` in InputRegistration
+
+- `CredentialIssuerParameters`
+- `RegisteredInputCount`
+- `MaxRegisteredInputCount`
+- `FeeRate`
+
+#### `CoordinatorParameters`
+
+For input registration the user submits a `CoordParamSig`, which is a signature on the hash of the `CoordinatorParameters`. It is used to 
+- prove ownership of an input
+- prove spendability of an input
+- ensure every other participant in the round got the same `CoordinatorParameters`, thus the coordinator cannot fingerprint them by giving out different parameters to different users.
+
+`CoordinatorParameters` consists of `RoundId`, `BlameOf`, `CredentialIssuerParameters` and `FeeRate`.
+
+### `PhaseStatus` in ConnectionConfirmation
+
+- `ConfirmedInputCount`
+- `MaxConfirmedInputCount`
+
+### `PhaseStatus` in OutputRegistration
+
+- `RegisteredOutputCount`
+- `RegisteredOutputVolume`
+- `TotalInputVolume`
+
+### `PhaseStatus` in TransactionSigning
+
+- `SignedInputCount`
+- `MaxSignedInputCount`
+- `EncryptedUnsignedCoinJoin`
+- `InputRoundParameterSignatures`
+
+#### `EncryptedUnsignedCoinJoin`
+
+When a participant registers an output, the coordinator gives an `UnsignedTransactionSecret` as response. With this, during the signing phase, the participant can decrypt the `EncryptedUnsignedCoinJoin` to sign it. This ensures only the participants of a round learn the CoinJoin before it is broadcasted. This feature is not strictly necessary.
+
+### `PhaseStatus` in TransactionBroadcasting
+
+- `CoinJoin`
 
 ## Round State Diagram
 
