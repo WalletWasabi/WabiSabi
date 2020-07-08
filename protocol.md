@@ -113,7 +113,7 @@ The Interaction Diagram denotes Satoshi actors those are polling the Coordinator
 
 ### `PhaseStatus` in InputRegistration
 
-- `CredentialIssuerParameters`
+- `CredentialIssuerParameters` // 2 public curve points (C_w, I)
 - `RegisteredInputCount`
 - `MaxRegisteredInputCount`
 - `FeeRate`
