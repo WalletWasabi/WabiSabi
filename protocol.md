@@ -95,6 +95,22 @@ users or the coordinator have a liquidity requirement cost requirements dependin
 Mitigation of such attacks are beyond the scope of this protocol, as they
 pertain to the specific transaction structure.
 
+## Fees
+
+Mining fees per registration can be specified as a linear function of the
+weight units of the registration with specified precision and rounding
+behaviour. If there is no constant term (fixed per input/output fee), then this
+is just a conversion factor from weight units to satoshis, otherwise a pair of
+numbers. Coordination fees can also be specified as a linear function of the
+amount but may require a more detailed function. In either case the balance
+proofs given by clients must take the fees into account.
+
+If a more dynamic policy is needed the coordinator can adjust any credential
+request upwards by simply tweaking the attribute commitment and returning the
+adjustment amount as an integer along with the issued credentials. This can
+only be safely used to increase the issued credential amounts, since negative
+adjustments may result in credentials with negative amounts using the normal
+range proofs which only ensure requested values are greater or equal to zero.
 
 ## Interaction Diagram
 
