@@ -10,7 +10,7 @@ title Scenario: A Participant Is Consolidating 2 Coins (Alice1, Alice2) Into 1 (
 
 == Input Registration ==
 
-Satoshis -> Coordinator ++ : GetCoinjoinStatuses
+Satoshis -> Coordinator ++ : CJSTAT
 return CoinjoinStatuses[]
 
 Alice1 -> Coordinator ++: IREG - RoundId, Input, RoundParamSig, ZeroCredReqs[]
@@ -95,7 +95,7 @@ return UnsignedTransactionSecret
 
 == Transaction Signing ==
 
-Satoshis -> Coordinator ++ : GetCoinjoinStatuses
+Satoshis -> Coordinator ++ : CJSTAT
 return CoinjoinStatuses[]
 
 Alice1 -> Coordinator ++: TSIG - RoundId, AliceId, InputSig
@@ -122,7 +122,7 @@ return ACK
 
 Coordinator -> Mempool**  : SignedTransaction
 
-Satoshis -> Coordinator ++ : GetCoinjoinStatuses
+Satoshis -> Coordinator ++ : CJSTAT
 return CoinjoinStatuses[]
 
 @enduml
