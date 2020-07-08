@@ -26,6 +26,7 @@ note right of Coordinator
     IsAllowedIfBlameRound()
     IsNotBanned()
     UpdateIfDuplicateInput()
+    SetAliceDeadline()
 end note
 return AliceId, ZeroCreds[]
 ...
@@ -37,6 +38,7 @@ note right of Coordinator
     IsAliceFound()
     EnsureUniqueSerialNumber()
     CheckCredProofs()
+    ResetAliceDeadline()
 end note
 return ZeroCreds[]
 
@@ -53,6 +55,7 @@ note right of Coordinator
     IsAllowedIfBlameRound()
     IsNotBanned()
     UpdateIfDuplicateInput()
+    SetAliceDeadline()
 end note
 return AliceId, ZeroCreds[]
 
