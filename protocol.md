@@ -103,7 +103,7 @@ course of a round.
 
 ![Interaction Diagram](diagrams/interaction_diagram.svg)
 
-The Interaction Diagram denotes Satoshi actors those are polling the Coordinator with `GetCoinJoinStatuses` requests. Satoshis are not only participants of the round, but they are any wallet users. This mitigates information learned by the Coordinator about participants of the coinjoins. Every element in the `CoinJoinStatuses[]` array is a status of an alive round. The structure of an element in the returned array is the following:
+The Interaction Diagram denotes Satoshi actors those are polling the Coordinator with `CJSTAT` requests. Satoshis are not only participants of the round, but they are any wallet users. This mitigates information learned by the Coordinator about participants of the coinjoins. Every element in the `CoinJoinStatuses[]` array is a status of an alive round. The structure of an element in the returned array is the following:
 
 - `Phase`
 - `RoundId`
