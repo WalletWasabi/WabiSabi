@@ -192,3 +192,15 @@ The following shows the coordinator's state transitions pertaining to a
 specific UTXO, possibly spanning multiple rounds.
 
 ![UTXO states](diagrams/utxo_states.svg)
+
+## Network Identity State Diagram
+
+The following diagram shows the client's state transitions for a specific
+circuit. Once a circuit reaches the terminal state the identity must no longer
+be used. If a connection is broken a new circuit may be used to submit
+subsequent requests related to the same input (connection confirmations,
+signature). Therefore at most one input or output should be associated with a
+single network identity to avoid privacy leaks, but multiple network identities
+may be associated with a single input or output.
+
+![Network Identity states](diagrams/network_identity_states.svg)
