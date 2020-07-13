@@ -1,0 +1,33 @@
+@startuml
+hide empty description
+
+
+
+[*] -> ready
+
+state "Ready" as ready
+state "Input\nRegistered" as registered_input
+state "Connection\nConfirmed" as confirmed_input
+state c1 <<choice>>
+
+ready -left-> ready : get\nstatuses
+
+ready --> registered_input : register\ninput
+
+ready--> c1 : confirm\nconnection
+registered_input --> c1 : confirm\nconnection
+
+c1 --> registered_input : not_final\n(zero creds)
+c1 --> confirmed_input : final\n(real creds)
+
+ready--> [*] : signature
+confirmed_input --> [*] : signature
+
+ready --> [*] : deregister\ninput
+registered_input --> [*] : deregister\ninput
+
+ready --> [*] : register\noutput
+
+ready --> [*] : reissue\ncreds
+
+@enduml
