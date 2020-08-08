@@ -1,0 +1,1611 @@
+#+TITLE: WabiSabi Usage Examples
+#+OPTIONS: toc:nil, num:nil, ^:{}, html-style:nil
+#+BEGIN_COMMENT elisp
+;; active Org-babel languages
+(org-babel-do-load-languages
+'org-babel-load-languages
+'(;; other Babel languages
+  (plantuml . t)
+  (dot . t)))
+#+END_COMMENT
+
+* Notes
+- These example are meant to illustrate how the building blocks work and consequences/trade-offs of applying them in various ways, not all examples are desirable. Costs for privacy mostly reduce as the examples progress.
+- A single user's outputs are highlighted in various example transaction graphs.
+- Time flows up and arrows from inputs point at previous outputs in line with Satoshi's true original vision.
+- To keep illustrated CoinJoin transactions to a reasonable size most examples have 3 participants and arbitrary input and output amount registrations are always allowed (no coordinator enforced anonymity set). Previous mixes are always simplified to an equal amount CoinJoin with 3 participants.
+- Denominations are based on 1-2-5 preferred value series (powers of 2 omitted for simplicity, but both should be used in practice).
+- Mining and coordinator fees are always add to 0.0001. In practice the dust limit should parameterize any rounding, and total fees would be a function of the amounts and the total weight, not a constant.
+- Coordinator fee outputs are only shown (with black background) when accounting for prepaid fees, otherwise the coordinator's fee output is omitted.
+- The anonymity set size of the user's output is loosely represented by color (red, yellow, green). This does not account for inherited anonymity sets, it's intended to emphasize relative change in privacy of including a specific input or output in a given context.
+- An output's anonymity set can degrade when spent if the input can be linked to sibling inputs whose previous outputs have a smaller anonymity set.
+* Single Operation
+  These example illustrate receiving and sweeping or remixing of a single
+  output. Standard denomination outputs, which are likely to have a larger
+  anonymity set, are created. Standard denominations may still need to be
+  subsequently remixed to ensure privacy since even if the coordinator enforces
+  $k > 0$, that only applies to arbitrary denominations.
+** Sweep and mix into standard denomination outputs
+   - Sweep and mix amount close to standard denomination
+
+     \( \{ 0.1001 \} \mapsto \{ 0.1 \} \)
+     #+BEGIN_SRC dot :file diagrams/txs/01.svg
+     digraph {
+         node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+         mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td border="2pt" color="black"  bgcolor="olivedrab3"><font color="black">0.1</font></td>
+                 <td>0.1</td>
+                 <td colspan="2">0.1</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.1001</td>
+                 <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1001</font></td>
+                 <td>0.1</td>
+                 <td>0.0001</td>
+             </tr>
+             </table>>
+         ]
+
+         receive [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1001</font></td>
+                 <td>0.04985</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td colspan="2">0.15</td>
+             </tr>
+             </table>>
+         ]
+
+         mix:i01 -> receive:o01
+     }
+     #+END_SRC
+   - Sweep and mix standard denomination amount with auxiliary input for fees
+
+     \( \{ 0.1, 0.0001 \} \mapsto \{ 0.1 \} \)
+     #+BEGIN_SRC dot :file diagrams/txs/02.svg
+     digraph {
+         node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+         mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.1</td>
+                 <td border="2pt" color="black"  bgcolor="olivedrab3"><font color="black">0.1</font></td>
+                 <td colspan="2">0.1</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.1001</td>
+                 <td>0.1001</td>
+                 <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1</font></td>
+                 <td port="i02" border="2pt" color="black"  bgcolor="coral"><font color="black">0.0001</font></td>
+             </tr>
+             </table>>
+         ]
+
+         receive [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1</font></td>
+                 <td>0.04995</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td colspan="2">0.15</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.0001</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.0001</font></td>
+                 <td>0.0001</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0002</td>
+                 <td>0.0002</td>
+                 <td>0.0002</td>
+             </tr>
+             </table>>
+         ]
+
+         mix:i01:s -> receive:o01
+         mix:i02:s -> prev_mix:o01
+     }
+     #+END_SRC      
+   - Sweep and mix standard denomination amount, creating a mess of outputs
+
+     \( \{ 0.1 \} \mapsto \{ 0.05, 0.02, 0.02, 0.005, 0.002, 0.002, 0.0005, 0.0002, 0.0002 \} \)
+     #+BEGIN_SRC dot :file diagrams/txs/03.svg
+     digraph {
+         node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+         mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.1</td>
+                 <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.05</font></td>
+                 <td>0.05</td>
+                 <td>0.05</td>
+                 <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                 <td>0.02</td>
+                 <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.002</font></td>
+                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
+                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.1001</td>
+                 <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1</font></td>
+                 <td>0.0501</td>
+                 <td>0.05</td>
+                 <td>0.0201</td>
+                 <td>0.02</td>
+                 <td>0.0001</td>
+                 <td>0.0001</td>
+             </tr>
+             </table>>
+         ]
+
+         receive [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1</font></td>
+                 <td>0.04995</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td colspan="2">0.15</td>
+             </tr>
+             </table>>
+         ]
+
+         mix:i01 -> receive:o01
+     }
+     #+END_SRC
+   - Sweep and mix arbitrary amount, creating a mess of outputs
+     
+      \( \{ 0.736 \} \mapsto \{ 0.5, 0.2, 0.02, 0.01, 0.005, 0.0005, 0.0002, 0.0002 \} \)
+      #+BEGIN_SRC dot :file diagrams/txs/04.svg
+      digraph {
+          node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+          mix [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.5</font></td>
+                  <td>0.2</td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.2</font></td>
+                  <td>0.1</td>
+                  <td>0.05</td>
+                  <td>0.05</td>
+                  <td>0.05</td>
+                  <td>0.05</td>
+                  <td>0.02</td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                  <td>0.01</td>
+                  <td>0.005</td>
+                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                  <td>0.001</td>
+                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
+                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                  <td>0.2001</td>
+                  <td>0.2</td>
+                  <td>0.1</td>
+                  <td>0.0361</td>
+              </tr>
+              </table>>
+          ]
+
+          receive [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                  <td>0.0635</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td colspan="2">0.8</td>
+              </tr>
+              </table>>
+          ]
+
+          mix:i01 -> receive:o01
+      }
+      #+END_SRC
+   - Sweep and mix arbitrary amount with auxiliary mixed outputs for rounding of created output
+
+     \( \{ 0.736, 0.2, 0.05, 0.01, 0.002, 0.002, 0.0001 \} \mapsto \{ 1.0 \} \)
+     #+BEGIN_SRC dot :file diagrams/txs/05.svg
+     digraph {
+         graph [ranksep=3]
+         node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+         mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>1.0</td>
+                 <td>1.0</td>
+                 <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>1.0001</td>
+                 <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                 <td>0.5</td>
+                 <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.2</font></td>
+                 <td>0.2</td>
+                 <td>0.2</td>
+                 <td>0.1</td>
+                 <td port="i03" border="2pt" color="black" bgcolor="coral"><font color="black">0.05</font></td>
+                 <td port="i04" border="2pt" color="black" bgcolor="coral"><font color="black">0.01</font></td>
+                 <td port="i05" border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+                 <td port="i06" border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+                 <td>0.0001</td>
+                 <td port="i07" border="2pt" color="black" bgcolor="gold"><font color="black">0.0001</font></td>
+             </tr>
+             </table>>
+         ]
+
+         receive [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                 <td>0.0635</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td colspan="2">0.8</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_2 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.2</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.2</font></td>
+                 <td>0.2</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.2001</td>
+                 <td>0.2001</td>
+                 <td>0.2001</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_3 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.05</td>
+                 <td>0.05</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.05</font></td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0501</td>
+                 <td>0.0501</td>
+                 <td>0.0501</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_4 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                 <td>0.01</td>
+                 <td>0.01</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_5 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.002</td>
+                 <td>0.002</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.002</font></td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0021</td>
+                 <td>0.0021</td>
+                 <td>0.0021</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_6 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.002</font></td>
+                 <td>0.002</td>
+                 <td>0.002</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0021</td>
+                 <td>0.0021</td>
+                 <td>0.0021</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_7 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.0001</td>
+                 <td>0.0001</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.0001</font></td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0002</td>
+                 <td>0.0002</td>
+                 <td>0.0002</td>
+             </tr>
+             </table>>
+         ]
+
+         mix:i01:s -> receive:o01
+         mix:i02:s -> prev_mix_2:o01
+         mix:i03:s -> prev_mix_3:o01
+         mix:i04:s -> prev_mix_4:o01
+         mix:i05:s -> prev_mix_5:o01
+         mix:i06:s -> prev_mix_6:o01
+         mix:i07:s -> prev_mix_7:o01
+     }
+     #+END_SRC
+** Reduce block space requirement and UTXO set churn using optional fee credentials
+   By adding support for [[https://github.com/zkSNACKs/WabiSabi/issues/18][prepaid fee credentials]] small change outputs can be
+   suppressed, instead issuing prepaid fee credentials that can then be redeemed
+   in subsequent rounds in order to pay the required mining and coordinator fees
+   (the coordinator may need to include additional inputs to cover mining fees
+   in the event that participants' non-prepaid coordination fees can't cover the
+   mining fees).
+
+   - Sweep and mix standard denomination utilizing prepaid fee credential to cover mining and coordination fees
+
+      \( \{ 0.1, \underbrace{0.0001}_\mathrm{prepaid} \} \mapsto \{ 0.1 \} \)
+      #+BEGIN_SRC dot :file diagrams/txs/07.svg
+      digraph {
+          node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+          mix [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td>0.1</td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.1</font></td>
+                  <td colspan="2">0.1</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td>0.1001</td>
+                  <td>0.1001</td>
+                  <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1</font></td>
+                  <td port="coord" bgcolor="black">0.0001</td>
+              </tr>
+              </table>>
+          ]
+
+          receive [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1</font></td>
+                  <td>0.04995</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td port="i01" colspan="2">0.15</td>
+              </tr>
+              </table>>
+          ]
+
+          mix:i01 -> receive:o01
+      }
+      #+END_SRC
+   - Sweep and mix amount close to standard denomination, suppressing smaller outputs by prepaying fees
+
+      \( \{ 0.1002 \} \mapsto \{ 0.1, \underbrace{0.0001}_\mathrm{prepaid} \} \)
+      #+BEGIN_SRC dot :file diagrams/txs/08.svg
+      digraph {
+          node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+          mix [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td>0.1</td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.1</font></td>
+                  <td>0.1</td>
+                  <td port="coord" bgcolor="black">0.00021481</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1002</font></td>
+                  <td>0.10021481</td>
+                  <td>0.1001</td>
+              </tr>
+              </table>>
+          ]
+    
+          receive [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.1002</font></td>
+                  <td>0.04975</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td colspan="2">0.15</td>
+              </tr>
+              </table>>
+          ]
+
+          mix:i01 -> receive:o01
+      }
+      #+END_SRC
+   - Sweep and mix arbitrary amount, suppressing smaller outputs by prepaying fees credentials
+
+      \( \{ 0.736 \} \mapsto \{ 0.5, 0.2, 0.02, 0.01, 0.005, \underbrace{0.0009}_\mathrm{prepaid} \} \)
+      #+BEGIN_SRC dot :file diagrams/txs/09.svg
+      digraph {
+          node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+          mix [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.5</font></td>
+                  <td>0.2</td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.2</font></td>
+                  <td>0.1</td>
+                  <td>0.05</td>
+                  <td>0.05</td>
+                  <td>0.05</td>
+                  <td>0.05</td>
+                  <td>0.02</td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                  <td>0.01</td>
+                  <td>0.005</td>
+                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                  <td>0.001</td>
+                  <td port="coord" bgcolor="black">0.0009</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                  <td>0.2001</td>
+                  <td>0.2</td>
+                  <td>0.1</td>
+                  <td>0.0361</td>
+              </tr>
+              </table>>
+          ]
+
+          receive [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                  <td>0.0635</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td colspan="2">0.8</td>
+              </tr>
+              </table>>
+          ]
+
+          mix:i01 -> receive:o01
+      }
+      #+END_SRC
+   - Sweep and mix arbitrary amount with auxiliary mixed outputs in order to create rounded amount, suppressing smaller outputs by prepaying fees
+     
+      \( \{ 0.736, 0.2, 0.05, 0.01, 0.005 \} \mapsto \{ 1.0, \underbrace{0.0009}_\mathrm{prepaid} \} \)
+      #+BEGIN_SRC dot :file diagrams/txs/10.svg
+      digraph {
+          graph [ranksep=1]
+          node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+          mix [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td>1.0</td>
+                  <td>1.0</td>
+                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+                  <td port="coord" bgcolor="black">0.0009</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td>1.0001</td>
+                  <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                  <td>0.5</td>
+                  <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.2</font></td>
+                  <td>0.2</td>
+                  <td>0.2</td>
+                  <td>0.1</td>
+                  <td port="i03" border="2pt" color="black" bgcolor="coral"><font color="black">0.05</font></td>
+                  <td port="i04" border="2pt" color="black" bgcolor="coral"><font color="black">0.01</font></td>
+                  <td port="i05" border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
+                  <td>0.0001</td>
+              </tr>
+              </table>>
+          ]
+
+          receive [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                  <td>0.0635</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td colspan="2">0.8</td>
+              </tr>
+              </table>>
+          ]
+
+          prev_mix_2 [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td>0.2</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.2</font></td>
+                  <td>0.2</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td>0.2001</td>
+                  <td>0.2001</td>
+                  <td>0.2001</td>
+              </tr>
+              </table>>
+          ]
+
+          prev_mix_3 [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td>0.05</td>
+                  <td>0.05</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.05</font></td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td>0.0501</td>
+                  <td>0.0501</td>
+                  <td>0.0501</td>
+              </tr>
+              </table>>
+          ]
+
+          prev_mix_4 [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                  <td>0.01</td>
+                  <td>0.01</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td>0.0101</td>
+                  <td>0.0101</td>
+                  <td>0.0101</td>
+              </tr>
+              </table>>
+          ]
+
+          prev_mix_5 [
+              label =<<table cellspacing="2pt" cellpadding="2pt">
+              <tr><td border="0">out</td>
+                  <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+                  <td>0.005</td>
+                  <td>0.005</td>
+              </tr>
+              <tr><td border="0">in</td>
+                  <td>0.0051</td>
+                  <td>0.0051</td>
+                  <td>0.0051</td>
+              </tr>
+              </table>>
+          ]
+
+          mix:i01:s -> receive:o01
+          mix:i02:s -> prev_mix_2:o01
+          mix:i03:s -> prev_mix_3:o01
+          mix:i04:s -> prev_mix_4:o01
+          mix:i05:s -> prev_mix_5:o01
+      }
+      #+END_SRC
+   - Sweep and mix arbitrary amount with auxiliary mixed outputs in order to create rounded amount, covering fees with prepaid credential
+     
+     \( \{ 0.736, 0.2, 0.05, 0.01, 0.002, 0.002, \underbrace{0.0001}_\mathrm{prepaid} \} \mapsto \{ 1.0 \} \)
+     #+BEGIN_SRC dot :file diagrams/txs/11.svg
+     digraph {
+         graph [ranksep=2]
+         node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+         mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>1.0</td>
+                 <td>1.0</td>
+                 <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>1.0</td>
+                 <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                 <td>0.5</td>
+                 <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.2</font></td>
+                 <td>0.2</td>
+                 <td>0.2</td>
+                 <td>0.1</td>
+                 <td port="i03" border="2pt" color="black" bgcolor="coral"><font color="black">0.05</font></td>
+                 <td port="i04" border="2pt" color="black" bgcolor="coral"><font color="black">0.01</font></td>
+                 <td port="i05" border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+                 <td port="i06" border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+                 <td port="coord" bgcolor="black">0.0003</td>
+             </tr>
+             </table>>
+         ]
+
+         receive [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                 <td>0.0635</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td colspan="2">0.8</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_2 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.2</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.2</font></td>
+                 <td>0.2</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.2001</td>
+                 <td>0.2001</td>
+                 <td>0.2001</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_3 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.05</td>
+                 <td>0.05</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.05</font></td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0501</td>
+                 <td>0.0501</td>
+                 <td>0.0501</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_4 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.01</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                 <td>0.01</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_5 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.002</font></td>
+                 <td>0.002</td>
+                 <td>0.002</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0021</td>
+                 <td>0.0021</td>
+                 <td>0.0021</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix_6 [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.002</font></td>
+                 <td>0.002</td>
+                 <td>0.002</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0021</td>
+                 <td>0.0021</td>
+                 <td>0.0021</td>
+             </tr>
+             </table>>
+         ]
+
+         mix:i01:s -> receive:o01
+         mix:i02:s -> prev_mix_2:o01
+         mix:i03:s -> prev_mix_3:o01
+         mix:i04:s -> prev_mix_4:o01
+         mix:i05:s -> prev_mix_5:o01
+         mix:i06:s -> prev_mix_6:o01
+     }
+     #+END_SRC
+** Spend mixed standard denomination outputs to make arbitrary amount payments
+   - Spend using mixed output close to arbitrary payment amount creating toxic change
+
+     Note that the anonymity set of the input is not degraded, the payment can't
+     be traced to a specific previous output, but the change and payment are
+     linkable, and the payment itself is known to the receiver, but strictly
+     speaking the anonymity set of this pair of outputs is still 3.
+
+     \( \{ 0.01 \} \mapsto \{ 0.00934178, 0.00055822 \} \)
+     #+BEGIN_SRC dot :file diagrams/txs/12.svg
+     digraph {
+         node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+         mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.1</td>
+                 <td>0.01</td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00934178</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00055822</font></td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0101</td>
+                 <td port="i01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                 <td>0.01</td>
+                 <td>0.0001</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.01</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                 <td>0.01</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+             </tr>
+             </table>>
+         ]
+
+         mix:i01 -> prev_mix:o01
+     }
+     #+END_SRC
+   - Spend using mixed output close to payment amount creating standard denomination change and suppressing dust change by prepaying fees
+
+     \( \{ 0.01 \} \mapsto \{ 0.00934178, 0.0005, \underbrace{0.00005822}_\mathrm{prepaid} \} \)
+     #+BEGIN_SRC dot :file diagrams/txs/13.svg
+     digraph {
+         node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+         mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.01</td>
+                 <td>0.01</td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00934178</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0005</font></td>
+                 <td port="coord" bgcolor="black">0.00005822</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.1001</td>
+                 <td port="i01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                 <td>0.01</td>
+                 <td>0.0001</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.01</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                 <td>0.01</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+             </tr>
+             </table>>
+         ]
+
+         mix:i01 -> prev_mix:o01
+     }
+     #+END_SRC
+   - Spend using mixed output larger than payment amount creating multiple standard denomination changes and suppressing dust by prepaying fees
+
+     In this example the payment can't be linked to any specific sibling output
+     or any specific funding input, so it is considered more private than
+     before. Note however that the input only has one sibling input, so payment
+     privacy relies more on the inherited anonymity set from the previous mix
+     than the sibling inputs.
+
+      \( \{ 0.1 \} \mapsto \{ 0.00934178, 0.05, 0.02, 0.02, \underbrace{0.00055822}_\mathrm{prepaid} \} \)
+     #+BEGIN_SRC dot :file diagrams/txs/14.svg
+     digraph {
+         node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+         mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.01</td>
+                 <td>0.01</td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00934178</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.05</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                 <td port="coord" bgcolor="black">0.00055822</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.1001</td>
+                 <td port="i01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.1</font></td>
+                 <td>0.01</td>
+                 <td>0.0001</td>
+             </tr>
+             </table>>
+         ]
+
+         prev_mix [
+             label =<<table cellspacing="2pt" cellpadding="2pt">
+             <tr><td border="0">out</td>
+                 <td>0.01</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                 <td>0.01</td>
+             </tr>
+             <tr><td border="0">in</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+                 <td>0.0101</td>
+             </tr>
+             </table>>
+         ]
+
+         mix:i01 -> prev_mix:o01
+     }
+     #+END_SRC
+* Batched Operations
+  Batching operations can cut through the need for intermediate standard
+  denomination outputs significantly saving on fees. However, to maintain
+  privacy this depends on other users to provide cover by registering their own
+  inputs or outputs of plausibly related amounts. To ensure that individual
+  outputs spent or created in a batch can't be linked the wallet may need to
+  fall back to performing operations separately, incurring higher fees,
+  depending on the coordinator's minimum anonymity set policy and/or the
+  announced denominations. The coordinator can enforce privacy by setting the
+  round parameter $k$ to some minimum value, ensuring that arbitrary amount
+  registrations may only be made adjacent to standard denomination inputs and
+  outputs that provide cover.
+
+  - Batched sweep and mix consolidating several arbitrary amount inputs
+
+    Although the swept inputs are not deterministically linkable, but privacy
+    is marginal.
+
+    \( \{ 0.736, 0.321 \} \mapsto \{ 1.0, 0.05, 0.005, 0.001, 0.0005, 0.0002, 0.0002 \} \)
+    #+BEGIN_SRC dot :file diagrams/txs/15.svg
+    digraph {
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+        mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>1.0</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+                <td>1.0</td>
+                <td>0.05</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.05</font></td>
+                <td>0.05</td>
+                <td>0.02</td>
+                <td>0.01</td>
+                <td>0.005</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.001</font></td>
+                <td>0.001</td>
+                <td>0.0005</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td>0.0002</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>1.0</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.5</td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.321</font></td>
+                <td>0.2001</td>
+                <td>0.2</td>
+                <td>0.1</td>
+                <td>0.05</td>
+                <td>0.0867</td>
+                <td>0.0001</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.0635</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td colspan="2">0.8</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.321</font></td>
+                <td>0.1789</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.3</td>
+                <td>0.2</td>
+            </tr>
+            </table>>
+        ]
+
+        mix:i01 -> receive_1:o01
+        mix:i02 -> receive_2:o01
+    }
+    #+END_SRC
+  - Batched sweep and mix several arbitrary amounts suppressing smaller outputs
+
+    \( \{ 0.736, 0.321 \} \mapsto \{ 1.0, 0.05, 0.005, 0.001, \underbrace{0.0009}_\mathrm{prepaid} \} \)
+    #+BEGIN_SRC dot :file diagrams/txs/16.svg
+    digraph {
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+        mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>1.0</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+                <td>1.0</td>
+                <td>0.05</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.05</font></td>
+                <td>0.05</td>
+                <td>0.02</td>
+                <td>0.01</td>
+                <td>0.005</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.001</font></td>
+                <td>0.001</td>
+                <td port="coord" bgcolor="black">0.0016</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>1.0</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.5</td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.321</font></td>
+                <td>0.2001</td>
+                <td>0.2</td>
+                <td>0.1</td>
+                <td>0.05</td>
+                <td>0.0867</td>
+                <td>0.0001</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.0635</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td colspan="2">0.8</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.321</font></td>
+                <td>0.1789</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.3</td>
+                <td>0.2</td>
+            </tr>
+            </table>>
+        ]
+
+        mix:i01 -> receive_1:o01
+        mix:i02 -> receive_2:o01
+    }
+     #+END_SRC
+  - Batched sweep and mix several arbitrary amounts and standard denominations to produce standard denomination
+
+    \( \{ 0.736, 0.2471, 0.01, 0.005, 0.002 \} \mapsto \{ 1.0 \} \)
+    #+BEGIN_SRC dot :file diagrams/txs/17.svg
+    digraph {
+        graph [ranksep=1.5]
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+        mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>1.0</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+                <td>1.0</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.02</td>
+                <td>0.01</td>
+                <td>0.005</td>
+                <td>0.001</td>
+                <td>0.0005</td>
+                <td>0.0002</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>1.0</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.5</td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.2471</font></td>
+                <td>0.2001</td>
+                <td>0.2</td>
+                <td>0.1</td>
+                <td>0.0867</td>
+                <td>0.05</td>
+                <td port="i03" border="2pt" color="black" bgcolor="coral"><font color="black">0.01</font></td>
+                <td port="i04" border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
+                <td port="i05" border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+                <td>0.0001</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.0635</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td colspan="2">0.8</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.2471</font></td>
+                <td>0.0512</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.3</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_3 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.01</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                <td>0.01</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_4 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.005</td>
+                <td>0.005</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_5 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.002</font></td>
+                <td>0.02</td>
+                <td>0.02</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0201</td>
+                <td>0.0201</td>
+                <td>0.0201</td>
+            </tr>
+            </table>>
+        ]
+
+        mix:i01 -> receive_1:o01
+        mix:i02 -> receive_2:o01
+        mix:i03 -> prev_mix_3:o01
+        mix:i04 -> prev_mix_4:o01
+        mix:i05 -> prev_mix_5:o01
+    }
+    #+END_SRC
+  - Same as previous example, but with more participants reducing linkability of user's individual inputs
+    
+    \( \{ 0.736, 0.2471, 0.01, 0.005, 0.002 \} \mapsto \{ 1.0 \} \)
+    #+BEGIN_SRC dot :file diagrams/txs/18.svg
+    digraph {
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+        mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>1.0</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+                <td>1.0</td>
+                <td>0.5</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.02</td>
+                <td>0.01</td>
+                <td>0.005</td>
+                <td>0.001</td>
+                <td>0.0005</td>
+                <td>0.0002</td>
+                <td>0.0001</td>
+                <td>0.0001</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>1.0</td>
+                <td port="i01" border="2pt" color="black" bgcolor="gold"><font color="black">0.736</font></td>
+                <td>0.5</td>
+                <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.2471</font></td>
+                <td>0.2211</td>
+                <td>0.2001</td>
+                <td>0.2</td>
+                <td>0.1</td>
+                <td>0.1</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.0867</td>
+                <td>0.0451</td>
+                <td>0.0332</td>
+                <td>0.02</td>
+                <td>0.02</td>
+                <td>0.01</td>
+                <td port="i03" border="2pt" color="black" bgcolor="gold"><font color="black">0.01</font></td>
+                <td port="i04" border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td port="i05" border="2pt" color="black" bgcolor="gold"><font color="black">0.002</font></td>
+                <td>0.001</td>
+                <td>0.0001</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.0635</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td colspan="2">0.8</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.2471</font></td>
+                <td>0.0512</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.3</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_3 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.01</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                <td>0.01</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_4 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.005</td>
+                <td>0.005</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_5 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.002</font></td>
+                <td>0.02</td>
+                <td>0.02</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0201</td>
+                <td>0.0201</td>
+                <td>0.0201</td>
+            </tr>
+            </table>>
+        ]
+
+        mix:i01 -> receive_1:o01
+        mix:i02 -> receive_2:o01
+        mix:i03 -> prev_mix_3:o01
+        mix:i04 -> prev_mix_4:o01
+        mix:i05 -> prev_mix_5:o01
+    }
+    #+END_SRC
+  - Batched payments using mixed output larger than total payment amount creating multiple standard denomination changes and suppressing dust by prepaying fees
+
+    \( \{ 0.1 \} \mapsto \{ 0.03916501, 0.02638449, 0.00934178, 0.02, 0.005, \underbrace{0.00000872}_{\mathrm{prepaid}} \} \)
+    #+BEGIN_SRC dot :file diagrams/txs/19.svg
+    digraph {
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+        mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.1</td>
+                <td>0.08813814</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.03916501</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.02638449</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00934178</font></td>
+                <td>0.01</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td>0.001</td>
+                <td>0.0005</td>
+                <td port="coord" bgcolor="black">0.00027058</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.1</td>
+                <td port="i01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.1</font></td>
+                <td>0.1</td>
+                <td>0.0001</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.1</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.1</font></td>
+                <td>0.1</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.1001</td>
+                <td>0.1001</td>
+                <td>0.1001</td>
+            </tr>
+            </table>>
+        ]
+
+        mix:i01 -> prev_mix:o01
+    }
+    #+END_SRC
+  - Combined sweeping and payments suppressing small outputs with prepaid fee credentials
+
+    \( \{ 0.736, 0.321, 0.2471, 0.02, 0.001 \} \mapsto \{ 0.03916501, 0.02638449, 0.00934178, 1.0, 0.2, 0.05, \underbrace{0.00010872}_\mathrm{prepaid} \} \)
+    #+BEGIN_SRC dot :file diagrams/txs/20.svg
+    digraph {
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+        mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+                <td>1.0</td>
+                <td>1.0</td>
+                <td>0.5</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.2</font></td>
+                <td>0.2</td>
+                <td>0.1</td>
+                <td>0.1</td>
+                <td>0.08813814</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.05</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.03916501</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.02638449</font></td>
+                <td>0.02</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00934178</font></td>
+                <td port="coord" bgcolor="black">0.00017058</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>1.0</td>
+                <td port="i01" border="2pt" color="black" bgcolor="gold"><font color="black">0.736</font></td>
+                <td>0.5</td>
+                <td>0.5</td>
+                <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.321</font></td>
+                <td port="i03" border="2pt" color="black" bgcolor="gold"><font color="black">0.2471</font></td>
+                <td>0.2211</td>
+                <td>0.2001</td>
+                <td>0.2</td>
+                <td>0.1</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.0867</td>
+                <td>0.0451</td>
+                <td>0.0332</td>
+                <td>0.02</td>
+                <td port="i04" border="2pt" color="black" bgcolor="gold"><font color="black">0.01</font></td>
+                <td port="i05" border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td>0.005</td>
+                <td>0.002</td>
+                <td>0.001</td>
+                <td>0.0002</td>
+                <td>0.0001</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.0635</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td colspan="2">0.8</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.321</font></td>
+                <td>0.1789</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.3</td>
+                <td>0.2</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_3 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.2471</font></td>
+                <td>0.0512</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.3</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_4 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.01</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                <td>0.01</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_5 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.005</td>
+                <td>0.005</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+            </tr>
+            </table>>
+        ]
+
+        mix:i01 -> receive_1:o01
+        mix:i02 -> receive_2:o01
+        mix:i03 -> receive_3:o01
+        mix:i04 -> prev_mix_4:o01
+        mix:i05 -> prev_mix_5:o01
+    }
+    #+END_SRC
+  - Same as previous example but with more participants
+
+    \( \{ 0.736, 0.321, 0.2471, 0.02, 0.001 \} \mapsto \{ 0.03916501, 0.02638449, 0.00934178, 1.0, 0.2, 0.05, \underbrace{0.00010872}_\mathrm{prepaid} \} \)
+    #+BEGIN_SRC dot :file diagrams/txs/21.svg
+    digraph {
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+
+        mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>1.74169032</td>
+                <td>1.094</td>
+                <td>1.0</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">1.0</font></td>
+                <td>0.717</td>
+                <td>0.6210371</td>
+                <td>0.5</td>
+                <td>0.5</td>
+                <td>0.4116</td>
+                <td>0.37010148</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.2</font></td>
+                <td>0.2</td>
+                <td>0.130004</td>
+                <td>0.1</td>
+                <td>0.1</td>
+                <td>0.08813814</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.05</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.03916501</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.02638449</font></td>
+                <td>0.02</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.00934178</font></td>
+                <td>0.00741</td>A
+                <td>0.005</td>
+                <td>0.0031748</td>
+                <td>0.002</td>
+                <td>0.001</td>
+                <td port="coord" bgcolor="black">0.00102438</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>1.1227</td>
+                <td>1.0</td>
+                <td>0.99741318</td>
+                <td>0.981</td>
+                <td port="i01" border="2pt" color="black" bgcolor="gold"><font color="black">0.736</font></td>
+                <td>0.72</td>
+                <td>0.5</td>
+                <td>0.5</td>
+                <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.321</font></td>
+                <td port="i03" border="2pt" color="black" bgcolor="gold"><font color="black">0.2471</font></td>
+                <td>0.240039</td>
+                <td>0.2211</td>
+                <td>0.2001</td>
+                <td>0.2</td>
+                <td>0.2</td>
+                <td>0.1</td>
+                <td>0.09730844</td>
+                <td>0.083</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.0867</td>
+                <td>0.0451</td>
+                <td>0.03901088</td>
+                <td>0.0332</td>
+                <td>0.02</td>
+                <td port="i04" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                <td port="i05" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+                <td>0.005</td>
+                <td>0.002</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td>0.0635</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td colspan="2">0.8</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.321</font></td>
+                <td>0.1789</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.3</td>
+                <td>0.2</td>
+            </tr>
+            </table>>
+        ]
+
+        receive_3 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.2471</font></td>
+                <td>0.0512</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.3</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_4 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.01</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                <td>0.01</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+            </tr>
+            </table>>
+        ]
+
+        prev_mix_5 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.005</td>
+                <td>0.005</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+            </tr>
+            </table>>
+        ]
+
+        mix:i01 -> receive_1:o01
+        mix:i02 -> receive_2:o01
+        mix:i03 -> receive_3:o01
+        mix:i04 -> prev_mix_4:o01
+        mix:i05 -> prev_mix_5:o01
+    }
+    #+END_SRC
