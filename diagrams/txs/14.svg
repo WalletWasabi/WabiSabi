@@ -49,19 +49,19 @@
 <title>prev_mix</title>
 <text text-anchor="start" x="13.5" y="-31.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">out</text>
 <polygon fill="none" stroke="#7f7f7f" points="29.5,-25 29.5,-43 60.5,-43 60.5,-25 29.5,-25"/>
-<text text-anchor="start" x="37" y="-31.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.01</text>
+<text text-anchor="start" x="39" y="-31.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.1</text>
 <polygon fill="#9acd32" stroke="transparent" points="62.5,-25 62.5,-43 93.5,-43 93.5,-25 62.5,-25"/>
 <polygon fill="none" stroke="#000000" stroke-width="2" points="63.5,-26 63.5,-42 92.5,-42 92.5,-26 63.5,-26"/>
-<text text-anchor="start" x="70" y="-31.8" font-family="Times,serif" font-size="9.00" fill="#000000">0.01</text>
+<text text-anchor="start" x="72" y="-31.8" font-family="Times,serif" font-size="9.00" fill="#000000">0.1</text>
 <polygon fill="none" stroke="#7f7f7f" points="95.5,-25 95.5,-43 126.5,-43 126.5,-25 95.5,-25"/>
-<text text-anchor="start" x="103" y="-31.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.01</text>
+<text text-anchor="start" x="105" y="-31.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.1</text>
 <text text-anchor="start" x="16" y="-12.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">in</text>
 <polygon fill="none" stroke="#7f7f7f" points="29.5,-7 29.5,-23 60.5,-23 60.5,-7 29.5,-7"/>
-<text text-anchor="start" x="32.5" y="-12.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.0101</text>
+<text text-anchor="start" x="32.5" y="-12.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.1001</text>
 <polygon fill="none" stroke="#7f7f7f" points="62.5,-7 62.5,-23 93.5,-23 93.5,-7 62.5,-7"/>
-<text text-anchor="start" x="65.5" y="-12.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.0101</text>
+<text text-anchor="start" x="65.5" y="-12.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.1001</text>
 <polygon fill="none" stroke="#7f7f7f" points="95.5,-7 95.5,-23 126.5,-23 126.5,-7 95.5,-7"/>
-<text text-anchor="start" x="98.5" y="-12.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.0101</text>
+<text text-anchor="start" x="98.5" y="-12.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.1001</text>
 <polygon fill="none" stroke="#7f7f7f" points="8,-4 8,-46 129,-46 129,-4 8,-4"/>
 </g>
 <!-- mix&#45;&gt;prev_mix -->

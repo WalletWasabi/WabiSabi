@@ -48,13 +48,13 @@
 <text text-anchor="start" x="373.5" y="-119.8" font-family="Times,serif" font-size="9.00" fill="#000000">0.005</text>
 <polygon fill="none" stroke="#7f7f7f" points="400.5,-113 400.5,-131 427.5,-131 427.5,-113 400.5,-113"/>
 <text text-anchor="start" x="403.5" y="-119.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">0.001</text>
-<polygon fill="#ffd700" stroke="transparent" points="429.5,-113 429.5,-131 462.5,-131 462.5,-113 429.5,-113"/>
+<polygon fill="#ff7f50" stroke="transparent" points="429.5,-113 429.5,-131 462.5,-131 462.5,-113 429.5,-113"/>
 <polygon fill="none" stroke="#000000" stroke-width="2" points="430.5,-114 430.5,-130 461.5,-130 461.5,-114 430.5,-114"/>
 <text text-anchor="start" x="433.5" y="-119.8" font-family="Times,serif" font-size="9.00" fill="#000000">0.0005</text>
-<polygon fill="#ffd700" stroke="transparent" stroke-width="2" points="464.5,-113 464.5,-131 497.5,-131 497.5,-113 464.5,-113"/>
+<polygon fill="#ff7f50" stroke="transparent" stroke-width="2" points="464.5,-113 464.5,-131 497.5,-131 497.5,-113 464.5,-113"/>
 <polygon fill="none" stroke="#000000" stroke-width="2" points="465.5,-114 465.5,-130 496.5,-130 496.5,-114 465.5,-114"/>
 <text text-anchor="start" x="468.5" y="-119.8" font-family="Times,serif" font-size="9.00" fill="#000000">0.0002</text>
-<polygon fill="#ffd700" stroke="transparent" stroke-width="2" points="499.5,-113 499.5,-131 532.5,-131 532.5,-113 499.5,-113"/>
+<polygon fill="#ff7f50" stroke="transparent" stroke-width="2" points="499.5,-113 499.5,-131 532.5,-131 532.5,-113 499.5,-113"/>
 <polygon fill="none" stroke="#000000" stroke-width="2" points="500.5,-114 500.5,-130 531.5,-130 531.5,-114 500.5,-114"/>
 <text text-anchor="start" x="503.5" y="-119.8" font-family="Times,serif" font-size="9.00" fill="#000000">0.0002</text>
 <text text-anchor="start" x="16" y="-99.8" font-family="Times,serif" font-size="9.00" fill="#7f7f7f">in</text>
