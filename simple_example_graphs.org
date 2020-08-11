@@ -10,7 +10,7 @@
 #+END_COMMENT
 
 * Notes
-- These example are meant to illustrate how the building blocks work and consequences/trade-offs of applying them in various ways, not all examples are desirable. Costs for privacy mostly reduce as the examples progress.
+- These example are meant to illustrate how WabiSabi can be used as a building blocks and consequences/trade-offs of applying it in various ways, not all examples are desirable. Costs for privacy mostly reduce as the examples progress.
 - A single user's outputs are highlighted in various example transaction graphs.
 - Time flows up and arrows from inputs point at previous outputs in line with Satoshi's true original vision.
 - To keep illustrated CoinJoin transactions to a reasonable size most examples have 3 participants and arbitrary input and output amount registrations are always allowed (no coordinator enforced anonymity set). Previous mixes are always simplified to an equal amount CoinJoin with 3 participants.
@@ -132,14 +132,14 @@
                  <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.05</font></td>
                  <td>0.05</td>
                  <td>0.05</td>
-                 <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
                  <td>0.02</td>
-                 <td border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
-                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
-                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.002</font></td>
-                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
-                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
-                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                 <td border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0005</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
              </tr>
              <tr><td border="0">in</td>
                  <td>0.1001</td>
@@ -194,9 +194,9 @@
                   <td>0.005</td>
                   <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
                   <td>0.001</td>
-                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
-                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
-                  <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                  <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0005</font></td>
+                  <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+                  <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
               </tr>
               <tr><td border="0">in</td>
                   <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
@@ -868,14 +868,14 @@
          prev_mix [
              label =<<table cellspacing="2pt" cellpadding="2pt">
              <tr><td border="0">out</td>
-                 <td>0.01</td>
-                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
-                 <td>0.01</td>
+                 <td>0.1</td>
+                 <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.1</font></td>
+                 <td>0.1</td>
              </tr>
              <tr><td border="0">in</td>
-                 <td>0.0101</td>
-                 <td>0.0101</td>
-                 <td>0.0101</td>
+                 <td>0.1001</td>
+                 <td>0.1001</td>
+                 <td>0.1001</td>
              </tr>
              </table>>
          ]
@@ -1298,10 +1298,10 @@
                 <td>0.08813814</td>
                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.03916501</font></td>
                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.02638449</font></td>
-                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
                 <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00934178</font></td>
                 <td>0.01</td>
-                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
                 <td>0.001</td>
                 <td>0.0005</td>
                 <td port="coord" bgcolor="black">0.00027058</td>
@@ -1463,6 +1463,11 @@
     #+END_SRC
   - Same as previous example but with more participants
 
+    This can be thought of as the first example of a proper radix knapsack
+    CoinJoin in this document, since every arbitrary amount is supported by a at
+    least two inputs or outputs for each standard denomination which would be
+    used in its decomposition.
+
     \( \{ 0.736, 0.321, 0.2471, 0.02, 0.001 \} \mapsto \{ 0.03916501, 0.02638449, 0.00934178, 1.0, 0.2, 0.05, \underbrace{0.00010872}_\mathrm{prepaid} \} \)
     #+BEGIN_SRC dot :file diagrams/txs/21.svg
     digraph {
@@ -1609,3 +1614,535 @@
         mix:i05 -> prev_mix_5:o01
     }
     #+END_SRC
+  - Unbatched Split, Mix, Spend
+
+    This example is primarily to motivate the previous two, and reflects the
+    kind of mixing that may be required to handle arbitrary amounts. If other
+    participants in CoinJoin transactions where funds are swept do not provide
+    denominations providing sufficient unlinkability between the input and
+    outputs, or the transactions were not CoinJoins at all (as illustrated here)
+    then standard denomination outputs will not have a sufficient anonymity set
+    to be used for payments without mixing first.
+
+    Note the complications introduced by ensuring that inputs used for fees do
+    not reveal linking information, this could be done more efficiently by
+    paying the fees using already mixed outputs or prepaid fee credentials.
+
+    \( \{ 0.736 \} \mapsto \{ 0.5, 0.2, 0.02, 0.01, 0.005, 0.0005, 0.0002, 0.0002 \} \)
+
+    \( \{ 0.321 \} \mapsto \{ 0.2, 0.1, 0.02, 0.0005, 0.0002, 0.0002 \} \)
+
+    \( \{ 0.2471 \} \mapsto \{ 0.2, 0.02, 0.02, 0.005, 0.002 \} \)
+    
+    \( \{ 0.005, 0.005 \} \mapsto \{ 0.00934178, 0.00055822 \} \)
+
+    \( \{ 0.02, 0.02 \} \mapsto \{ 0.03916501, 0.00073499 \} \)
+
+    \( \{ 0.02, 0.01 \} \mapsto \{ 0.02638449, 0.00351551 \} \)
+
+    #+BEGIN_SRC dot :file diagrams/txs/22.svg
+    digraph {
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+        graph [ranksep=1]
+
+        spend_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00934178</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00055822</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td port="i01" border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+            </tr>
+            </table>>
+        ]
+
+        spend_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.03916501</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00073499</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td port="i01" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+            </tr>
+            </table>>
+        ]
+
+        spend_3 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.02638449</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.00351551</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td port="i01" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.01</font></td>
+            </tr>
+            </table>>
+        ]
+
+        mix_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.02</td>
+                <td>0.02</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td port="o02" border="2pt" color="black" bgcolor="coral"><font color="black">0.0001</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0201</td>
+                <td>0.0201</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+            </tr>
+            </table>>
+        ]
+
+        mix_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.02</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td>0.02</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0001</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0201</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+                <td>0.02</td>
+                <td>0.0001</td>
+            </tr>
+            </table>>
+        ]
+
+        mix_3 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.02</td>
+                <td>0.02</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.001</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0005</font></td>
+                <td port="o02" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0201</td>
+                <td>0.0201</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+            </tr>
+            </table>>
+        ]
+
+        mix_4 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.01</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                <td>0.01</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.01</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.0001</font></td>
+            </tr>
+            </table>>
+        ]
+
+        mix_5 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.005</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+                <td>0.005</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0001</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+            </tr>
+            </table>>
+        ]
+
+        mix_6 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.005</td>
+                <td>0.005</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0001</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.0051</td>
+                <td>0.0051</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+            </tr>
+            </table>>
+        ]
+
+        sweep_1 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.5</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.2</font></td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                <td port="o02" border="2pt" color="black" bgcolor="coral"><font color="black">0.01</font></td>
+                <td port="o03" border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0005</font></td>
+                <td port="o04" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+                <td port="o05" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+            </tr>
+            </table>>
+        ]
+
+        sweep_2 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.2</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.1</font></td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                <td port="o02" border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.0005</font></td>
+                <td port="o03" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+                <td port="o04" border="2pt" color="black" bgcolor="coral"><font color="black">0.0002</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.321</font></td>
+            </tr>
+            </table>>
+        ]
+
+        sweep_3 [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.2</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                <td port="o01" border="2pt" color="black" bgcolor="coral"><font color="black">0.02</font></td>
+                <td port="o02" border="2pt" color="black" bgcolor="coral"><font color="black">0.005</font></td>
+                <td port="o03" border="2pt" color="black" bgcolor="coral"><font color="black">0.002</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td port="i01" border="2pt" color="black" bgcolor="coral"><font color="black">0.2471</font></td>
+            </tr>
+            </table>>
+        ]
+
+        spend_1:i01:s -> mix_5:o01
+        spend_1:i02:s -> mix_6:o01
+
+        spend_2:i01:s -> mix_2:o01
+        spend_2:i02:s -> mix_3:o01
+
+        spend_3:i01:s -> mix_1:o01
+        spend_3:i02:s -> mix_4:o01
+
+        mix_1:i01:s -> sweep_1:o01
+        mix_1:i02:s -> sweep_1:o04
+
+        mix_2:i01:s -> sweep_2:o01
+        mix_2:i02:s -> sweep_2:o03
+
+        mix_3:i01:s -> sweep_3:o01
+        mix_3:i02:s -> sweep_3:o03
+
+        mix_4:i01:s -> sweep_1:o02
+        mix_4:i02:s -> mix_1:o02
+
+        mix_5:i01:s -> sweep_2:o02
+        mix_5:i02:s -> sweep_2:o04
+
+        mix_6:i01:s -> sweep_3:o02
+        mix_6:i02:s -> mix_3:o02
+
+    }
+    #+END_SRC
+  - Batched Split Mix, Spend in separate steps
+
+    This is example is somewhere in between the last two, where the individual
+    operations are combined into CoinJoin transactions, with no other
+    participants in the sweep and the spend transactions. Although there no
+    other participants the user's operations are not linked since consolidation
+    is avoided (resulting in the same UTXO set bloat as the previous example),
+    requiring 3 distinct steps instead of allowing all operations being included
+    in just a single transaction. Note that unlike the previous examples the
+    user pays 0.0003 in combined fees in each transaction, simulating 3 users
+    (as opposed to say 0.0001, which would be a privacy concern). In a realistic
+    scenario this would not be the case since the number of users does not play
+    any part in the calculations, see below.
+
+    \( \{ 0.736, 0.321, 0.2471 \} \mapsto \{ 0.5, 0.2, 0.02, 0.01, 0.005, 0.0005, 0.0002, 0.0002, 0.2, 0.1, 0.02, 0.0005, 0.0002, 0.0002, 0.2, 0.02, 0.02, 0.005, 0.002 \} \)
+    
+    \( \{ 0.02, 0.02, 0.02, 0.01, 0.005, 0.005 \} \mapsto \{ 0.00934178, 0.0005, 0.00005822, 0.03916501, 0.0005, 0.0002, 0.00003499, 0.02638449, 0.002, 0.001, 0.0005, 0.00001551 \} \)
+
+    #+BEGIN_SRC dot :file diagrams/txs/23.svg
+    digraph {
+        node [shape=none,fontsize=9,color=grey50,fontcolor=grey50]
+        graph [ranksep=1]
+
+        spend [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.03916501</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.02638449</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.00934178</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.002</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.001</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.00003499</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.00005822</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.00001551</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td port="i01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td port="i03" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td port="i04" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                <td port="i05" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+                <td port="i06" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+            </tr>
+            </table>>
+        ]
+
+        mix [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.02</td>
+                <td port="o01" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td>0.02</td>
+                <td port="o02" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td>0.02</td>
+                <td port="o03" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.02</font></td>
+                <td>0.01</td>
+                <td>0.01</td>
+                <td>0.01</td>
+                <td port="o04" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.01</font></td>
+                <td>0.01</td>
+                <td>0.005</td>
+                <td port="o05" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+                <td port="o06" border="2pt" color="black" bgcolor="olivedrab3"><font color="black">0.005</font></td>
+                <td>0.005</td>
+                <td>0.002</td>
+                <td>0.002</td>
+                <td>0.002</td>
+                <td>0.001</td>
+                <td>0.001</td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0001</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0001</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0001</font></td>
+                <td>0.0001</td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.05</td>
+                <td>0.0201</td>
+                <td>0.02</td>
+                <td port="i01" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td port="i02" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td>0.02</td>
+                <td port="i03" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td>0.0101</td>
+                <td>0.0101</td>
+                <td port="i04" border="2pt" color="black" bgcolor="coral"><font color="black">0.01</font></td>
+                <td>0.01</td>
+                <td>0.01</td>
+                <td port="i05" border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td>0.005</td>
+                <td port="i06" border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td>0.005</td>
+                <td>0.0021</td>
+                <td>0.002</td>
+                <td>0.002</td>
+                <td>0.001</td>
+                <td>0.001</td>
+                <td port="i07" border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td port="i08" border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td port="i09" border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td>0.0002</td>
+                <td>0.0001</td>
+                <td>0.0001</td>
+            </tr>
+            </table>>
+        ]
+
+        sweep [
+            label =<<table cellspacing="2pt" cellpadding="2pt">
+            <tr><td border="0">out</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.5</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.2</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.2</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.2</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.1</font></td>
+                <td port="o01" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td port="o02" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td port="o03" border="2pt" color="black" bgcolor="gold"><font color="black">0.02</font></td>
+                <td port="o04" border="2pt" color="black" bgcolor="coral"><font color="black">0.01</font></td>
+                <td port="o05" border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td port="o06" border="2pt" color="black" bgcolor="gold"><font color="black">0.005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.002</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.002</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.002</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0005</font></td>
+                <td port="o07" border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td port="o08" border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td port="o09" border="2pt" color="black" bgcolor="gold"><font color="black">0.0002</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0001</font></td>
+                <td border="2pt" color="black" bgcolor="gold"><font color="black">0.0001</font></td>
+            </tr>
+            <tr><td border="0">in</td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.736</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.321</font></td>
+                <td border="2pt" color="black" bgcolor="coral"><font color="black">0.2471</font></td>
+            </tr>
+            </table>>
+        ]
+
+        spend:i01 -> mix:o01
+        spend:i02 -> mix:o02
+        spend:i03 -> mix:o03
+        spend:i04 -> mix:o04
+        spend:i05 -> mix:o05
+        spend:i06 -> mix:o06
+
+        mix:i01 -> sweep:o01
+        mix:i02 -> sweep:o02
+        mix:i03 -> sweep:o03
+        mix:i04 -> sweep:o04
+        mix:i05 -> sweep:o05
+        mix:i06 -> sweep:o06
+        mix:i07 -> sweep:o07
+        mix:i08 -> sweep:o08
+        mix:i09 -> sweep:o09
+    }
+    #+END_SRC
+* Additional Notes
+** Powers of 2
+  Using only powers of 2 or only a 1-2-5 series can result in some suboptimal
+  decompositions of amounts, e.g. the digits 8 and 9 each require 3 standard
+  denominations (5+2+1, 5+2+2), and subtracting a small amount from a power of
+  two requires many small outputs to be created as change.
+
+  This can be somewhat alleviated by utilizing both depending on the
+  representation called for by arbitrary amounts. Amounts with a bitcoin unit
+  bias will likely favor 1-2-5, but amounts relating to fiat prices will often
+  be more efficiently represented as binary. In particular auxiliary inputs of
+  either kind can be used such that the total amount taken back as change from
+  an arbitrary operation approaches a standard denomination value. This is
+  potentially useful since amounts typically have a low hamming weight in one
+  base, but not both, and outputs of either kind may be on hand depending on a
+  user's preferences. Excess precision from price conversions can be alleviated
+  with prepaid fee tokens or simply by rounding amounts as appropriate.
+
+  |       sats |         btc |       bits in little endian order | notes                                                    |
+  |------------+-------------+-----------------------------------+----------------------------------------------------------|
+  |          1 |       1e-08 |                                 1 |                                                          |
+  |          2 |       2e-08 |                                01 |                                                          |
+  |          4 |       4e-08 |                               001 |                                                          |
+  |          5 |       5e-08 |                               101 |                                                          |
+  |          8 |       8e-08 |                              0001 |                                                          |
+  |         10 |       1e-07 |                              0101 |                                                          |
+  |         16 |     1.6e-07 |                             00001 |                                                          |
+  |         20 |       2e-07 |                             00101 |                                                          |
+  |         32 |     3.2e-07 |                            000001 |                                                          |
+  |         50 |       5e-07 |                            010011 |                                                          |
+  |         64 |     6.4e-07 |                           0000001 |                                                          |
+  |        100 |       1e-06 |                           0010011 |                                                          |
+  |        128 |    1.28e-06 |                          00000001 |                                                          |
+  |        200 |       2e-06 |                          00010011 |                                                          |
+  |        256 |    2.56e-06 |                         000000001 |                                                          |
+  |        500 |       5e-06 |                         001011111 |                                                          |
+  |        512 |    5.12e-06 |                        0000000001 |                                                          |
+  |       1000 |       1e-05 |                        0001011111 | smallest practical denomination (larger than dust limit) |
+  |       1024 |   1.024e-05 |                       00000000001 |                                                          |
+  |       2000 |       2e-05 |                       00001011111 |                                                          |
+  |       2048 |   2.048e-05 |                      000000000001 |                                                          |
+  |       4096 |   4.096e-05 |                     0000000000001 |                                                          |
+  |       5000 |       5e-05 |                     0001000111001 |                                                          |
+  |       8192 |   8.192e-05 |                    00000000000001 |                                                          |
+  |      10000 |      0.0001 |                    00001000111001 | 
+  |      16384 |  0.00016384 |                   000000000000001 | smallest reasonable denomination?                        |
+  |      20000 |      0.0002 |                   000001000111001 |                                                          |
+  |      32768 |  0.00032768 |                  0000000000000001 |                                                          |
+  |      50000 |      0.0005 |                  0000101011000011 |                                                          |
+  |      65536 |  0.00065536 |                 00000000000000001 |                                                          |
+  |     100000 |       0.001 |                 00000101011000011 |                                                          |
+  |     131072 |  0.00131072 |                000000000000000001 |                                                          |
+  |     200000 |       0.002 |                000000101011000011 |                                                          |
+  |     262144 |  0.00262144 |               0000000000000000001 |                                                          |
+  |     500000 |       0.005 |               0000010010000101111 |                                                          |
+  |     524288 |  0.00524288 |              00000000000000000001 |                                                          |
+  |    1000000 |        0.01 |              00000010010000101111 |                                                          |
+  |    1048576 |  0.01048576 |             000000000000000000001 |                                                          |
+  |    2000000 |        0.02 |             000000010010000101111 |                                                          |
+  |    2097152 |  0.02097152 |            0000000000000000000001 |                                                          |
+  |    4194304 |  0.04194304 |           00000000000000000000001 |                                                          |
+  |    5000000 |        0.05 |           00000010110100100011001 |                                                          |
+  |    8388608 |  0.08388608 |          000000000000000000000001 |                                                          |
+  |   10000000 |         0.1 |          000000010110100100011001 |                                                          |
+  |   16777216 |  0.16777216 |         0000000000000000000000001 |                                                          |
+  |   20000000 |         0.2 |         0000000010110100100011001 |                                                          |
+  |   33554432 |  0.33554432 |        00000000000000000000000001 |                                                          |
+  |   50000000 |         0.5 |        00000001000011110101111101 |                                                          |
+  |   67108864 |  0.67108864 |       000000000000000000000000001 |                                                          |
+  |  100000000 |           1 |       000000001000011110101111101 |                                                          |
+  |  134217728 |  1.34217728 |      0000000000000000000000000001 |                                                          |
+  |  200000000 |           2 |      0000000001000011110101111101 |                                                          |
+  |  268435456 |  2.68435456 |     00000000000000000000000000001 |                                                          |
+  |  500000000 |           5 |     00000000101001101011001110111 |                                                          |
+  |  536870912 |  5.36870912 |    000000000000000000000000000001 |                                                          |
+  | 1000000000 |          10 |    000000000101001101011001110111 |                                                          |
+  | 1073741824 | 10.73741824 |   0000000000000000000000000000001 |                                                          |
+  | 2000000000 |          20 |   0000000000101001101011001110111 |                                                          |
+  | 2147483648 | 21.47483648 |  00000000000000000000000000000001 |                                                          |
+  | 4294967296 | 42.94967296 | 000000000000000000000000000000001 |                                                          |
+  | 5000000000 |          50 | 000000000100111110100000010101001 |                                                          |
+*** TODO estimate overhead for receiving/spending various amounts privately
+    - various common "psychological" numbers
+    - actual amounts used in some random blocks
+
+    calculate overheads:
+
+    - joinmarket (depth?)
+    - 1-2-5 series
+      - samourai (0.01, 0.05, 0.5)
+      - wasabi ($0.1+\delta$)
+    - radix knapsack w/ both bases
+      - poor conditions
+      - favorable conditions
+      - favorable conditions and large batch size
+** Realistic Fees
+   In the above examples fees were assumed to be 0.0001 per participant to keep
+   illustrations simpler. However, the coordinator does not know how many users
+   are participating. This means that mining fees and coordination fees have to
+   be calculated separately for each registration, requiring the credential
+   balance proof to account for the effective fees after any discounts.
+
+   Mining fees are a linear function of the block weight per registration. These
+   are deducted for input registrations and output registrations separately.
+
+   Coordination fees can be a linear function of the amount, i.e. some constant
+   term enforcing a minimum, and some scaling factor of the amount. These fees
+   can be deducted from either inputs or outputs.
