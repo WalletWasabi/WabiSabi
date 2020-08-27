@@ -126,11 +126,10 @@ The cryptographic counterparts in the above analogy are as follows:
     the credential was issued.
   - The fake moustaches represent
     [Tor](https://en.wikipedia.org/wiki/Tor_\(anonymity_network\))
-    circuits through which the users to connect to the coordinator as
+    circuits through which the users connect to the coordinator under
     pseudonymous network identities.
   - Setting the envelopes on fire is a bit of a looser analogy. First,
-    it represents serial numbers added to the credentials (another
-    Pedersen commitment in each credential), which must be revealed to
+    it represents serial numbers for to the credentials (derived from the randomness in the commitment), which is used to
     prevent double spending. Secondly, it gives an intuition for the
     homomorphic property of the value commitments which simplifies
     proving that the value commitments add up to the correct input and
