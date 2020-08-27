@@ -129,8 +129,8 @@ The cryptographic counterparts in the above analogy are as follows:
     circuits through which the users connect to the coordinator under
     pseudonymous network identities.
   - Setting the envelopes on fire is a bit of a looser analogy. First,
-    it represents serial numbers for to the credentials (derived from the randomness in the commitment), which is used to
+    it represents serial numbers for the credentials (derived from the randomness in the commitment), which are used to
     prevent double spending. Secondly, it gives an intuition for the
-    homomorphic property of the value commitments which simplifies
-    proving that the value commitments add up to the correct input and
+    homomorphic property of the commitments which simplifies
+    proving that they add up to the correct input and
     output values without revealing the individual summands.
