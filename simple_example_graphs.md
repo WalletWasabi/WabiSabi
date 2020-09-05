@@ -15,7 +15,7 @@
 
 # Single Operation
 
-These example illustrate receiving and sweeping or remixing of a single
+These examples illustrate receiving and sweeping or remixing of a single
 output. Standard denomination outputs, which are likely to have a larger
 anonymity set, are created. Standard denominations may still need to be
 subsequently remixed to ensure privacy since even if the coordinator enforces
