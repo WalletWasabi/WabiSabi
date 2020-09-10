@@ -75,7 +75,7 @@ After all inputs have been registered, users can now use their envelopes
 to register output amounts. The following steps are also repeated once per
 output.
 
-Theuser will put on yet another fake moustache, come into the coordinator's
+The user will put on yet another fake moustache, come into the coordinator's
 office, and place an arbitrary combination of envelopes on the scale.
 
 The coordinator checks that the seals are authentic, and then to ensure
