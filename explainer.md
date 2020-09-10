@@ -32,7 +32,7 @@ will need a number of envelopes, some sand, their own scales for private
 use, and some convincing fake moustaches for incognito interactions
 with the coordinator.
 
-We will assume the weight of the envelope themselves is negligible, or
+We will assume the weight of the envelopes themselves is negligible, or
 can be easily corrected for, perhaps because they have a standard
 weight.
 
