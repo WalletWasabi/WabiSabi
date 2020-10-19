@@ -124,30 +124,31 @@ The Interaction Diagram denotes Satoshi actors those are polling the Coordinator
 - `Phase`
 - `RoundId`
 - `PhaseDeadline`
-- `BlameOf` // If it's a blame round, then it is the `RoundId` of the parent round.
-- `PhaseStatus` // What else the response contains depends on the current phase.
+- `BlameOf` - If it's a blame round, then it is the `RoundId` of the parent round.
+- `PhaseStatus` - What else the response contains depends on the current phase.
 
 ### `PhaseStatus` in InputRegistration
 
-- `CredentialIssuerParameters` // 2 public curve points (C_w, I)
+- `CredentialIssuerParams` - 2 public curve points (C_w, I)
 - `RegisteredInputCount`
 - `MaxRegisteredInputCount`
 - `FeeRate`
 - `ReconfirmationDeadline`
 
-#### `CoordinatorParameters`
+#### `RoundParams`
 
-For input registration the user submits a `CoordParamSig`, which is a signature on the hash of the `CoordinatorParameters`. It is used to 
+For input registration the user submits a `RoundParamsSig`, which is a signature on the hash of the `RoundParams`. It is used to 
 - prove ownership of an input
 - prove spendability of an input
-- ensure every other participant in the round got the same `CoordinatorParameters`, thus the coordinator cannot fingerprint them by giving out different parameters to different users.
+- ensure every other participant in the round got the same `RoundParams`, thus the coordinator cannot fingerprint them by giving out different parameters to different users.
 
-`CoordinatorParameters` consists of `RoundId`, `BlameOf`, `CredentialIssuerParameters` and `FeeRate`.
+`RoundParams` consists of `RoundId`, `BlameOf`, `CredentialIssuerParams` and `FeeRate`.
 
 ### `PhaseStatus` in ConnectionConfirmation
 
 - `ConfirmedInputCount`
 - `MaxConfirmedInputCount`
+- `Inputs` AND `RoundParamsSigs` - Round parameter signatures corresponding to inputs. Client can check the validity before confirming connection. If this check takes too long (for example because of RPC calls) then the client would be punished, but it the round could progress just fine.
 
 ### `PhaseStatus` in OutputRegistration
 
@@ -160,7 +161,6 @@ For input registration the user submits a `CoordParamSig`, which is a signature 
 - `SignedInputCount`
 - `MaxSignedInputCount`
 - `EncryptedUnsignedCoinJoin`
-- `InputRoundParameterSignatures`
 
 #### `EncryptedUnsignedCoinJoin`
 
