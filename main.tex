@@ -222,7 +222,7 @@ For fault tolerance, request handling should be idempotent, allowing a client to
 \end{figure}
 
 The user submits an input of amount $a_{\mathit{in}}$ along with $k$ group attributes, $(M_{a_i})$.
-She proves in zero knowledge that the sum of the requested sub-amounts is equal to $a_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
+They prove in zero knowledge that the sum of the requested sub-amounts is equal to $a_{\mathit{in}}$ and that the individual amounts are positive integers in the allowed range.
 
 The coordinator verifies the proofs, and issues $k$ MACs on the requested attributes, along with a proof of correct generation of the MAC, as in \textit{Credential Issuance} protocol of \cite{chase2019signal}.
 
