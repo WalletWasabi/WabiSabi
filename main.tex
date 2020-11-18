@@ -103,7 +103,7 @@ We define \emph{CoinJoin inefficiency} as the fraction of non-mixed change outpu
 
 \subsubsection{Minimum denomination}
 
-In order to participate, a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins are usually slightly higher than the announced, agreed upon base denomination. Thus participants sometimes get back slightly more value in the CoinJoins than they put in.} We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see \cref{fig:minimumdenomination}.
+In order to participate, a user's combined input amount must be greater or equal to the base denomination.\footnote{The observed base denominations in Wasabi's CoinJoins are usually slightly higher than the announced, agreed upon base denomination. Thus, participants sometimes get back slightly more value in the CoinJoins than they put in.} We observe, that considerable portion of CoinJoin inputs are less than this minimum denomination, see \cref{fig:minimumdenomination}.
 
 \begin{figure}[h!]
     \centering
@@ -114,7 +114,7 @@ In order to participate, a user's combined input amount must be greater or equal
 
 Even when users are able to provide several smaller value inputs with total value greater than the minimum denomination, the coordinator knows those inputs belong to the same user. In an ideal mixing protocol the coordinator should not obtain more information than the already available public ledger data by coordinating the CoinJoin transaction. This information removes many degrees of freedom when assigning non-derived sub-transactions~\cite{maurer2017anonymous} or link probability~\cite{laurentmt2015bitcoin}, reducing intrinsic ambiguity as well as the computational cost when evaluating potential links.
 
-Furthermore if users consolidate coins before the CoinJoin in an additional transaction in order to be able to participate in a CoinJoin, then this link is revealed publicly based on the common input ownership heuristic~\cite{meiklejohn2013fistful}.
+Furthermore, if users consolidate coins before the CoinJoin in an additional transaction in order to be able to participate in a CoinJoin, then this link is revealed publicly based on the common input ownership heuristic~\cite{meiklejohn2013fistful}.
 
 \subsubsection{Varying denominations} Since users pay mining and coordination fees the denominations are gradually reduced between rounds of consecutive CoinJoins in order to make it possible for users to mix several times without providing additional inputs. This introduces a perverse incentive to minimize coordination fees by remixing in quick succession in order, resulting in a smaller anonymity set than with time-staggered remixes.
 
@@ -188,7 +188,7 @@ A CoinJoin round consists of an Input Registration, an Output Registration and a
 \begin{enumerate}
     \item While identifying non-compliant inputs during Input Registration phase is trivial, there is no reason to issue penalties at this point.
     \item Identifying non-compliant inputs during Output Registration phase is not possible, thus this phase always completes and progresses to the Signing phase.
-    \item During Signing phase, inputs which are not signed are non-compliant inputs and they shall be issued penalties.
+    \item During Signing phase, inputs which are not signed are non-compliant inputs, and they shall be issued penalties.
 \end{enumerate}
 
 The cryptography in WabiSabi ensures honest participants always agree to sign the final CoinJoin transaction if the coordinator is honest. Anonymous credentials allow the coordinator to verify that amounts of each user's output registrations are funded by input registrations without learning specific relationships between inputs and outputs.
@@ -201,7 +201,7 @@ In order to facilitate construction of a CoinJoin transaction while protecting t
 
 \subsection{Registration}
 
-To aid intuition we first describe a pair of protocols, where credentials are issued during input registration, and then then presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the range of amount values\footnote{$\log_2(2099999997690000) \approx 50.9$}. For better privacy and efficiency these are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{sec:details}.
+To aid intuition we first describe a pair of protocols, where credentials are issued during input registration, and then presented at output registration. $k$ denotes the number of credentials used in registration requests, and $a_{\mathit{max}} = 2^{51}-1$ constrains the range of amount values\footnote{$\log_2(2099999997690000) \approx 50.9$}. For better privacy and efficiency these are then generalized into a unified protocol used for both input and output registration, where every registration involves both presentation and issuance of credentials. This protocol is described in detail in \cref{sec:details}.
 
 In order to maintain privacy clients must isolate registration requests using unique network identities. A single network identity must not expose more than one input or output, or more than one set of requested or presented credentials.
 
@@ -232,7 +232,7 @@ The coordinator verifies the proofs, and issues $k$ MACs on the requested attrib
     \begin{mdframed}
     \begin{enumerate}
         \item The user sends $k$ randomized commitments, a proof of a valid MAC for the corresponding non-randomized commitments, serial numbers with a proof of their validity, and finally a proof of the sum of the amounts: $((C_{a_i},\pi_{i}^{\textit{MAC}},S_i,\pi_i^{\textit{serial}})^{k}_{i=1}, \pi^{\textit{sum}}, a_{\textit{out}})$.
-        \item The coordinator verifies proofs and registers requested output iff. all proofs are valid and the serial numbers have not been used before.
+        \item The coordinator verifies proofs and registers requested output if all proofs are valid and the serial numbers have not been used before.
     \end{enumerate}
 \end{mdframed}
     \caption{Output Registration protocol}
@@ -293,7 +293,7 @@ The user fetches the finalized but unsigned transaction from the coordinator. If
 
 To illustrate the above protocols, \cref{fig:ex1,fig:ex2} show how a user might register inputs and outputs when credentials are only presented during the output registration phase and \cref{fig:ex3,fig:ex4} show the unified protocol, when credentials are both presented and requested in every registration request.
 
-Registration requests are depicted as vertices labeled with $\Delta_a$, a double stroke denoting output registrations. A credential is an edge from the registration in which it was requested to the registration where it was presented, also labeled with the amount. The vertex's label must be equal to the balance of the labels of its incoming edges and its outgoing edges. Note that edges and their labels are only known to the owners of the credentials. For simplicity we omit credentials with zero value.
+Registration requests are depicted as vertices labeled with $\Delta_a$, a double stroke denoting output registrations. A credential is an edge from the registration in which it was requested to the registration where it was presented, also labeled with the amount. The vertex's label must be equal to the balance of the labels of its incoming edges and its outgoing edges. Note that edges and their labels are only known to the owners of the credentials. For simplicity, we omit credentials with zero value.
 
 \begin{figure}[h!]
   \centering
@@ -583,7 +583,7 @@ A malicious coordinator can fully disrupt the protocol by censoring certain inpu
 \subsubsection{Malicious Users}
 Signatures can only be made after a transaction has been negotiated, and all inputs must provide a valid signature. Consequentially users can always disrupt the protocol during the final phase. Failure to sign is attributable to specific inputs and therefore can be mitigated by the coordinator. This allows the remaining honest participants to restart the protocol. Denial of service is not costless because unspent transaction outputs are a limited resource.
 
-A malicious participant still learns all of the input and output registrations\footnote{If \texttt{SIGHASH\_ANYONECANPAY} is set in the signature flags the full set of inputs could be kept known only to the coordinator until all signatures have been provided.} including amounts and scripts, so denial of service also presents privacy concerns.
+A malicious participant still learns all the input and output registrations\footnote{If \texttt{SIGHASH\_ANYONECANPAY} is set in the signature flags the full set of inputs could be kept known only to the coordinator until all signatures have been provided.} including amounts and scripts, so denial of service also presents privacy concerns.
 
 \subsection{Unlinkability}
 
@@ -635,7 +635,7 @@ In \cref{table:coinjoin,table:noncoinjoin}, $n$ denotes the number of participan
 	CoinShuffle~\cite{ruffing2014coinshuffle} &$\mathcal{O}(n^2)$ & fixed & decentralized & n.a. & \cmark\footnote{Requires only 2 honest participants.} \\
 	CoinShuffle++~\cite{ruffing2017p2p} & $\mathcal{O}(n)$ & fixed & decentralized & n.a. & \cmark\footnotemark[\value{footnote}] \\
 	CashFusion & $\mathcal{O}(n)$ & variable & centralized & \cmark\footnote{Assuming server does not participate as a verifier.} & \cmark\footnote{Transaction ambiguity guarantees are probablistic, with additional computational difficulty under assumptions.} \\
-	JoinMarket & $\mathcal{O}(n)$ & variable & by taker\footnote{Transactions are initiated and coordinated by users buying mixing offers on a decentralized markeplace.} & n.a.\footnotemark[\value{footnote}] & \cmark \\
+	JoinMarket & $\mathcal{O}(n)$ & variable & by taker\footnote{Transactions are initiated and coordinated by users buying mixing offers on a decentralized marketplace.} & n.a.\footnotemark[\value{footnote}] & \cmark \\
 	Chaumian CoinJoin & $\mathcal{O}(n)$ & fixed & centralized & \cmark & \cmark \\
 	This Work & $\mathcal{O}(n)$ & variable & centralized & \cmark & \cmark \\
 \end{tabular}
