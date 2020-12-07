@@ -12,6 +12,6 @@ A [simplified explainer](./explainer.md) with an informal description by
 analogy using real world concepts is also provoided.
 
 For more information on how the credential scheme can be applied, we also
-describe a [generic protocol](./protocol.md) (work in progress).
+describe a [generic protocol](./protocol.md).
 
-Details of the specific transaction structure are still TBD.
+Details of the specific transaction structure can be found under [amount organization](./amounts.md).
