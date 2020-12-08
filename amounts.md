@@ -16,3 +16,5 @@ Peter McCormack
 ## Approach
 
 Since this amount organization will be used in Wasabi Wallet 2.0, a sensible strategy is to start out with the current amount organization of WW1 and step by step improve upon that.
+
+
