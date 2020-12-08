@@ -11,18 +11,14 @@ var users = 40;
 var randomAmounts = Sample.Amounts.GetRandomElements(inputs);
 var groups = randomAmounts.RandomGroups(users).ToArray();
 
-var outputCount = 0;
 IMixer mixer = new WwiMixer();
-var mix = mixer.CompleteMix(groups);
-foreach (var userOutputs in mix)
-{
-    outputCount += userOutputs.Count();
-    Console.ForegroundColor = ConsoleColor.Green;
-    Console.Write($"{userOutputs.Sum()}\t");
-    Console.ForegroundColor = ConsoleColor.White;
-    Console.WriteLine($"{string.Join(", ", userOutputs.OrderByDescending(x => x))}");
-    Console.WriteLine();
-}
+var mix = mixer.CompleteMix(groups).ToArray();
+
+Console.WriteLine($"Number of users:\t{users}");
+Console.WriteLine($"Number of inputs:\t{inputs}");
+Console.WriteLine($"Number of outputs:\t{mix.Sum(x => x.Count())}");
+
+Console.WriteLine();
 
 foreach (var (value, count) in mix
     .SelectMany(x => x).GroupBy(x => x)
@@ -35,12 +31,7 @@ foreach (var (value, count) in mix
         Console.ForegroundColor = ConsoleColor.Red;
     }
     Console.WriteLine($"There are {count} occurrences of {value} BTC output.");
-    Console.ForegroundColor = ConsoleColor.White;
+    Console.ForegroundColor = ConsoleColor.Gray;
 }
-
-Console.WriteLine();
-Console.WriteLine($"Number of users:\t{users}");
-Console.WriteLine($"Number of inputs:\t{inputs}");
-Console.WriteLine($"Number of outputs:\t{outputCount}");
 
 Console.ReadLine();
