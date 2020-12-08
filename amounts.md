@@ -103,3 +103,75 @@ There are 7 occurrences of 0.16777216 BTC output.
 There are 4 occurrences of 0.33554432 BTC output.
 There are 2 occurrences of 0.67108864 BTC output.
 ```
+
+#### Dust Strategy
+
+So far we've created a transaction that isn't standard, because many outputs, like one satoshi outputs are present. To manage this issue and make our transaction standard, we want to make sure users don't register small outputs by setting a dust limit.  
+Dismissing the dust by the user is fine, because it's not significant amount. Let's assume our dust limit is 1000 satoshis, which should satisfy the standardness rules.
+
+```
+Number of users:        40
+Number of inputs:       50
+Number of outputs:      538
+
+There are 40 occurrences of 0.00001024 BTC output.
+There are 40 occurrences of 0.00002048 BTC output.
+There are 40 occurrences of 0.00004096 BTC output.
+There are 1 occurrences of 0.00007692 BTC output.
+There are 40 occurrences of 0.00008192 BTC output.
+There are 40 occurrences of 0.00016384 BTC output.
+There are 39 occurrences of 0.00032768 BTC output.
+There are 39 occurrences of 0.00065536 BTC output.
+There are 1 occurrences of 0.00084648 BTC output.
+There are 39 occurrences of 0.00131072 BTC output.
+There are 1 occurrences of 0.00138943 BTC output.
+There are 1 occurrences of 0.00140782 BTC output.
+There are 1 occurrences of 0.00211015 BTC output.
+There are 39 occurrences of 0.00262144 BTC output.
+There are 1 occurrences of 0.00281426 BTC output.
+There are 1 occurrences of 0.00399417 BTC output.
+There are 36 occurrences of 0.00524288 BTC output.
+There are 1 occurrences of 0.00550693 BTC output.
+There are 1 occurrences of 0.00567492 BTC output.
+There are 1 occurrences of 0.00710041 BTC output.
+There are 1 occurrences of 0.00836727 BTC output.
+There are 1 occurrences of 0.00953079 BTC output.
+There are 1 occurrences of 0.01030543 BTC output.
+There are 1 occurrences of 0.01034971 BTC output.
+There are 35 occurrences of 0.01048576 BTC output.
+There are 1 occurrences of 0.0105057 BTC output.
+There are 1 occurrences of 0.01222353 BTC output.
+There are 1 occurrences of 0.01252416 BTC output.
+There are 1 occurrences of 0.01273416 BTC output.
+There are 1 occurrences of 0.01432513 BTC output.
+There are 1 occurrences of 0.01467416 BTC output.
+There are 1 occurrences of 0.01493107 BTC output.
+There are 1 occurrences of 0.01509005 BTC output.
+There are 1 occurrences of 0.01551344 BTC output.
+There are 1 occurrences of 0.01655845 BTC output.
+There are 1 occurrences of 0.01681699 BTC output.
+There are 26 occurrences of 0.02097152 BTC output.
+There are 1 occurrences of 0.02388936 BTC output.
+There are 1 occurrences of 0.02922127 BTC output.
+There are 1 occurrences of 0.03322046 BTC output.
+There are 1 occurrences of 0.03623939 BTC output.
+There are 1 occurrences of 0.03748776 BTC output.
+There are 15 occurrences of 0.04194304 BTC output.
+There are 1 occurrences of 0.04467416 BTC output.
+There are 9 occurrences of 0.08388608 BTC output.
+There are 1 occurrences of 0.10879512 BTC output.
+There are 1 occurrences of 0.11102965 BTC output.
+There are 9 occurrences of 0.16777216 BTC output.
+There are 1 occurrences of 0.2740125 BTC output.
+There are 1 occurrences of 0.31065568 BTC output.
+There are 2 occurrences of 0.3289216 BTC output.
+There are 8 occurrences of 0.33554432 BTC output.
+There are 1 occurrences of 0.54129616 BTC output.
+There are 3 occurrences of 0.67108864 BTC output.
+There are 1 occurrences of 0.757806 BTC output.
+There are 1 occurrences of 0.98800148 BTC output.
+There are 1 occurrences of 1.34217728 BTC output.
+```
+
+Although we handled our standardness problem, we also want to make sure we don't create uneconomical outputs. Our working formula for this is: `MAX((feerate * input spend size estimation), 1000, (minimum relay fee rate * input spend size estimation))`.
+If we choose the current fee rate to 10s/vb, and estimate our input spend size to 69 bytes, then we'll still be under the 1000 satoshi sanity fee rate, so we don't need to illustrate our new results.

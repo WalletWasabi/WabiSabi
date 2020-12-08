@@ -25,6 +25,19 @@ namespace System
             return inputSum;
         }
 
+        public static ulong Max(this IEnumerable<ulong> me)
+        {
+            var max = 0ul;
+            foreach (var item in me)
+            {
+                if (item > max)
+                {
+                    max = item;
+                }
+            }
+            return max;
+        }
+
         public static void Shuffle<T>(this IList<T> list)
         {
             var rng = new Random();

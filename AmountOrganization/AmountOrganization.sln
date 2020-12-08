@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmountOrganization", "Amoun
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmountOrganization.WWI", "AmountOrganization.WWI\AmountOrganization.WWI.csproj", "{CF3BAB10-4AAF-4567-A388-84AB7412F4CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmountOrganization.DustStrategy", "AmountOrganization.DustStrategy\AmountOrganization.DustStrategy.csproj", "{76FF51C6-DC77-4D50-A64D-3112E79E8043}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CF3BAB10-4AAF-4567-A388-84AB7412F4CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF3BAB10-4AAF-4567-A388-84AB7412F4CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF3BAB10-4AAF-4567-A388-84AB7412F4CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76FF51C6-DC77-4D50-A64D-3112E79E8043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76FF51C6-DC77-4D50-A64D-3112E79E8043}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76FF51C6-DC77-4D50-A64D-3112E79E8043}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76FF51C6-DC77-4D50-A64D-3112E79E8043}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

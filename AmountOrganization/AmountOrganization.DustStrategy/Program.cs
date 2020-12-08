@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AmountOrganization;
-using AmountOrganization.WWI;
+using AmountOrganization.DustStrategy;
 
 var inputs = 50;
 var users = 40;
@@ -9,7 +9,7 @@ var users = 40;
 var randomAmounts = Sample.Amounts.GetRandomElements(inputs);
 var groups = randomAmounts.RandomGroups(users).ToArray();
 
-IMixer mixer = new WwiMixer();
+IMixer mixer = new DustMixer();
 var mix = mixer.CompleteMix(groups).ToArray();
 
 Console.WriteLine($"Number of users:\t{users}");
