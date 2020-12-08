@@ -22,7 +22,7 @@ Since this amount organization will be used in Wasabi Wallet 2.0, a sensible str
 In order to verify our reasoning and intuitions we [sampled 8000 input amounts](./AmountOrganization/AmountOrganization/Sample.txt) from Wasabi Wallet 1.0 coinjoins around December 2020, those have not been mixed before.  
 We'll use in various ways throughout this document, mostly from code, which source can be found under [AmountOrganization solution.](./AmountOrganization)
 
-### 0. Skeleton of WWI's Amount Organization
+#### BASE: WWI Skeleton
 
 To start out, we took 50 inputs randomly out of our sample and created 40 random groupings - users - out of it. Then implemented WW1's mixing technique and got the following example output.
 
