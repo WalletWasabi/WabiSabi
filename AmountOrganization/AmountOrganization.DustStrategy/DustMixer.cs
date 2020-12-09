@@ -29,7 +29,14 @@ namespace AmountOrganization.DustStrategy
 
                 if (denom > remaining)
                 {
-                    yield return remaining;
+                    if (remaining >= DustThreshold)
+                    {
+                        yield return remaining;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"WARNING! Dust happened: {remaining} sats");
+                    }
                     break;
                 }
 

@@ -176,3 +176,80 @@ There are 1 occurrences of 1.34217728 BTC output.
 
 Although we handled our standardness problem, we also want to make sure we don't create uneconomical outputs. Our working formula for this is: `MAX((feerate * input spend size estimation), 1000, (minimum relay fee rate * input spend size estimation))`.
 If we choose the current fee rate to 10s/vb, and estimate our input spend size to 69 bytes, then we'll still be under the 1000 satoshi sanity fee rate, so we don't need to illustrate our new results.
+
+#### Fee Strategy
+
+In order to account for real world mining fees we subtracted the estimated amounts paid for every input and every output.
+
+```
+Number of users:        40
+Number of inputs:       50
+Number of outputs:      517
+Total in:               37.00194392 BTC
+Fee paid:               0.00205110 BTC
+Size:                   20511 vbyte
+Fee rate:               10 sats/vbyte
+
+There are 40 occurrences of 0.00001024 BTC output.
+There are 40 occurrences of 0.00002048 BTC output.
+There are 40 occurrences of 0.00004096 BTC output.
+There are 1 occurrences of 0.00004171 BTC output.
+There are 39 occurrences of 0.00008192 BTC output.
+There are 39 occurrences of 0.00016384 BTC output.
+There are 39 occurrences of 0.00032768 BTC output.
+There are 1 occurrences of 0.00055742 BTC output.
+There are 1 occurrences of 0.00064285 BTC output.
+There are 39 occurrences of 0.00065536 BTC output.
+There are 1 occurrences of 0.00110742 BTC output.
+There are 39 occurrences of 0.00131072 BTC output.
+There are 1 occurrences of 0.00134146 BTC output.
+There are 1 occurrences of 0.00141019 BTC output.
+There are 1 occurrences of 0.00181787 BTC output.
+There are 1 occurrences of 0.00230577 BTC output.
+There are 1 occurrences of 0.00235743 BTC output.
+There are 39 occurrences of 0.00262144 BTC output.
+There are 1 occurrences of 0.0047017 BTC output.
+There are 35 occurrences of 0.00524288 BTC output.
+There are 1 occurrences of 0.00580139 BTC output.
+There are 1 occurrences of 0.0062007 BTC output.
+There are 1 occurrences of 0.00708982 BTC output.
+There are 1 occurrences of 0.00719311 BTC output.
+There are 1 occurrences of 0.00741736 BTC output.
+There are 1 occurrences of 0.00789242 BTC output.
+There are 1 occurrences of 0.00799932 BTC output.
+There are 1 occurrences of 0.00813015 BTC output.
+There are 1 occurrences of 0.00869702 BTC output.
+There are 1 occurrences of 0.00996575 BTC output.
+There are 1 occurrences of 0.01027362 BTC output.
+There are 26 occurrences of 0.01048576 BTC output.
+There are 1 occurrences of 0.01318739 BTC output.
+There are 1 occurrences of 0.01339224 BTC output.
+There are 1 occurrences of 0.01445627 BTC output.
+There are 1 occurrences of 0.01462106 BTC output.
+There are 1 occurrences of 0.01607106 BTC output.
+There are 1 occurrences of 0.01707106 BTC output.
+There are 1 occurrences of 0.01757983 BTC output.
+There are 1 occurrences of 0.01762349 BTC output.
+There are 1 occurrences of 0.01849946 BTC output.
+There are 1 occurrences of 0.02002486 BTC output.
+There are 23 occurrences of 0.02097152 BTC output.
+There are 1 occurrences of 0.03033266 BTC output.
+There are 1 occurrences of 0.0393451 BTC output.
+There are 14 occurrences of 0.04194304 BTC output.
+There are 1 occurrences of 0.05653016 BTC output.
+There are 1 occurrences of 0.07940192 BTC output.
+There are 7 occurrences of 0.08388608 BTC output.
+There are 1 occurrences of 0.11869243 BTC output.
+There are 1 occurrences of 0.14460622 BTC output.
+There are 5 occurrences of 0.16777216 BTC output.
+There are 1 occurrences of 0.2086305 BTC output.
+There are 4 occurrences of 0.33554432 BTC output.
+There are 1 occurrences of 0.65823 BTC output.
+There are 3 occurrences of 0.67108864 BTC output.
+There are 2 occurrences of 1.34217728 BTC output.
+There are 2 occurrences of 2.68435456 BTC output.
+There are 1 occurrences of 4.72813231 BTC output.
+There are 1 occurrences of 5.36870912 BTC output.
+There are 1 occurrences of 10.73741824 BTC output.
+```
+
