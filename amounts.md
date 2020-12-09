@@ -106,6 +106,7 @@ There are 2 occurrences of 0.67108864 BTC output.
 
 #### Dust Strategy
 
+Our next thought was to make a drastic change on the amount organization structure, but we realized the nature of the change may depend on how fees are handled and that may depend on our dust handling strategy, thus it's reasonable to continue with that.  
 So far we've created a transaction that isn't standard, because many outputs, like one satoshi outputs are present. To manage this issue and make our transaction standard, we want to make sure users don't register small outputs by setting a dust limit.  
 Dismissing the dust by the user is fine, because it's not significant amount. Let's assume our dust limit is 1000 satoshis, which should satisfy the standardness rules.
 
