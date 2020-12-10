@@ -26,7 +26,7 @@ We'll use in various ways throughout this document, mostly from code, which sour
 
 To start out, we took 50 inputs randomly out of our sample and created 40 random groupings - users - out of it. Then implemented WW1's mixing technique and got the following example output.
 
-How does WW1's mixing technique work? It takes the amounts and loops them through powers of 2 denominations in ascending order. It creates outputs for every denomination level the user can still participate in. If it can't it creates a change output.
+How does WW1's mixing technique work? It takes the amounts and loops them through powers of 2 denominations in ascending order. It creates outputs for every denomination level the user can still participate in. If it can't, it creates a change output.
 
 We shall also note that this example dismisses many variables, most importantly the minimum denomination Wasabi imposes and the network fees. We'll introduce them later on.
 
@@ -338,4 +338,3 @@ There are 1 occurrences of      2.31558608 BTC output.
 ```
 
 #### Should we break down the largest user's bag?
-
