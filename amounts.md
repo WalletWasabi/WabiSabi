@@ -257,7 +257,7 @@ There are 1 occurrences of 10.73741824 BTC output.
 
 It would be more efficient to do descending powers of 2 mixing instead of ascending powers of 2 mixing like we did before. So we implemented this and here's what we noticed:
 
-- Now there are many dusts would had been created, but they don't matter, because they're cents and can just be swallowed by the miners.  
+- Now there are many dusts would had been created, but they don't matter, because they're cents and can just be swallowed by the miners. Note that dust warnings are ommitted on the output pasted here.
 - We're creating roughly half the number of outputs, which is gret for blockspace.  
 - We've nearly completely eliminated change.  
 
@@ -265,76 +265,38 @@ Furthermore a few more small optimization was introduced:
 
 - Our sanity dust threshold became 1024, so we won't create smaller change than that.  
 - A user now also consider the largest output that isn't her so she won't create denomination that would be larger than the largest possible user's output she could reasonably mix with.
-- Finally we considered breaking down the largest user's change output, to the largest possible denomination, but we couldn't decide, so that'll be our next step to do.
+- Finally we considered breaking down the largest user's change output, to the largest possible denomination, but we couldn't decide, so that'll be a later step.
+
+Our simulation also got an improvement as now we're also simulating a 30% remix count by doing a pre-mix, then select 30% of those inputs to create our random groups and have results from that.
 
 ```
-WARNING! Dust happened: 1102 sats
-WARNING! Dust happened: 78 sats
-WARNING! Dust happened: 28 sats
-WARNING! Dust happened: 552 sats
-WARNING! Dust happened: 720 sats
-WARNING! Dust happened: 736 sats
-WARNING! Dust happened: 80 sats
-WARNING! Dust happened: 942 sats
-WARNING! Dust happened: 155 sats
-WARNING! Dust happened: 1287 sats
-WARNING! Dust happened: 806 sats
-WARNING! Dust happened: 65 sats
-WARNING! Dust happened: 580 sats
-WARNING! Dust happened: 619 sats
-WARNING! Dust happened: 422 sats
-WARNING! Dust happened: 285 sats
-WARNING! Dust happened: 613 sats
-WARNING! Dust happened: 284 sats
-WARNING! Dust happened: 326 sats
-WARNING! Dust happened: 129 sats
-WARNING! Dust happened: 810 sats
-WARNING! Dust happened: 368 sats
-WARNING! Dust happened: 612 sats
-WARNING! Dust happened: 484 sats
-WARNING! Dust happened: 727 sats
-WARNING! Dust happened: 576 sats
-WARNING! Dust happened: 166 sats
-WARNING! Dust happened: 894 sats
-WARNING! Dust happened: 153 sats
-WARNING! Dust happened: 725 sats
-WARNING! Dust happened: 866 sats
-WARNING! Dust happened: 32 sats
-WARNING! Dust happened: 372 sats
-WARNING! Dust happened: 524 sats
-WARNING! Dust happened: 32 sats
-WARNING! Dust happened: 1036 sats
-WARNING! Dust happened: 184 sats
-WARNING! Dust happened: 988 sats
-WARNING! Dust happened: 1040 sats
-
 Number of users:        40
 Number of inputs:       50
-Number of outputs:      276
-Total in:               15.11619594 BTC
-Fee paid:               0.00145978 BTC
-Size:                   12558 vbyte
+Number of outputs:      279
+Total in:               13.16067121 BTC
+Fee paid:               0.00147011 BTC
+Size:                   12657 vbyte
 Fee rate:               11 sats/vbyte
 
-There are 13 occurrences of     0.00001024 BTC output.
-There are 14 occurrences of     0.00002048 BTC output.
-There are 23 occurrences of     0.00004096 BTC output.
-There are 19 occurrences of     0.00008192 BTC output.
-There are 24 occurrences of     0.00016384 BTC output.
-There are 19 occurrences of     0.00032768 BTC output.
+There are 17 occurrences of     0.00001024 BTC output.
+There are 15 occurrences of     0.00002048 BTC output.
+There are 22 occurrences of     0.00004096 BTC output.
+There are 24 occurrences of     0.00008192 BTC output.
+There are 22 occurrences of     0.00016384 BTC output.
+There are 23 occurrences of     0.00032768 BTC output.
 There are 22 occurrences of     0.00065536 BTC output.
-There are 12 occurrences of     0.00131072 BTC output.
-There are 16 occurrences of     0.00262144 BTC output.
-There are 19 occurrences of     0.00524288 BTC output.
-There are 25 occurrences of     0.01048576 BTC output.
-There are 19 occurrences of     0.02097152 BTC output.
-There are 13 occurrences of     0.04194304 BTC output.
-There are 16 occurrences of     0.08388608 BTC output.
-There are 10 occurrences of     0.16777216 BTC output.
-There are 3 occurrences of      0.33554432 BTC output.
-There are 5 occurrences of      0.67108864 BTC output.
+There are 20 occurrences of     0.00131072 BTC output.
+There are 21 occurrences of     0.00262144 BTC output.
+There are 20 occurrences of     0.00524288 BTC output.
+There are 16 occurrences of     0.01048576 BTC output.
+There are 12 occurrences of     0.02097152 BTC output.
+There are 15 occurrences of     0.04194304 BTC output.
+There are 11 occurrences of     0.08388608 BTC output.
+There are 6 occurrences of      0.16777216 BTC output.
+There are 6 occurrences of      0.33554432 BTC output.
+There are 3 occurrences of      0.67108864 BTC output.
 There are 3 occurrences of      1.34217728 BTC output.
-There are 1 occurrences of      2.31558608 BTC output.
+There are 1 occurrences of      1.91315182 BTC output.
 ```
 
 #### Should we break down the largest user's bag?
