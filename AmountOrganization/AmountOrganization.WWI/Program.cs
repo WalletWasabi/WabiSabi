@@ -6,7 +6,7 @@ using AmountOrganization.WWI;
 var inputs = 50;
 var users = 40;
 
-var randomAmounts = Sample.Amounts.GetRandomElements(inputs);
+var randomAmounts = Sample.Amounts.RandomElements(inputs);
 var groups = randomAmounts.RandomGroups(users).ToArray();
 
 IMixer mixer = new WwiMixer();

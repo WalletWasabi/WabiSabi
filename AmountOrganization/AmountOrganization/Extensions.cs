@@ -6,11 +6,6 @@ namespace System
 {
     public static class Extensions
     {
-        public static IEnumerable<T> GetRandomElements<T>(this IEnumerable<T> list, int elementsCount)
-        {
-            return list.OrderBy(arg => Guid.NewGuid()).Take(elementsCount);
-        }
-
         public static ulong ToSats(this decimal btc) => (ulong)(btc * 100000000);
 
         public static decimal ToBtc(this ulong sats) => (decimal)sats / 100000000;
@@ -104,6 +99,16 @@ namespace System
                 .Select((item, index) => new { Item = item, GroupIndex = index % groupCount })
                 .GroupBy(item => item.GroupIndex,
                      (key, group) => group.Select(groupItem => groupItem.Item).ToList());
+        }
+
+        public static IEnumerable<T> RandomElements<T>(this IEnumerable<T> list, int elementsCount)
+        {
+            return list.OrderBy(arg => Guid.NewGuid()).Take(elementsCount);
+        }
+
+        public static IEnumerable<T> DeterministicRandomElements<T>(this IEnumerable<T> list, int elementsCount)
+        {
+            return DeterministicRandomGroups(list, 1).First().Take(elementsCount);
         }
 
         public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> myDic, TKey key, TValue value)

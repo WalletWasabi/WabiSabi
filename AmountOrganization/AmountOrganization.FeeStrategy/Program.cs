@@ -6,7 +6,7 @@ using AmountOrganization.FeeStrategy;
 var inputCount = 50;
 var userCount = 40;
 
-var randomAmounts = Sample.Amounts.GetRandomElements(inputCount);
+var randomAmounts = Sample.Amounts.RandomElements(inputCount);
 var groups = randomAmounts.RandomGroups(userCount).ToArray();
 
 var mixer = new FeeMixer();
