@@ -24,7 +24,7 @@ We'll use in various ways throughout this document, mostly from code, which sour
 
 #### BASE: WWI Skeleton
 
-To start out, we took 50 inputs randomly out of our sample and created 40 random groupings - users - out of it. Then implemented WW1's mixing technique and got the following example output.
+To start out, from our sample we took a set of 50 inputs randomly and created 40 random groupings - users - out of it. Then we implemented WW1's mixing technique and got the following example output.
 
 How does WW1's mixing technique work? It takes the amounts and loops them through powers of 2 denominations in ascending order. It creates outputs for every denomination level the user can still participate in. If it can't it creates a change output.
 
