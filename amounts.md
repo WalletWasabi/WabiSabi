@@ -301,7 +301,7 @@ There are 1 occurrences of      1.91315182 BTC output.
 
 #### Should we break down the largest user's bag?
 A user whose combined input amount is significantly larger (or smaller) than the other users always face difficulties in mixing. 
-In this subsection we address different approaches to managing large outputs amounts. Smaller amounts are not addressed here.
+In this subsection we address different approaches to managing large output amounts. Smaller amounts are not addressed here.
 We identified five possible approaches. 
 
 The trivial approach is not to break the large input(s) up. 
@@ -329,6 +329,5 @@ Limits of the process:
    
   
 Coinflip: we could combine the two approaches probabilistically by flipping a random coin. 
-
 
 
