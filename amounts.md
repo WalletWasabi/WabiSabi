@@ -300,4 +300,36 @@ There are 1 occurrences of      1.91315182 BTC output.
 ```
 
 #### Should we break down the largest user's bag?
+A user whose combined input amount is significantly larger (or smaller) than the other users always face difficulties in mixing. 
+In this subsection we address different approaches to managing large outputs amounts. Smaller amounts are not addressed here.
+We identified five possible approaches. 
+
+The trivial approach is not to break the large input(s) up. 
+We just produce a large amount change minus the fees. This output is deterministically linkable to its input cluster.
+Potentially, it might also reveal what other amounts were used by the user.
+
+Next, we consider different ways of splitting up the large amounts. 
+If these amounts are split up too granularly, then a single user with more liquidity than others is indistinguishable from a sybil attack.
+Additionally, this user gains little privacy themselves (probabilistic privacy instead of k-anonymity). 
+Moreover, this approach is not blockspace efficient.
+On the other hand, if they are split up too coarsely, then that user's amounts are deterministically linkable to their inputs.
+
+We discuss the following approaches for splitting up the large amount inputs:
+The following design decisions needs to be made. 
+  
+Amount selection (How does the wallet select the amounts subtracted from the large input?) 
+ - Standard denominations   
+ - Knapsack
+ 
+Limits of the process:
+ - One-shot
+ - iterative
+   - deterministic
+   - probabilistic
+   
+  
+Coinflip: we could combine the two approaches probabilistically by flipping a random coin. 
+
+
+
 
