@@ -258,7 +258,7 @@ There are 1 occurrences of 10.73741824 BTC output.
 It would be more efficient to do descending powers of 2 mixing instead of ascending powers of 2 mixing like we did before. So we implemented this and here's what we noticed:
 
 - Now more dust coins would be created, but because of their low economic value, these coins are not created and instead the value is added to the miner fees. Note that dust warnings are ommitted on the output pasted here.
-- We're creating roughly half the number of outputs, which is gret for blockspace.  
+- We're creating roughly half the number of outputs, which is great for blockspace.  
 - We've nearly completely eliminated change.  
 
 Furthermore a few more small optimization was introduced:
