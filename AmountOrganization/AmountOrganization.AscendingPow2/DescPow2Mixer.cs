@@ -10,22 +10,38 @@ namespace AmountOrganization.DescPow2
     {
         public IOrderedEnumerable<ulong> Denominations { get; }
 
-        public DescPow2Mixer(uint feeRate = 10, uint inputSize = 69, uint outputSize = 33, uint sanityFeeRate = 2, ulong sanityFee = 1024)
+        public DescPow2Mixer(uint feeRate = 10, uint inputSize = 69, uint outputSize = 33, uint sanityFeeRate = 2, ulong sanityFee = 1000)
         {
-            DustThreshold = new[] { sanityFee, feeRate * inputSize, sanityFeeRate * inputSize }.Max();
             FeeRate = feeRate;
             InputSize = inputSize;
             OutputSize = outputSize;
+            var smallestDust = new[] { sanityFee, feeRate * inputSize, sanityFeeRate * inputSize }.Max();
+            Denominations = CreateDenominations(smallestDust);
+            DustThreshold = Denominations.Last();
+        }
 
+        private static IOrderedEnumerable<ulong> CreateDenominations(ulong smallestInclusive)
+        {
+            ulong maxSatoshis = 2099999997690000;
             var denominations = new HashSet<ulong>();
-            for (int i = 50; i > 0; i--)
+            for (int i = 0; i < int.MaxValue; i++)
             {
                 var denom = (ulong)Math.Pow(2, i);
+
+                if (denom < smallestInclusive)
+                {
+                    continue;
+                }
+
+                if (denom > maxSatoshis)
+                {
+                    break;
+                }
 
                 denominations.Add(denom);
             }
 
-            Denominations = denominations.OrderByDescending(x => x);
+            return denominations.OrderByDescending(x => x);
         }
 
         public ulong DustThreshold { get; }
