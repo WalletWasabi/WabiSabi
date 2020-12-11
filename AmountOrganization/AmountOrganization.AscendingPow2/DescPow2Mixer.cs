@@ -8,12 +8,24 @@ namespace AmountOrganization.DescPow2
 {
     internal class DescPow2Mixer : IMixer
     {
+        public IOrderedEnumerable<ulong> Denominations { get; }
+
         public DescPow2Mixer(uint feeRate = 10, uint inputSize = 69, uint outputSize = 33, uint sanityFeeRate = 2, ulong sanityFee = 1024)
         {
             DustThreshold = new[] { sanityFee, feeRate * inputSize, sanityFeeRate * inputSize }.Max();
             FeeRate = feeRate;
             InputSize = inputSize;
             OutputSize = outputSize;
+
+            var denominations = new HashSet<ulong>();
+            for (int i = 50; i > 0; i--)
+            {
+                var denom = (ulong)Math.Pow(2, i);
+
+                denominations.Add(denom);
+            }
+
+            Denominations = denominations.OrderByDescending(x => x);
         }
 
         public ulong DustThreshold { get; }
@@ -51,10 +63,9 @@ namespace AmountOrganization.DescPow2
 
             var remaining = myInputs.Sum();
             ulong dustThresholdPlusFee = DustThreshold + OutputFee;
-            for (int i = 50; i > 0; i--)
-            {
-                var denomPlusFee = (ulong)Math.Pow(2, i) + OutputFee;
 
+            foreach (var denomPlusFee in Denominations.Select(x => x + OutputFee))
+            {
                 if (denomPlusFee > largestOthersInputs)
                 {
                     continue;
