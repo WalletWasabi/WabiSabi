@@ -315,7 +315,7 @@ Moreover, this approach is not blockspace efficient.
 On the other hand, if they are split up too coarsely, then that user's amounts are deterministically linkable to their inputs.
 
 We discuss the following approaches for splitting up the large amount inputs:
-The following design decisions needs to be made. 
+The following design decisions need to be made.
   
 Amount selection (How does the wallet select the amounts subtracted from the large input?) 
  - Standard denominations   
@@ -329,7 +329,6 @@ Limits of the process:
    
   
 Coinflip: we could combine the two approaches probabilistically by flipping a random coin. 
-
 
 
 
