@@ -264,7 +264,7 @@ It would be more efficient to do descending powers of 2 mixing instead of ascend
 Furthermore a few more small optimization was introduced:
 
 - Our sanity dust threshold became 1024, so we won't create smaller change than that.  
-- A user now also consider the largest output that isn't her so she won't create denomination that would be larger than the largest possible user's output she could reasonably mix with.
+- A user now also considers the largest output that isn't hers so she won't create denomination that would be larger than the largest possible user's output she could reasonably mix with.
 - Finally we considered breaking down the largest user's change output, to the largest possible denomination, but we couldn't decide, so that'll be a later step.
 
 Our simulation also got an improvement as now we're also simulating a 30% remix count by doing a pre-mix, then select 30% of those inputs to create our random groups and have results from that.
@@ -329,4 +329,3 @@ Limits of the process:
    
   
 Coinflip: we could combine the two approaches probabilistically by flipping a random coin. 
-
