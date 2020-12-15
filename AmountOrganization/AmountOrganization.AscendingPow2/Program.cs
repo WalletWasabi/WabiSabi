@@ -37,10 +37,9 @@ Console.WriteLine($"Fee rate:\t\t{feeRate} sats/vbyte");
 Console.WriteLine();
 
 foreach (var (value, count) in groups
-    .SelectMany(x => x).GroupBy(x => x)
-    .ToDictionary(x => x.Key, y => y.Count())
-    .Select(x => (x.Key, x.Value))
-    .OrderBy(x => x.Key))
+    .SelectMany(x => x)
+    .GetIndistinguishable(true)
+    .OrderBy(x => x.value))
 {
     if (count == 1)
     {
@@ -53,10 +52,9 @@ foreach (var (value, count) in groups
 Console.WriteLine();
 
 foreach (var (value, count) in mix
-    .SelectMany(x => x).GroupBy(x => x)
-    .ToDictionary(x => x.Key, y => y.Count())
-    .Select(x => (x.Key, x.Value))
-    .OrderBy(x => x.Key))
+    .SelectMany(x => x)
+    .GetIndistinguishable(true)
+    .OrderBy(x => x.value))
 {
     if (count == 1)
     {
