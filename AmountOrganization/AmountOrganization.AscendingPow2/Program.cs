@@ -36,6 +36,22 @@ Console.WriteLine($"Fee rate:\t\t{feeRate} sats/vbyte");
 
 Console.WriteLine();
 
+foreach (var (value, count) in groups
+    .SelectMany(x => x).GroupBy(x => x)
+    .ToDictionary(x => x.Key, y => y.Count())
+    .Select(x => (x.Key, x.Value))
+    .OrderBy(x => x.Key))
+{
+    if (count == 1)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+    }
+    Console.WriteLine($"There are {count} occurrences of\t{value} BTC input.");
+    Console.ForegroundColor = ConsoleColor.Gray;
+}
+
+Console.WriteLine();
+
 foreach (var (value, count) in mix
     .SelectMany(x => x).GroupBy(x => x)
     .ToDictionary(x => x.Key, y => y.Count())
