@@ -184,6 +184,33 @@ namespace System
                 .Where(x => includeSingle || x.Value > 1);
         }
 
+        public static IEnumerable<(TColl value, int count, int unique)> GetIndistinguishable<TColl>(this IEnumerable<IEnumerable<TColl>> source)
+        {
+            var duplicates = new Dictionary<TColl, int>();
+            foreach (var (value, count) in source
+                .Select(x => x.GetIndistinguishable(false))
+                .SelectMany(x => x)
+                .Where(x => x.count > 1))
+            {
+                int redundant = count - 1;
+                if (!duplicates.TryAdd(value, redundant))
+                {
+                    duplicates[value] += redundant;
+                }
+            }
+
+            foreach (var (value, count) in source
+                .SelectMany(x => x)
+                .GetIndistinguishable(true))
+            {
+                if (!duplicates.TryGetValue(value, out int dupl))
+                {
+                    dupl = 0;
+                }
+                yield return (value, count, count - dupl);
+            }
+        }
+
         /// <summary>
         /// Count the set bits in a ulong using 24 arithmetic operations (shift, add, and)..
         /// </summary>

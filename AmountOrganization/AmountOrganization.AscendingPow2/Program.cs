@@ -36,31 +36,41 @@ Console.WriteLine($"Fee rate:\t\t{feeRate} sats/vbyte");
 
 Console.WriteLine();
 
-foreach (var (value, count) in groups
-    .SelectMany(x => x)
-    .GetIndistinguishable(true)
+foreach (var (value, count, unique) in groups
+    .GetIndistinguishable()
     .OrderBy(x => x.value))
 {
     if (count == 1)
     {
         Console.ForegroundColor = ConsoleColor.Red;
     }
-    Console.WriteLine($"There are {count} occurrences of\t{value} BTC input.");
+    var displayResult = count.ToString();
+    if (count != unique)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        displayResult = $"{unique}/{count} unique/total";
+    }
+    Console.WriteLine($"There are {displayResult} occurrences of\t{value} BTC input.");
     Console.ForegroundColor = ConsoleColor.Gray;
 }
 
 Console.WriteLine();
 
-foreach (var (value, count) in mix
-    .SelectMany(x => x)
-    .GetIndistinguishable(true)
+foreach (var (value, count, unique) in mix
+    .GetIndistinguishable()
     .OrderBy(x => x.value))
 {
     if (count == 1)
     {
         Console.ForegroundColor = ConsoleColor.Red;
     }
-    Console.WriteLine($"There are {count} occurrences of\t{value} BTC output.");
+    var displayResult = count.ToString();
+    if (count != unique)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        displayResult = $"{unique}/{count} unique/total";
+    }
+    Console.WriteLine($"There are {displayResult} occurrences of\t{value} BTC output.");
     Console.ForegroundColor = ConsoleColor.Gray;
 }
 
