@@ -28,7 +28,7 @@ namespace AmountOrganization
                 .SelectMany(x => x)
                 .GetIndistinguishable(true);
 
-            var anonsetWeighted = 0ul;
+            var totalAnonsetWeighted = 0ul;
 
             foreach (var (value, count) in valueGroups
                 .Select(x => x.GetIndistinguishable(true))
@@ -44,11 +44,11 @@ namespace AmountOrganization
                 int redundant = count - 1;
                 var anonset = total - redundant;
 
-                anonsetWeighted += value * (ulong)anonset * (ulong)count;
+                totalAnonsetWeighted += value * (ulong)anonset * (ulong)count;
             }
 
             ulong sum = valueGroups.SelectMany(x => x).Sum();
-            return anonsetWeighted / (decimal)sum;
+            return totalAnonsetWeighted / (decimal)sum;
         }
 
         public static decimal AverageAnonsetGain(IEnumerable<decimal> values)
@@ -57,20 +57,19 @@ namespace AmountOrganization
         /// <summary>
         /// Calculates how much anonymity set an average amount gained in the coinjoin.
         /// </summary>
-        /// <param name="txo"></param>
         public static decimal AverageAnonsetGain(IEnumerable<ulong> values)
         {
-            var anonsetWeighted = 0ul;
+            var totalAnonsetWeighted = 0ul;
 
             foreach (var (value, count) in values.GetIndistinguishable(true))
             {
                 // For example if 5 BTC outputs appears 10 times, then this results in: 10 * 10 * 5,
                 // because 10 people gained 10 anonymity set for 5 BTC.
-                anonsetWeighted += value * (ulong)count * (ulong)count;
+                totalAnonsetWeighted += value * (ulong)count * (ulong)count;
             }
 
             ulong sum = values.Sum();
-            return anonsetWeighted / (decimal)sum;
+            return totalAnonsetWeighted / (decimal)sum;
         }
     }
 }

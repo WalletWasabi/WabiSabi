@@ -5,7 +5,7 @@ using AmountOrganization.DescPow2;
 
 var inputCount = 50;
 var userCount = 40;
-var remixPercentage = 30;
+var remixRatio = 0.3;
 
 var preRandomAmounts = Sample.Amounts.RandomElements(inputCount);
 var preGroups = preRandomAmounts.RandomGroups(userCount);
@@ -13,7 +13,7 @@ var preGroups = preRandomAmounts.RandomGroups(userCount);
 var preMixer = new DescPow2Mixer();
 var preMix = (preMixer as IMixer).CompleteMix(preGroups);
 
-var remixCount = (inputCount / 100) * remixPercentage;
+var remixCount = (int)(inputCount * remixRatio);
 var randomAmounts = Sample.Amounts.RandomElements(inputCount - remixCount).Concat(preMix.SelectMany(x => x).RandomElements(remixCount));
 var inputGroups = randomAmounts.RandomGroups(userCount).ToArray();
 var mixer = new DescPow2Mixer();
