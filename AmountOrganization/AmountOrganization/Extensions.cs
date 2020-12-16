@@ -226,5 +226,27 @@ namespace System
             x = (x & 0x00000000ffffffff) + ((x >> 32) & 0x00000000ffffffff); //put count of each 64 bits into those 64 bits
             return (int)x;
         }
+
+        /// <summary>
+        /// Warning: unsafe conversion from decimal to double.
+        /// </summary>
+        public static decimal StdDev(this IEnumerable<decimal> source)
+        {
+            var data = source.ToList();
+            var average = data.Average();
+            var differences = data.Select(u => Math.Pow((double)(average - u), 2.0)).ToList();
+            return (decimal)Math.Sqrt(differences.Sum() / differences.Count);
+        }
+
+        /// <summary>
+        /// Warning: unsafe conversion from ulong to decimal and then to double.
+        /// </summary>
+        public static decimal StdDev(this IEnumerable<ulong> source)
+        {
+            var data = source.ToList();
+            var average = data.Select(x => (decimal)x).Average();
+            var differences = data.Select(u => Math.Pow((double)(average - u), 2.0)).ToList();
+            return (decimal)Math.Sqrt(differences.Sum() / differences.Count);
+        }
     }
 }
