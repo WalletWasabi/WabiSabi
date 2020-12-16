@@ -3,8 +3,8 @@ using System.Linq;
 using AmountOrganization;
 using AmountOrganization.DescPow2;
 
-var inputCount = 50;
-var userCount = 40;
+var inputCount = 2;
+var userCount = 2;
 var remixRatio = 0.3;
 
 var preRandomAmounts = Sample.Amounts.RandomElements(inputCount);
@@ -18,6 +18,11 @@ var randomAmounts = Sample.Amounts.RandomElements(inputCount - remixCount).Conca
 var inputGroups = randomAmounts.RandomGroups(userCount).ToArray();
 var mixer = new DescPow2Mixer();
 var outputGroups = (mixer as IMixer).CompleteMix(inputGroups).Select(x => x.ToArray()).ToArray();
+
+if (inputGroups.SelectMany(x => x).Sum() <= outputGroups.SelectMany(x => x).Sum())
+{
+    throw new InvalidOperationException("Bug. Transaction doesn't pay fees.");
+}
 
 var outputCount = outputGroups.Sum(x => x.Count());
 var inputAmount = inputGroups.SelectMany(x => x).Sum();

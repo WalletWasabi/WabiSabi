@@ -14,7 +14,7 @@ namespace AmountOrganization
         public static decimal AverageAnonsetGain(IEnumerable<IEnumerable<ulong>> inputs, IEnumerable<IEnumerable<ulong>> outputs)
         {
             var inputSum = inputs.SelectMany(x => x).Sum();
-            var outputSum = inputs.SelectMany(x => x).Sum();
+            var outputSum = outputs.SelectMany(x => x).Sum();
             var ratio = (decimal)inputSum / outputSum;
             return (AverageAnonsetGain(inputs) * ratio + AverageAnonsetGain(outputs)) / 2;
         }
