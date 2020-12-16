@@ -3,8 +3,8 @@ using System.Linq;
 using AmountOrganization;
 using AmountOrganization.DescPow2;
 
-var inputCount = 2;
-var userCount = 2;
+var inputCount = 50;
+var userCount = 40;
 var remixRatio = 0.3;
 
 var preRandomAmounts = Sample.Amounts.RandomElements(inputCount);
@@ -24,7 +24,7 @@ if (inputGroups.SelectMany(x => x).Sum() <= outputGroups.SelectMany(x => x).Sum(
     throw new InvalidOperationException("Bug. Transaction doesn't pay fees.");
 }
 
-var outputCount = outputGroups.Sum(x => x.Count());
+var outputCount = outputGroups.Sum(x => x.Length);
 var inputAmount = inputGroups.SelectMany(x => x).Sum();
 var outputAmount = outputGroups.SelectMany(x => x).Sum();
 var fee = inputAmount - outputAmount;
@@ -79,8 +79,8 @@ Console.WriteLine($"Total in:\t\t{inputAmount} BTC");
 Console.WriteLine($"Fee paid:\t\t{fee} BTC");
 Console.WriteLine($"Size:\t\t\t{size} vbyte");
 Console.WriteLine($"Fee rate:\t\t{feeRate} sats/vbyte");
-Console.WriteLine($"Average anonset:\t{Analyzer.AverageAnonsetGain(inputGroups, outputGroups).ToString("0.##")}");
-Console.WriteLine($"Average input anonset:\t{Analyzer.AverageAnonsetGain(inputGroups).ToString("0.##")}");
-Console.WriteLine($"Average output anonset:\t{Analyzer.AverageAnonsetGain(outputGroups).ToString("0.##")}");
+Console.WriteLine($"Average anonset:\t{Analyzer.AverageAnonsetGain(inputGroups, outputGroups):0.##}");
+Console.WriteLine($"Average input anonset:\t{Analyzer.AverageAnonsetGain(inputGroups):0.##}");
+Console.WriteLine($"Average output anonset:\t{Analyzer.AverageAnonsetGain(outputGroups):0.##}");
 
 Console.ReadLine();
