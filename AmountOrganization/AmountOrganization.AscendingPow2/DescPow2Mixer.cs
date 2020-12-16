@@ -92,7 +92,7 @@ namespace AmountOrganization.DescPow2
                     break;
                 }
 
-                if (denomPlusFee <= remaining)
+                while (denomPlusFee <= remaining)
                 {
                     yield return denomPlusFee;
                     remaining -= denomPlusFee;

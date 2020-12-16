@@ -299,6 +299,10 @@ There are 3 occurrences of      1.34217728 BTC output.
 There are 1 occurrences of      1.91315182 BTC output.
 ```
 
+#### Average Anonymity Set and Blockspace Efficiency
+
+Next we introduced an average anonymity set calculation and calculated blockspace efficiency from that. Note that this only works for equal output coinjoins (where we are right now) but it will fail for Knapsack like ambiguity techniques when we'll introduce them.
+
 #### Should we break down the largest user's bag?
 A user whose combined input amount is significantly larger (or smaller) than the other users' amounts always faces difficulties in mixing.
 In this subsection we address different approaches to managing large output amounts. Smaller amounts are not addressed here.
@@ -329,3 +333,5 @@ Limits of the process:
    
   
 Coinflip: we could combine the two approaches probabilistically by flipping a random coin. 
+
+Since more sophisticated denomination systems rely on participating in the same denomination level, we'll go with a breakdwon approach and limit it later.
