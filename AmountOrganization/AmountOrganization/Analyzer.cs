@@ -24,27 +24,15 @@ namespace AmountOrganization
 
         public static decimal AverageAnonsetGain(IEnumerable<IEnumerable<ulong>> valueGroups)
         {
-            var indistinguishables = valueGroups
-                .SelectMany(x => x)
-                .GetIndistinguishable(true);
-
             var totalAnonsetWeighted = 0ul;
-
-            foreach (var (value, count) in valueGroups
-                .Select(x => x.GetIndistinguishable(true))
-                .SelectMany(x => x))
+            foreach (var (value, count, unique) in valueGroups.GetIndistinguishable())
             {
                 // For example if 5 BTC outputs appears 10 times,
                 // but only 9 of them are from unique users,
                 // then 8 users gained anonymity set of 10,
-                // and one user gained anonymity set of 9 for 2 coins.
-                // So this should result in 5BTC * 8 coins * 10 anonset + 5BTC * 2coins * 9anonset = 490
-
-                var total = indistinguishables.First(x => x.value == value).count;
-                int redundant = count - 1;
-                var anonset = total - redundant;
-
-                totalAnonsetWeighted += value * (ulong)anonset * (ulong)count;
+                // and one user gained anonymity set of (10/2) for 2 coins.
+                // So this should result in 5BTC * 8 coins * 10 anonset + 5BTC * 2coins * 5 anonset = 450
+                totalAnonsetWeighted += value * (ulong)count * (ulong)unique;
             }
 
             ulong sum = valueGroups.SelectMany(x => x).Sum();
