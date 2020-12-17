@@ -63,7 +63,7 @@ namespace AmountOrganization
         public static decimal BlockspaceEfficiency(IEnumerable<IEnumerable<decimal>> inputs, IEnumerable<IEnumerable<decimal>> outputs, long size)
         {
             var avgAnon = AverageAnonsetGain(inputs, outputs);
-            return avgAnon / (size / 1000);
+            return avgAnon / (size / (decimal)1000);
         }
     }
 }
