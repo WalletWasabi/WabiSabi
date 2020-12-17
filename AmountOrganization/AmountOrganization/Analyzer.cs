@@ -59,5 +59,11 @@ namespace AmountOrganization
             ulong sum = values.Sum();
             return totalAnonsetWeighted / (decimal)sum;
         }
+
+        public static decimal BlockspaceEfficiency(IEnumerable<IEnumerable<decimal>> inputs, IEnumerable<IEnumerable<decimal>> outputs, long size)
+        {
+            var avgAnon = AverageAnonsetGain(inputs, outputs);
+            return avgAnon / (size / 1000);
+        }
     }
 }

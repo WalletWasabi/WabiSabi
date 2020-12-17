@@ -8,8 +8,6 @@ namespace AmountOrganization.DescPow2
 {
     internal class DescPow2Mixer : IMixer
     {
-        public IOrderedEnumerable<ulong> Denominations { get; }
-
         public DescPow2Mixer(uint feeRate = 10, uint inputSize = 69, uint outputSize = 33, uint sanityFeeRate = 2, ulong sanityFee = 1000)
         {
             FeeRate = feeRate;
@@ -51,10 +49,14 @@ namespace AmountOrganization.DescPow2
         public uint FeeRate { get; }
         public uint InputSize { get; }
         public uint OutputSize { get; }
+        public IOrderedEnumerable<ulong> Denominations { get; }
+        public Dictionary<ulong, uint> DenominationProbabilities { get; } = new Dictionary<ulong, uint>();
 
         public IEnumerable<IEnumerable<ulong>> CompleteMix(IEnumerable<IEnumerable<ulong>> inputs)
         {
             var inputArray = inputs.ToArray();
+
+            SetProbabilities(inputArray.SelectMany(x => x));
 
             for (int i = 0; i < inputArray.Length; i++)
             {
@@ -71,23 +73,63 @@ namespace AmountOrganization.DescPow2
             }
         }
 
-        public IEnumerable<ulong> Mix(IEnumerable<ulong> myInputsParam, IEnumerable<ulong> othersInputsParam)
+        private void SetProbabilities(IEnumerable<ulong> inputs)
         {
-            var myInputs = myInputsParam.Select(x => x - InputFee).ToArray();
-            var othersInputs = othersInputsParam.Select(x => x - InputFee).ToArray();
-            var largestOthersInputs = othersInputs.Max();
+            var secondLargestInput = inputs.OrderByDescending(x => x).Skip(1).First();
+            foreach (var input in inputs)
+            {
+                foreach (var denom in BreakDown(input, secondLargestInput))
+                {
+                    if (!DenominationProbabilities.TryAdd(denom, 1))
+                    {
+                        DenominationProbabilities[denom]++;
+                    }
+                }
+            }
+        }
 
-            var remaining = myInputs.Sum();
+        private IEnumerable<ulong> BreakDown(ulong input, ulong secondLargestInput)
+        {
+            var inputMinusFee = input - InputFee;
+            var secondLargestInputMinusFee = secondLargestInput - InputFee;
             ulong dustThresholdPlusFee = DustThreshold + OutputFee;
 
+            var remaining = inputMinusFee;
             foreach (var denomPlusFee in Denominations.Select(x => x + OutputFee))
             {
-                if (denomPlusFee > largestOthersInputs)
+                if (denomPlusFee > secondLargestInputMinusFee)
                 {
                     continue;
                 }
 
                 if (denomPlusFee < dustThresholdPlusFee || remaining < dustThresholdPlusFee)
+                {
+                    break;
+                }
+
+                while (denomPlusFee <= remaining)
+                {
+                    yield return denomPlusFee;
+                    remaining -= denomPlusFee;
+                }
+            }
+
+            if (remaining >= dustThresholdPlusFee)
+            {
+                yield return remaining;
+            }
+        }
+
+        public IEnumerable<ulong> Mix(IEnumerable<ulong> myInputsParam, IEnumerable<ulong> othersInputsParam)
+        {
+            var myInputs = myInputsParam.Select(x => x - InputFee).ToArray();
+
+            var remaining = myInputs.Sum();
+            ulong dustThresholdPlusFee = DustThreshold + OutputFee;
+
+            foreach (var denomPlusFee in DenominationProbabilities.OrderByDescending(x => x.Key).Where(x => x.Value > 1).Select(x => x.Key))
+            {
+                if (remaining < dustThresholdPlusFee)
                 {
                     break;
                 }

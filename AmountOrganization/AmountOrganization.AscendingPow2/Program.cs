@@ -71,7 +71,6 @@ foreach (var (value, count, unique) in outputGroups
     Console.ForegroundColor = ConsoleColor.Gray;
 }
 
-var avgAnon = Analyzer.AverageAnonsetGain(inputGroups, outputGroups);
 Console.WriteLine();
 Console.WriteLine($"Number of users:\t{userCount}");
 Console.WriteLine($"Number of inputs:\t{inputCount}");
@@ -80,9 +79,9 @@ Console.WriteLine($"Total in:\t\t{inputAmount} BTC");
 Console.WriteLine($"Fee paid:\t\t{fee} BTC");
 Console.WriteLine($"Size:\t\t\t{size} vbyte");
 Console.WriteLine($"Fee rate:\t\t{feeRate} sats/vbyte");
-Console.WriteLine($"Average anonset:\t{avgAnon:0.##}");
+Console.WriteLine($"Average anonset:\t{Analyzer.AverageAnonsetGain(inputGroups, outputGroups):0.##}");
 Console.WriteLine($"Average input anonset:\t{Analyzer.AverageAnonsetGain(inputGroups):0.##}");
 Console.WriteLine($"Average output anonset:\t{Analyzer.AverageAnonsetGain(outputGroups):0.##}");
-Console.WriteLine($"Blockspace efficiency:\t{avgAnon / (size / 1000):0.##}");
+Console.WriteLine($"Blockspace efficiency:\t{Analyzer.BlockspaceEfficiency(inputGroups, outputGroups, size):0.##}");
 
 Console.ReadLine();
