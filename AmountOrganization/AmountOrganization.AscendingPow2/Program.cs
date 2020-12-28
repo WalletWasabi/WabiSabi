@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmountOrganization;
 using AmountOrganization.DescPow2;
 
-var inputCount = 50;
-var userCount = 40;
+var inputCount = 100;
 var remixRatio = 0.3;
 
+var userCount = inputCount; // Only for the premix.
 var preRandomAmounts = Sample.Amounts.RandomElements(inputCount);
 var preGroups = preRandomAmounts.RandomGroups(userCount);
 
@@ -15,16 +16,40 @@ var preMix = (preMixer as IMixer).CompleteMix(preGroups);
 
 var remixCount = (int)(inputCount * remixRatio);
 var randomAmounts = Sample.Amounts.RandomElements(inputCount - remixCount).Concat(preMix.SelectMany(x => x).RandomElements(remixCount));
-var inputGroups = randomAmounts.RandomGroups(userCount).ToArray();
-var mixer = new DescPow2Mixer();
-var outputGroups = (mixer as IMixer).CompleteMix(inputGroups).Select(x => x.ToArray()).ToArray();
+IEnumerable<decimal>[] inputGroups;
+decimal[][] outputGroups;
+DescPow2Mixer mixer;
+int outputCount;
+while (true)
+{
+    inputGroups = randomAmounts.RandomGroups(userCount).ToArray();
+    mixer = new DescPow2Mixer();
+    outputGroups = (mixer as IMixer).CompleteMix(inputGroups).Select(x => x.ToArray()).ToArray();
+
+    outputCount = outputGroups.Sum(x => x.Length);
+
+    // Output count must be maximum 1.5x as much as the input count.
+    // This simulates many mixes.
+    if (inputCount < outputCount && inputCount.Almost(outputCount, inputCount / 2))
+    {
+        break;
+    }
+
+    if (inputCount > outputCount)
+    {
+        userCount++;
+    }
+    else
+    {
+        userCount--;
+    }
+}
 
 if (inputGroups.SelectMany(x => x).Sum() <= outputGroups.SelectMany(x => x).Sum())
 {
     throw new InvalidOperationException("Bug. Transaction doesn't pay fees.");
 }
 
-var outputCount = outputGroups.Sum(x => x.Length);
 var inputAmount = inputGroups.SelectMany(x => x).Sum();
 var outputAmount = outputGroups.SelectMany(x => x).Sum();
 var fee = inputAmount - outputAmount;
@@ -75,6 +100,7 @@ Console.WriteLine();
 Console.WriteLine($"Number of users:\t{userCount}");
 Console.WriteLine($"Number of inputs:\t{inputCount}");
 Console.WriteLine($"Number of outputs:\t{outputCount}");
+Console.WriteLine($"Avg consolidation:\t{inputCount / userCount}");
 Console.WriteLine($"Total in:\t\t{inputAmount} BTC");
 Console.WriteLine($"Fee paid:\t\t{fee} BTC");
 Console.WriteLine($"Size:\t\t\t{size} vbyte");

@@ -145,18 +145,6 @@ namespace AmountOrganization.DescPow2
             {
                 yield return remaining;
             }
-            else if (remaining == 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"EUREKA! Perfect mix!");
-                Console.ForegroundColor = ConsoleColor.Gray;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"WARNING! Dust happened: {remaining} sats");
-                Console.ForegroundColor = ConsoleColor.Gray;
-            }
         }
     }
 }

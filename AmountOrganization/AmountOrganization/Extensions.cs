@@ -248,5 +248,18 @@ namespace System
             var differences = data.Select(u => Math.Pow((double)(average - u), 2.0)).ToList();
             return (decimal)Math.Sqrt(differences.Sum() / differences.Count);
         }
+
+        public static bool Almost(this int a, int b, int precision)
+        {
+            var diff = Math.Abs(a - b);
+            if (diff > precision)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 }
