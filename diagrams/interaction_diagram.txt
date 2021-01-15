@@ -10,13 +10,13 @@ title Scenario: A Participant Is Consolidating 2 Coins (Alice1, Alice2) Into 1 (
 
 == Input Registration ==
 
-Satoshis -> Coordinator ++ : CJSTAT
-return CoinjoinStatuses[]
+Satoshis -> Coordinator ++ : GET coordinator-status
+return RoundStatuses[]
 
-Alice1 -> Coordinator ++: IREG - RoundId, Input, RoundParamSig, ZeroCredReqs[]
+Alice1 -> Coordinator ++: POST input-registration: RoundId, Input, RoundParamSig, ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
-    IsIRegPhase()
+    IsInputRegistrationPhase()
     IsUnspent()
     IsConfirmed()
     IsMature()
@@ -31,10 +31,10 @@ end note
 return AliceId, ZeroCreds[]
 ...
 
-Alice1 -> Coordinator ++: CCONF - RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+Alice1 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
-    IsIRegOrCConfPhase()
+    IsInputRegistrationOrConnectionConfirmationPhase()
     IsAliceFound()
     EnsureUniqueSerialNumber()
     CheckCredProofs()
@@ -42,10 +42,10 @@ note right of Coordinator
 end note
 return ZeroCreds[]
 
-Alice2 -> Coordinator ++: IREG - RoundId, Input, RoundParamSig, ZeroCredReqs[]
+Alice2 -> Coordinator ++: POST input-registration: RoundId, Input, RoundParamSig, ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
-    IsIRegPhase()
+    IsInputRegistrationPhase()
     IsUnspent()
     IsConfirmed()
     IsMature()
@@ -61,20 +61,20 @@ return AliceId, ZeroCreds[]
 
 == Connection Confirmation ==
 
-Alice1 -> Coordinator ++: CCONF - RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+Alice1 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
-    IsIRegOrCConfPhase()
+    IsInputRegistrationOrConnectionConfirmationPhase()
     IsAliceFound()
     EnsureUniqueSerialNumber()
     CheckCredProofs()
 end note
 return RealCreds[]
 
-Alice2 -> Coordinator ++: CCONF - RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+Alice2 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
-    IsIRegOrCConfPhase()
+    IsInputRegistrationOrConnectionConfirmationPhase()
     IsAliceFound()
     EnsureUniqueSerialNumber()
     CheckCredProofs()
@@ -83,10 +83,10 @@ return RealCreds[]
 
 == Output Registration ==
 
-Bob -> Coordinator ++: OREG - RoundId, Output, PresentedCreds[]
+Bob -> Coordinator ++: POST output-registration: RoundId, Output, PresentedCreds[]
 note right of Coordinator
     IsRoundFound()
-    IsORegPhase()
+    IsOutputRegistrationPhase()
     IsStandardScript()
     EnsureUniqueSerialNumber()
     CheckCredProofs()
@@ -95,23 +95,23 @@ return UnsignedTransactionSecret
 
 == Transaction Signing ==
 
-Satoshis -> Coordinator ++ : CJSTAT
-return CoinjoinStatuses[]
+Satoshis -> Coordinator ++ : coordinator-status
+return RoundStatuses[]
 
-Alice1 -> Coordinator ++: TSIG - RoundId, AliceId, InputSig
+Alice1 -> Coordinator ++: POST transaction-signatures: RoundId, AliceId, InputSigs
 note right of Coordinator
     IsRoundFound()
-    IsTSigPhase()
+    IsTransactionSigningPhase()
     IsAliceFound()
     CheckInputSig()
     UpdateIfAlreadySigned()
 end note
 return ACK
 
-Alice2 -> Coordinator ++: TSIG - RoundId, AliceId, InputSig
+Alice2 -> Coordinator ++: POST transaction-signatures: RoundId, AliceId, InputSigs
 note right of Coordinator
     IsRoundFound()
-    IsTSigPhase()
+    IsTransactionSigningPhase()
     IsAliceFound()
     CheckInputSig()
     UpdateIfAlreadySigned()
@@ -122,7 +122,7 @@ return ACK
 
 Coordinator -> Mempool**  : SignedTransaction
 
-Satoshis -> Coordinator ++ : CJSTAT
-return CoinjoinStatuses[]
+Satoshis -> Coordinator ++ : coordinator-status
+return RoundStatuses[]
 
 @enduml
