@@ -170,15 +170,6 @@ When a participant registers an output, the coordinator gives an `UnsignedTransa
 
 - `CoinJoin`
 
-### Request Catalogue
-
-- `CJSTAT`: Status Request (Satoshi)
-- `IREG`: Input Registration Request (Alice)
-- `DREG`: Deregistration Request (Alice)
-- `CCONF`: Connection Confirmation Request (Alice)
-- `OREG`: Output Registration Request (Bob)
-- `TSIG`: Transaction Signing Request (Alice)
-
 ## Round State Diagram
 
 The following diagram shows the coordinator's state transitions for a specific
