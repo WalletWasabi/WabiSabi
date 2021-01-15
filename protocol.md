@@ -14,7 +14,7 @@ input and any output to the coordinator or the other participants.
 
 This document does not address privacy preserving transaction structure, so
 naive instantiations of the protocol may still reveal links inputs and outputs of
-a singler user (e.g. by amounts, script types, or address reuse).
+a single user (e.g. by amounts, script types, or address reuse).
 
 ## Roles
 
