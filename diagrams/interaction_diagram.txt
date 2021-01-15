@@ -13,18 +13,18 @@ title Scenario: A Participant Is Consolidating 2 Coins (Alice1, Alice2) Into 1 (
 Satoshis -> Coordinator ++ : GET coordinator-status
 return RoundStatuses[]
 
-Alice1 -> Coordinator ++: POST input-registration: RoundId, Input, RoundParamSig, ZeroCredReqs[]
+Alice1 -> Coordinator ++: POST inputs-registration: RoundId, (Input, RoundParamSig)[], ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
     IsInputRegistrationPhase()
-    IsUnspent()
-    IsConfirmed()
-    IsMature()
-    IsStandardScript()
-    IsNotMalleable()
-    CheckRoundParamSig()
-    IsAllowedIfBlameRound()
-    IsNotBanned()
+    AllUnspent()
+    AllConfirmed()
+    AllMature()
+    AllStandardScript()
+    AllNotMalleable()
+    CheckRoundParamSigs()
+    AllAllowedIfBlameRound()
+    AllNotBanned()
     UpdateIfDuplicateInput()
     SetAliceDeadline()
 end note
@@ -42,18 +42,18 @@ note right of Coordinator
 end note
 return ZeroCreds[]
 
-Alice2 -> Coordinator ++: POST input-registration: RoundId, Input, RoundParamSig, ZeroCredReqs[]
+Alice2 -> Coordinator ++: POST inputs-registration: RoundId, (Input, RoundParamSig)[], ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
     IsInputRegistrationPhase()
-    IsUnspent()
-    IsConfirmed()
-    IsMature()
-    IsStandardScript()
-    IsNotMalleable()
-    CheckRoundParamSig()
-    IsAllowedIfBlameRound()
-    IsNotBanned()
+    AllUnspent()
+    AllConfirmed()
+    AllMature()
+    AllStandardScript()
+    AllNotMalleable()
+    CheckRoundParamSigs()
+    AllAllowedIfBlameRound()
+    AllNotBanned()
     UpdateIfDuplicateInput()
     SetAliceDeadline()
 end note
@@ -98,22 +98,22 @@ return UnsignedTransactionSecret
 Satoshis -> Coordinator ++ : coordinator-status
 return RoundStatuses[]
 
-Alice1 -> Coordinator ++: POST transaction-signatures: RoundId, AliceId, InputSigs
+Alice1 -> Coordinator ++: POST transaction-signatures: RoundId, AliceId, (Input, Signature)[]
 note right of Coordinator
     IsRoundFound()
     IsTransactionSigningPhase()
     IsAliceFound()
-    CheckInputSig()
+    CheckInputSignatures()
     UpdateIfAlreadySigned()
 end note
 return ACK
 
-Alice2 -> Coordinator ++: POST transaction-signatures: RoundId, AliceId, InputSigs
+Alice2 -> Coordinator ++: POST transaction-signatures: RoundId, AliceId, (Input, Signature)[]
 note right of Coordinator
     IsRoundFound()
     IsTransactionSigningPhase()
     IsAliceFound()
-    CheckInputSig()
+    CheckInputSignatures()
     UpdateIfAlreadySigned()
 end note
 return ACK
