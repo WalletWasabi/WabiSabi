@@ -60,7 +60,7 @@ honestly, allowing faulty/malicious users to be excluded from a re-attempted
 round.
 
 Round metadata such as coordinator parameters for the WabiSabi credentials,
-information is provided in responses to `GetCoinjoinStatuses` requests.
+information is provided in responses to `coordinator-status` requests.
 
 ## Attacks
 
@@ -119,7 +119,7 @@ course of a round.
 
 ![Interaction Diagram](diagrams/interaction_diagram.svg)
 
-The Interaction Diagram denotes Satoshi actors those are polling the Coordinator with `CJSTAT` requests. Satoshis are not only participants of the round, but they are any wallet users. This mitigates information learned by the Coordinator about participants of the coinjoins. Every element in the `CoinJoinStatuses[]` array is a status of an alive round. The structure of an element in the returned array is the following:
+The Interaction Diagram denotes Satoshi actors those are polling the Coordinator with `coordinator-status` requests. Satoshis are not only participants of the round, but they are any wallet users. This mitigates information learned by the Coordinator about participants of the coinjoins. The coordinator responds with a json that currently only contains a single element: an array of round statuses: `RoundStatuses`. Each `RoundStatus` corresponds to an alive round and have the following structure:
 
 - `Phase`
 - `RoundId`
