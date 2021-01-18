@@ -164,7 +164,7 @@ For input registration the user submits a `RoundParamsSig`, which is a signature
 
 #### `EncryptedUnsignedCoinJoin`
 
-When a participant registers an output, the coordinator gives an `UnsignedTransactionSecret` as response. With this, during the signing phase, the participant can decrypt the `EncryptedUnsignedCoinJoin` to sign it. This ensures only the participants of a round learn the CoinJoin before it is broadcasted. This feature is not strictly necessary.
+When a participant registers an output, the coordinator gives an `UnsignedTransactionSecret` as response. With this, during the signing phase, the participant can decrypt the `EncryptedUnsignedCoinJoin` to sign it. This ensures only the participants of a round learn the CoinJoin before it is broadcast. This feature is not strictly necessary.
 
 ### `PhaseStatus` in TransactionBroadcasting
 
