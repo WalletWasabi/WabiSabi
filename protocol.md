@@ -133,7 +133,7 @@ The Interaction Diagram denotes Satoshi actors those are polling the Coordinator
 - `RegisteredInputCount`
 - `MaxRegisteredInputCount`
 - `FeeRate`
-- `ReconfirmationDeadline`
+- `ReconfirmationTimeout`
 
 #### `RoundParams`
 
