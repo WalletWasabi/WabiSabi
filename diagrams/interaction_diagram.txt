@@ -6,7 +6,7 @@ participant Alice2
 participant Bob
 database Mempool
 
-title Scenario: A Participant Is Consolidating 2 Coins (Alice1, Alice2) Into 1 (Bob)\n
+title Scenario: A Participant Is Consolidating 2 Coins (Alice1, Alice2) Into 1 (Bob) with a fake reissuance request \n
 
 == Input Registration ==
 
@@ -76,6 +76,15 @@ note right of Coordinator
     IsRoundFound()
     IsInputRegistrationOrConnectionConfirmationPhase()
     IsAliceFound()
+    EnsureUniqueSerialNumber()
+    CheckCredProofs()
+end note
+return RealCreds[], ZeroCreds[]
+
+Random Identity -> Coordinator ++: POST credential-reissuance: RoundId, RealCredReqs[], ZeroCredReqs[]
+note right of Coordinator
+    IsRoundFound()
+    IsInputConnectionConfirmationOrOutputRegistrationPhase()
     EnsureUniqueSerialNumber()
     CheckCredProofs()
 end note
