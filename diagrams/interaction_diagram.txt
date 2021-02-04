@@ -31,7 +31,7 @@ end note
 return AliceId, ZeroCreds[]
 ...
 
-Alice1 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+Alice1 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, RealCredReqs[], ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
     IsInputRegistrationOrConnectionConfirmationPhase()
@@ -61,7 +61,7 @@ return AliceId, ZeroCreds[]
 
 == Connection Confirmation ==
 
-Alice1 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+Alice1 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, RealCredReqs[], ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
     IsInputRegistrationOrConnectionConfirmationPhase()
@@ -69,9 +69,9 @@ note right of Coordinator
     EnsureUniqueSerialNumber()
     CheckCredProofs()
 end note
-return RealCreds[]
+return RealCreds[], ZeroCreds[]
 
-Alice2 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, PresentedCreds[], RealCredReqs[], BalanceProof, ZeroCredReqs[]
+Alice2 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, RealCredReqs[], ZeroCredReqs[]
 note right of Coordinator
     IsRoundFound()
     IsInputRegistrationOrConnectionConfirmationPhase()
@@ -79,7 +79,7 @@ note right of Coordinator
     EnsureUniqueSerialNumber()
     CheckCredProofs()
 end note
-return RealCreds[]
+return RealCreds[], ZeroCreds[]
 
 == Output Registration ==
 
