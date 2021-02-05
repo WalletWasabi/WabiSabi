@@ -1,5 +1,5 @@
 @startuml
-collections Satoshis
+collections Anonymous
 participant Coordinator
 participant Alice1
 participant Alice2
@@ -10,7 +10,7 @@ title Scenario: A Participant Is Consolidating 2 Coins (Alice1, Alice2) Into 1 (
 
 == Input Registration ==
 
-Satoshis -> Coordinator ++ : GET coordinator-status
+Anonymous -> Coordinator ++ : GET coordinator-status
 return RoundStatuses[]
 
 Alice1 -> Coordinator ++: POST inputs-registration: RoundId, (Input, RoundParamSig)[], ZeroCredReqs[]
@@ -81,7 +81,7 @@ note right of Coordinator
 end note
 return Creds[] (real)
 
-Random Identity -> Coordinator ++: POST credential-reissuance: RoundId, CredReqs[]
+Anonymous -> Coordinator ++: POST credential-reissuance: RoundId, CredReqs[]
 note right of Coordinator
     IsRoundFound()
     IsInputConnectionConfirmationOrOutputRegistrationPhase()
@@ -104,7 +104,7 @@ return UnsignedTransactionSecret
 
 == Transaction Signing ==
 
-Satoshis -> Coordinator ++ : coordinator-status
+Anonymous -> Coordinator ++ : coordinator-status
 return RoundStatuses[]
 
 Alice1 -> Coordinator ++: POST transaction-signatures: RoundId, AliceId, (Input, Signature)[]
@@ -131,7 +131,7 @@ return ACK
 
 Coordinator -> Mempool**  : SignedTransaction
 
-Satoshis -> Coordinator ++ : coordinator-status
+Anonymous -> Coordinator ++ : coordinator-status
 return RoundStatuses[]
 
 @enduml
