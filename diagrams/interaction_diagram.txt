@@ -40,7 +40,7 @@ note right of Coordinator
     CheckCredProofs()
     ResetAliceDeadline()
 end note
-return ZeroCreds[]
+return Creds[] (zero)
 
 Alice2 -> Coordinator ++: POST inputs-registration: RoundId, (Input, RoundParamSig)[], ZeroCredReqs[]
 note right of Coordinator
@@ -69,7 +69,7 @@ note right of Coordinator
     EnsureUniqueSerialNumber()
     CheckCredProofs()
 end note
-return RealCreds[], ZeroCreds[]
+return Creds[] (real)
 
 Alice2 -> Coordinator ++: POST connection-confirmation: RoundId, AliceId, RealCredReqs[], ZeroCredReqs[]
 note right of Coordinator
@@ -79,16 +79,16 @@ note right of Coordinator
     EnsureUniqueSerialNumber()
     CheckCredProofs()
 end note
-return RealCreds[], ZeroCreds[]
+return Creds[] (real)
 
-Random Identity -> Coordinator ++: POST credential-reissuance: RoundId, RealCredReqs[], ZeroCredReqs[]
+Random Identity -> Coordinator ++: POST credential-reissuance: RoundId, CredReqs[]
 note right of Coordinator
     IsRoundFound()
     IsInputConnectionConfirmationOrOutputRegistrationPhase()
     EnsureUniqueSerialNumber()
     CheckCredProofs()
 end note
-return RealCreds[], ZeroCreds[]
+return Creds[]
 
 == Output Registration ==
 
