@@ -775,8 +775,7 @@ Since the output of the protocol is a single Bitcoin transaction theft is preven
 A malicious user could claim more funds than she registered if and only if she is able to forge the coordinator's MAC on some credential. This is certainly not possible unless credentials can be forged under chosen message attacks, but even if that were the case this would only result in denial of service, as the honest users would refuse to sign such a transaction.
 
 \subsection{Security Proofs}
-The above outlined security and privacy guarantees directly follow from the applied KVAC scheme of~\cite{chase2019signal}. The unlinkability of WabiSabi credentials follow from the unlinkability of the underlying keyed-verification anonymous
-credential scheme. The denial of service resistance of the WabiSabi protocol follows from the unforgeability of the KVAC scheme. We refer the to~\cite{chase2019signal} for formal security arguments.
+The above outlined security and privacy guarantees directly follow from the underlying KVAC scheme of~\cite{chase2019signal}. The unlinkability of WabiSabi credentials follows from unlinkability and the denial of service resistance of the WabiSabi protocol follows from unforgeability. We refer the to~\cite{chase2019signal} for formal security arguments.
 
 \section{Performance}\label{sec:performanceanalysis}
 
