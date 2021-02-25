@@ -802,7 +802,7 @@ $\#\mathbb{Z}_q$ & $-$   & $k(3n + 1)$            & $-$   & $-$ & $5k$          
 
 A proof of concept implementation of the credential system has been added to the open source Wasabi wallet\footnote{\url{https://github.com/zkSNACKs/WalletWasabi}}. This implementation relied on \texttt{NBitcoin.Secp256k1}\footnote{\url{https://github.com/MetacoSA/NBitcoin/tree/master/NBitcoin.Secp256k1}} a port of \texttt{libsecp256k1}\footnote{\url{https://github.com/bitcoin-core/secp256k1/pull/486}}. Due to limitations of the .NET runtime only 32-bit limb field elements are supported. All proofs were made non-interactive using the strong variant of the Fiat-Shamir transform~\cite{fiat1987prove, bernhard2012not, hamburg2017strobe}.
 
-Performance was measured on an Intel Core i7-7500U CPU 2.70GHz (Kaby Lake) using BenchmarkDotNet version 0.12.1 on Ubuntu 20.04 with .NET Core version 5.0.101. We ran a unified registration request-response flow\footnote{See: \url{https://github.com/zkSNACKs/WasabiBenchmark}}  with $k=2$ and 51 bit range proofs, and observed a $1.278$ seconds mean time with a standard deviation of $0.103$ seconds in $93$ iterations.
+Performance was measured on an Intel Core i7-7500U CPU 2.70GHz (Kaby Lake) using BenchmarkDotNet version 0.12.1 on Ubuntu 20.04 with .NET Core version 5.0.101. We ran a unified registration request cycle including bootstrapping and parameter generation with $k=2$ and 51 bit range proofs\footnote{See: \url{https://github.com/zkSNACKs/WasabiBenchmark}}, and observed a $1.278$ seconds mean time with a standard deviation of $0.103$ seconds in $93$ iterations.
 
 \section{Related Work}\label{sec:relatedwork}
 
