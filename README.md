@@ -3,10 +3,8 @@
 WabiSabi is an anonymous credential scheme for centrally coordinated CoinJoin
 transactions.
 
-You can download [the latest version of the
-PDF](https://github.com/zkSNACKs/WabiSabi/releases/latest/download/WabiSabi.pdf),
-as well as find older versions in the [releases
-section](https://github.com/zksnacks/wabisabi/releases).
+[Click here for the latest version of the
+paper.](https://github.com/zkSNACKs/WabiSabi/releases/latest/download/WabiSabi.pdf)
 
 A [simplified explainer](./explainer.md) with an informal description by
 analogy using real world concepts is also provoided.
