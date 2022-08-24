@@ -49,7 +49,7 @@ In the privacy of her own home she weighs out a quantity of sand, which we
 assume is worthless, in proportion to the UTXO's value. She then distributes
 the sand into a number of envelopes as she pleases, and closes them.
 
-With her envelopes prepared, she puts on fake moustache (a different one
+With her envelopes prepared, she puts on a fake moustache (a different one
 for each input), so that the coordinator can't recognize her, and enters
 the coordinator's office.
 
