@@ -2,7 +2,7 @@
 
 [WabiSabi](https://github.com/zkSNACKs/WabiSabi) is a protocol (work in
 progress) for constructing
-[CoinJoin](https://bitcointalk.org/index.php?topic=279249.0)
+[Coinjoin](https://bitcointalk.org/index.php?topic=279249.0)
 transactions with the aid of a centralized coordinator. It utilizes
 keyed-verification anonymous credentials, homomorphic value commitments,
 and zero knowledge proofs to achieve privacy and flexibility.
@@ -10,11 +10,11 @@ and zero knowledge proofs to achieve privacy and flexibility.
 This writeup attempts to give an intuition for how these different
 cryptographic building blocks work by using a real world analogy
 intended for readers who are already familiar with the concept of a
-CoinJoin.
+coinjoin.
 
 # Setting
 
-Several Bitcoin users want to build a CoinJoin transaction with each
+Several Bitcoin users want to build a coinjoin transaction with each
 user contributing one or more UTXOs and arbitrarily reallocating their
 contributed amount, without revealing to the coordinator or to each
 other any links between their different inputs or the new outputs they
@@ -90,7 +90,7 @@ discarded having served its purpose.
 # Signing
 
 When the input and output amounts are balanced the coordinator can conclude
-that no non-empty envelopes remain, and builds the final CoinJoin transaction
+that no non-empty envelopes remain, and builds the final coinjoin transaction
 with the registered inputs and outputs.
 
 The users go back into the coordinator's office, once for each input

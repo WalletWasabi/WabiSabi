@@ -1,7 +1,7 @@
-# Coordinated CoinJoin Protocol
+# Coordinated Coinjoin Protocol
 
 This document describes a generic protocol based on WabiSabi for the
-construction of CoinJoin transactions with the aid of a central coordinator.
+construction of coinjoin transactions with the aid of a central coordinator.
 
 Following ZeroLink terminology, a round is a single attempt at constructing a
 valid bitcoin transaction (not to be confused with the number of rounds of
@@ -64,7 +64,7 @@ information is provided in responses to `coordinator-status` requests.
 
 ## Attacks
 
-Due to the nature of CoinJoin transactions users don't need to trust other
+Due to the nature of coinjoin transactions users don't need to trust other
 users or the coordinator against theft, leaving denial of service and attacks
 on privacy as the main concerns.
 
@@ -77,7 +77,7 @@ Such attacks can be mitigated by banning inputs that do not honestly
 participate, which can increase the cost and liquidity requirement for a denial
 of service attack.
 
-Failure to confirm during input registration can generally be tolerated as it does not harm other users. However failure to confirm in connection confirmation phase cannot go without punishment, otherwise an attacker could make sure only small CoinJoins to take place. And once the connection confirmation phase times out the input set is finalized, and inputs for which a signature is not the subsequent transaction signing phase may be considered malicious.
+Failure to confirm during input registration can generally be tolerated as it does not harm other users. However failure to confirm in connection confirmation phase cannot go without punishment, otherwise an attacker could make sure only small coinjoins to take place. And once the connection confirmation phase times out the input set is finalized, and inputs for which a signature is not the subsequent transaction signing phase may be considered malicious.
 
 ### Attacks on Privacy
 
@@ -87,7 +87,7 @@ protocol.
 
 We assume that network level privacy tools and uniformity of the requests
 account for traffic analysis based attacks, and that the structure of the
-CoinJoin transaction provide sufficient privacy against passive observers.
+Coinjoin transaction provide sufficient privacy against passive observers.
 
 This leaves Sybil attacks by other users or the coordinator, and attacks by the coordinator such as targeted denial of service by the coordinator for the purpose of deanonymization (e.g. facilitating an intersection attack on specific input or output registrations) or timing analysis. Sybil attacks by
 users or the coordinator have a liquidity requirement cost requirements depending on Bitcoin network fees.
@@ -164,7 +164,7 @@ For input registration the user submits a `RoundParamsSig`, which is a signature
 
 #### `EncryptedUnsignedCoinJoin`
 
-When a participant registers an output, the coordinator gives an `UnsignedTransactionSecret` as response. With this, during the signing phase, the participant can decrypt the `EncryptedUnsignedCoinJoin` to sign it. This ensures only the participants of a round learn the CoinJoin before it is broadcast. This feature is not strictly necessary.
+When a participant registers an output, the coordinator gives an `UnsignedTransactionSecret` as response. With this, during the signing phase, the participant can decrypt the `EncryptedUnsignedCoinJoin` to sign it. This ensures only the participants of a round learn the coinjoin before it is broadcast. This feature is not strictly necessary.
 
 ### `PhaseStatus` in TransactionBroadcasting
 

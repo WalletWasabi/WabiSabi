@@ -1,6 +1,6 @@
 # WabiSabi
 
-WabiSabi is an anonymous credential scheme for centrally coordinated CoinJoin
+WabiSabi is an anonymous credential scheme for centrally coordinated coinjoin
 transactions.
 
 [Click here for the latest version of the
