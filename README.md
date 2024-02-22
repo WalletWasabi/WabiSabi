@@ -7,7 +7,7 @@ transactions.
 paper.](https://github.com/zkSNACKs/WabiSabi/releases/latest/download/WabiSabi.pdf)
 
 A [simplified explainer](./explainer.md) with an informal description by
-analogy using real world concepts is also provoided.
+analogy using real world concepts is also provided.
 
 For more information on how the credential scheme can be applied, we also
 describe a [generic protocol](./protocol.md) (work in progress).
